@@ -29,6 +29,8 @@ public class Category extends AbstractAuditEntity implements Serializable{
 	private Integer id;
 	
 	private String name;
+	@Column(name = "url_key")
+	private String urlKey;
 	@Column(name = "is_active")
 	private boolean isActive;
 	

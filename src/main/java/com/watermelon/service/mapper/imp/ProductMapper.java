@@ -14,7 +14,7 @@ public class ProductMapper implements EntityMapper<ProductDTO, Product> {
 			return null;
 		}
 		return new ProductDTO(entity.getId(), entity.getName(), entity.getShortDescription(), entity.getDescription(),
-				entity.getGtin(), entity.getSkug(), entity.getSlug(), entity.getPrice(), entity.getTax(),
+				entity.getGtin(), entity.getSku(), entity.getSlug(), entity.getPrice(), entity.getTax(),
 				new BrandMapper().toDTO(entity.getBrand()), new CategoryMapper().toDTO(entity.getCategory()),
 				new ImageMapper().toDTO(entity.getListImages().stream().toList()),
 				new SizeMapper().toDTO(entity.getQuantityOfSize().stream().toList()));

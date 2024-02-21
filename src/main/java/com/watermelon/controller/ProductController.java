@@ -11,10 +11,14 @@ import org.springframework.data.web.SortDefault;
 import org.springframework.data.web.SortDefault.SortDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +29,7 @@ import com.watermelon.service.dto.ProductDTO;
 import com.watermelon.viewandmodel.error.ResponseData;
 import com.watermelon.viewandmodel.error.ResponsePageData;
 import com.watermelon.viewandmodel.request.ProductRequest;
+
 
 @RestController
 @RequestMapping("/api")
@@ -37,11 +42,21 @@ public class ProductController {
 	@GetMapping("/products")
 	public ResponseEntity<ResponseData> getAllProduct(
 			@PageableDefault(page = 0, size = 20) @SortDefaults(@SortDefault(direction = Sort.Direction.DESC, sort = {
-					"price" })) Pageable pageable) {
-		Optional<ResponsePageData<List<ProductDTO>>> listData = Optional
-				.ofNullable(productService.getAllProduct(pageable));
+					"price" })) Pageable pageable,
+			@RequestParam(name = "search", required = false) String content,
+			@RequestParam(name = "category", required = false) String urlKey) {
+		Optional<ResponsePageData<List<ProductDTO>>> listData = null;
+		if (content != null) {
+			listData = Optional.ofNullable(productService.getProductContainName(content, pageable));
+		} else if (urlKey != null) {
+			listData = Optional.ofNullable(productService.getProductByUrlKeyCategory(urlKey, pageable));
+		} else {
+			listData = Optional.ofNullable(productService.getAllProduct(pageable));
+		}
+
 		return ResponseEntity.ok()
 				.body(new ResponseData(listData, HttpStatus.OK.name(), HttpStatus.OK.getReasonPhrase()));
+
 	}
 
 	@GetMapping("/products/{id}")
@@ -67,5 +82,29 @@ public class ProductController {
 				.body(new ResponseData(data, HttpStatus.CREATED.name(), HttpStatus.CREATED.getReasonPhrase()));
 	}
 
+	@PutMapping("/products")
+	public ResponseEntity<Void> updateProduct(@RequestPart("product") ProductDTO productDTO,
+	        @RequestPart(name = "files", required = false) List<MultipartFile> files) {
+	    
+	    productService.updateProduct(productDTO, files);
+	    //System.out.println(productDTO.toString());
+
+	    return ResponseEntity.ok().build();
+	}
+
+	@PutMapping("/products-v1")
+	public ResponseEntity<Void> updateProduct(@RequestBody ProductDTO productDTO ) {
+		productService.updateProduct(productDTO);
+//		System.out.println(productDTO.toString());
+		
+		return ResponseEntity.ok().build();
+	}
+	
+	@DeleteMapping("/products/{id}")
+	public ResponseEntity<Void> deleteProductById(@PathVariable (name = "id") Long id){
+		productService.deleteProduct(id);
+		return ResponseEntity.ok().build();
+	}
+	
 
 }

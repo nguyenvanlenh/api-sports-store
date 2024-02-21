@@ -14,10 +14,11 @@ public interface ProductService {
 	ProductDTO getProductById(Long id);
 	ResponsePageData<List<ProductDTO>> getAllProduct(Pageable pageable);
 	ResponsePageData<List<ProductDTO>> getProductContainName(String keyword, Pageable pageable);
+	ResponsePageData<List<ProductDTO>> getProductByUrlKeyCategory(String urlKey, Pageable pageable);
 	
 	boolean deleteProduct(Long id);
 	ProductDTO updateProduct(ProductDTO productDTO,List<MultipartFile> files);
+	ProductDTO updateProduct(ProductDTO productDTO);
 	ProductDTO addProduct(ProductRequest productRequest,List<MultipartFile> files);
-	ProductDTO addProduct(ProductRequest productRequest);
 
 }

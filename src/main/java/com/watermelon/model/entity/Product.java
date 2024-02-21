@@ -43,7 +43,7 @@ public class Product extends AbstractAuditEntity implements Serializable{
 	private String shortDescription;
 	private String description;
 	private String gtin;
-	private String skug;
+	private String sku;
 	private String slug;
 	private BigDecimal price;
 	@Max(value = 1)
