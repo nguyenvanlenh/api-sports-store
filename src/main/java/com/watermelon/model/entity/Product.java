@@ -71,7 +71,9 @@ public class Product extends AbstractAuditEntity implements Serializable{
 	@JoinColumn(name = "product_id")
 	private Set<ProductQuantity> quantityOfSize = new HashSet<>();
 
-	
+	@OneToMany
+	@JoinColumn(name = "product_id")
+	private Set<OrderDetail> listOrderDetails = new HashSet<>();
 	
 	
 
