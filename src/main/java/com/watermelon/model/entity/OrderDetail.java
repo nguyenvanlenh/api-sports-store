@@ -29,8 +29,12 @@ public class OrderDetail extends AbstractAuditEntity{
 	private String note;
 	@Column(name="discount_amount")
 	private Double discountAmount;
-	@Column(name = "tax_percent")
+	private Double price;
+	private String size;
+	private String categogy;
+	private String brand;
 	
+	@Column(name = "tax_percent")
 	private String taxPercent;
 	
 

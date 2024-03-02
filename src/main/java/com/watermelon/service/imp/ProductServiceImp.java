@@ -29,6 +29,7 @@ import com.watermelon.service.dto.ImageDTO;
 import com.watermelon.service.dto.ProductDTO;
 import com.watermelon.service.dto.SizeDTO;
 import com.watermelon.service.mapper.imp.ProductMapper;
+import com.watermelon.utils.Constants;
 import com.watermelon.viewandmodel.error.ResponsePageData;
 import com.watermelon.viewandmodel.request.ProductRequest;
 
@@ -332,5 +333,27 @@ public class ProductServiceImp implements ProductService {
 
 		imageRepository.saveAll(savedImages);
 		return savedImages;
+	}
+	@Override
+	public void updateQuantityProduct(int quantitySubtract, Long idProduct, Integer idSize) {
+		Product product = productRepository.findById(idProduct)
+				.orElseThrow(() -> new RuntimeException("Product not found!"));
+		Size size = sizeRepository.findById(idSize)
+				.orElseThrow(() -> new RuntimeException("Size not found!"));
+		
+		ProductQuantity productQuantity = productQuantityRepository.findByProduct_IdAndSize_Id(idProduct, idSize);
+		
+		int quantityOld = productQuantity.getQuantity();
+		
+		if(quantitySubtract>quantityOld) {
+			throw new RuntimeException("Quantity not enough!");
+		}
+		if(quantitySubtract> Constants.QUANTITY_PRODUCT_MAX_BUY) {
+			throw new RuntimeException("Quantity must to less than or equal "+Constants.QUANTITY_PRODUCT_MAX_BUY);
+		}
+		productQuantity.setQuantity(quantityOld-quantitySubtract);
+		productQuantity.setProduct(product);
+		productQuantity.setSize(size);
+		
 	}
 }

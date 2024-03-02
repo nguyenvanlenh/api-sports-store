@@ -20,5 +20,7 @@ public interface ProductService {
 	ProductDTO updateProduct(ProductDTO productDTO,List<MultipartFile> files);
 	ProductDTO updateProduct(ProductDTO productDTO);
 	ProductDTO addProduct(ProductRequest productRequest,List<MultipartFile> files);
+	
+	void updateQuantityProduct(int quantitySubtract, Long idProduct, Integer idSize);
 
 }
