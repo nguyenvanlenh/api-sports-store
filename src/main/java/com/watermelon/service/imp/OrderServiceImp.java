@@ -6,6 +6,8 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.watermelon.exception.ForbiddenException;
+import com.watermelon.exception.NotFoundException;
 import com.watermelon.model.entity.Brand;
 import com.watermelon.model.entity.Category;
 import com.watermelon.model.entity.DeliveryMethod;
@@ -16,6 +18,8 @@ import com.watermelon.model.entity.OrderDetail;
 import com.watermelon.model.entity.OrderStatus;
 import com.watermelon.model.entity.Product;
 import com.watermelon.model.entity.Size;
+import com.watermelon.model.enumeration.EDeliveryStatus;
+import com.watermelon.model.enumeration.EOrderStatus;
 import com.watermelon.repository.BrandRepository;
 import com.watermelon.repository.CategoryRepository;
 import com.watermelon.repository.DeliveryMethodRepository;
@@ -76,7 +80,8 @@ public class OrderServiceImp implements OrderService {
 
 	@Override
 	public Order getOrderById(Long id) {
-		return orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found!"));
+		return orderRepository.findById(id)
+				.orElseThrow(() -> new NotFoundException("Order not found!"));
 	}
 
 	@Transactional
@@ -99,28 +104,47 @@ public class OrderServiceImp implements OrderService {
 	@Transactional
 	@Override
 	public void updateOrderStatus(OrderStatus orderStatus, Long idOrder) {
-		Order order = orderRepository.findById(idOrder).get();
-		
-		order.setOrderStatus(orderStatus);
-		orderRepository.save(order);
+	    Order order = orderRepository.findById(idOrder)
+	            .orElseThrow(() -> new NotFoundException("Order with ID: " + idOrder + " not found"));
+	    if (order.getOrderStatus().equals(EOrderStatus.CANCELLED)) {
+	        throw new ForbiddenException("Cannot update order status as this order has been cancelled!");
+	    }
+	    order.setOrderStatus(orderStatus);
+	    orderRepository.save(order);
 	}
+
+	@Transactional
+	@Override
+	public void updateDeliveryStatus(DeliveryStatus deliveryStatus, Long idOrder) {
+	    Order order = orderRepository.findById(idOrder)
+	            .orElseThrow(() -> new NotFoundException("Order with ID: " + idOrder + " not found"));
+	    if (order.getOrderStatus().equals(EOrderStatus.CANCELLED)) {
+	        throw new ForbiddenException("Cannot update delivery status as this order has been cancelled!");
+	    }
+	    if (order.getDeliveryStatus().equals(EDeliveryStatus.DELIVERED)) {
+	        throw new ForbiddenException("Cannot update delivery status as this order has been delivered!");
+	    }
+	    order.setDeliveryStatus(deliveryStatus);
+	    orderRepository.save(order);
+	}
+
 
 	private OrderDetail mapRequestToOrderDetail(OrderDetailRequest request) {
 
 		OrderDetail orderDetail = new OrderDetail();
 
 		Product product = productRepository.findById(request.idProduct())
-				.orElseThrow(() -> new RuntimeException("Product not found!"));
+				.orElseThrow(() -> new NotFoundException("Product not found!"));
 		orderDetail.setProduct(product);
 		orderDetail.setQuantity(request.quantity());
 		orderDetail.setPrice(request.price());
 
 		Brand brand = brandRepository.findById(request.brand())
-				.orElseThrow(() -> new RuntimeException("Brand not found!"));
+				.orElseThrow(() -> new NotFoundException("Brand not found!"));
 		orderDetail.setBrand(brand.getName());
 
 		Category category = categoryRepository.findById(request.categogy())
-				.orElseThrow(() -> new RuntimeException("Category not found!"));
+				.orElseThrow(() -> new NotFoundException("Category not found!"));
 		orderDetail.setCategogy(category.getName());
 
 		Size size = sizeRepository.findById(request.size()).orElseThrow(() -> new RuntimeException("Size not found!"));
@@ -156,15 +180,15 @@ public class OrderServiceImp implements OrderService {
 		order.setRejectReason(request.rejectReason());
 
 		OrderStatus orderStatus = orderStatusRepository.findById(request.orderStatus())
-				.orElseThrow(() -> new RuntimeException("Order status not found!"));
+				.orElseThrow(() -> new NotFoundException("Order status not found!"));
 		order.setOrderStatus(orderStatus);
 
 		DeliveryMethod deliveryMethod = deliveryMethodRepository.findById(request.deliveryMethod())
-				.orElseThrow(() -> new RuntimeException("Delivery method not found!"));
+				.orElseThrow(() -> new NotFoundException("Delivery method not found!"));
 		order.setDeliveryMethod(deliveryMethod);
 
 		DeliveryStatus deliveryStatus = deliveryStatusRepository.findById(request.deliveryStatus())
-				.orElseThrow(() -> new RuntimeException("Delivery status not found!"));
+				.orElseThrow(() -> new NotFoundException("Delivery status not found!"));
 		order.setDeliveryStatus(deliveryStatus);
 
 		return order;

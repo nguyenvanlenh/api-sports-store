@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.watermelon.exception.NotFoundException;
 import com.watermelon.model.entity.Brand;
 import com.watermelon.model.entity.Category;
 import com.watermelon.model.entity.Image;
@@ -58,7 +59,7 @@ public class ProductServiceImp implements ProductService {
 	@Override
 	public ProductDTO getProductById(Long id) {
 		Optional<Product> product = Optional.ofNullable(
-				productRepository.findById(id).orElseThrow(() -> new RuntimeException("product not found!")));
+				productRepository.findById(id).orElseThrow(() -> new NotFoundException("product not found!")));
 		ProductDTO result = new ProductMapper().toDTO(product.get());
 		return result;
 	}
@@ -118,7 +119,7 @@ public class ProductServiceImp implements ProductService {
 
 			return new ProductMapper().toDTO(existingProduct);
 		} else {
-			throw new RuntimeException("Product not found!");
+			throw new NotFoundException("Product not found!");
 		}
 	}
 	public ProductDTO updateProduct(ProductDTO productDTO) {
@@ -138,7 +139,7 @@ public class ProductServiceImp implements ProductService {
 			
 			return new ProductMapper().toDTO(existingProduct);
 		} else {
-			throw new RuntimeException("Product not found!");
+			throw new NotFoundException("Product not found!");
 		}
 	}
 
@@ -310,7 +311,7 @@ public class ProductServiceImp implements ProductService {
 	public ResponsePageData<List<ProductDTO>> getProductByUrlKeyCategory(String urlKey, Pageable pageable) {
 		Page<Product> pageProduct = productRepository.findByCategory_UrlKey(urlKey, pageable);
 		if (pageProduct.isEmpty()) {
-	        throw new RuntimeException("Not found by url key category: " + urlKey);
+	        throw new NotFoundException("Not found by url key category: " + urlKey);
 	    }
 		List<ProductDTO> listProductDTO = new ProductMapper().toDTO(pageProduct.getContent());
 
