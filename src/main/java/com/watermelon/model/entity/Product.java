@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.watermelon.model.AbstractAuditEntity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -51,28 +52,24 @@ public class Product extends AbstractAuditEntity implements Serializable{
 	@Column(name= "is_active")
 	private boolean isActive;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "brand_id")
 	private Brand brand;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "category_id")
 	private Category category;
 	
-	@OneToMany
-	@JoinColumn(name = "product_id")
+	@OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
 	private Set<Rating> listRating = new HashSet<>();
 	
-	@OneToMany
-	@JoinColumn(name = "product_id")
+	@OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
 	private Set<Image> listImages = new HashSet<>();
 	
-	@OneToMany
-	@JoinColumn(name = "product_id")
-	private Set<ProductQuantity> quantityOfSize = new HashSet<>();
+	@OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
+	private Set<ProductQuantity> quantityOfSizes = new HashSet<>();
 
-	@OneToMany
-	@JoinColumn(name = "product_id")
+	@OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
 	private Set<OrderDetail> listOrderDetails = new HashSet<>();
 	
 	

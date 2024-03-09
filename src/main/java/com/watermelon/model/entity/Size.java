@@ -36,7 +36,6 @@ public class Size extends AbstractAuditEntity implements Serializable{
 	@Column(name ="is_active")
 	private boolean isActive;
 	
-	@OneToMany
-	@JoinColumn(name ="size_id")
+	@OneToMany(mappedBy = "size")
 	private Set<ProductQuantity> listProductQuantities = new HashSet<>();
 }

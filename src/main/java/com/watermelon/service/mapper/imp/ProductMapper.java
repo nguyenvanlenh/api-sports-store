@@ -1,7 +1,5 @@
 package com.watermelon.service.mapper.imp;
 
-import java.util.List;
-
 import com.watermelon.model.entity.Product;
 import com.watermelon.service.dto.ProductDTO;
 import com.watermelon.service.mapper.EntityMapper;
@@ -17,7 +15,7 @@ public class ProductMapper implements EntityMapper<ProductDTO, Product> {
 				entity.getGtin(), entity.getSku(), entity.getSlug(), entity.getPrice(), entity.getTax(),
 				new BrandMapper().toDTO(entity.getBrand()), new CategoryMapper().toDTO(entity.getCategory()),
 				new ImageMapper().toDTO(entity.getListImages().stream().toList()),
-				new SizeMapper().toDTO(entity.getQuantityOfSize().stream().toList()));
+				new SizeMapper().toDTO(entity.getQuantityOfSizes().stream().toList()));
 	}
 
 //	@Override

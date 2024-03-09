@@ -5,6 +5,7 @@ import java.util.Set;
 
 import com.watermelon.model.AbstractAuditEntity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -53,8 +54,7 @@ public class Order extends AbstractAuditEntity{
 	
 	private Boolean active;
 	
-	@OneToMany
-	@JoinColumn(name = "order_id")
+	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
 	private Set<OrderDetail> listDetails = new HashSet<>();
 	
 

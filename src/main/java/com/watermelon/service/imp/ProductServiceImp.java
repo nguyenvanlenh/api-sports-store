@@ -180,7 +180,7 @@ public class ProductServiceImp implements ProductService {
 		List<Image> savedImages = saveImage(files, mainProduct);
 
 		mainProduct.setListImages(savedImages.stream().collect(Collectors.toSet()));
-		mainProduct.setQuantityOfSize(savedQuantities.stream().collect(Collectors.toSet()));
+		mainProduct.setQuantityOfSizes(savedQuantities.stream().collect(Collectors.toSet()));
 		ProductDTO result = new ProductMapper().toDTO(mainProduct);
 
 		return result;
