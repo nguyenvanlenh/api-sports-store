@@ -1,4 +1,4 @@
-package com.watermelon.viewandmodel.error;
+package com.watermelon.viewandmodel.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

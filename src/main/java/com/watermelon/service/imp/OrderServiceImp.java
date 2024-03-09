@@ -196,7 +196,7 @@ public class OrderServiceImp implements OrderService {
 
 	private void updateQuantityProduct(OrderDetail orderDetail, OrderDetailRequest orderDetailRequest) {
 		// update quantity product by size
-		productService.updateQuantityProduct(orderDetail.getQuantity(), orderDetail.getProduct().getId(),
+		productService.updateProductQuantityForSize(orderDetail.getQuantity(), orderDetail.getProduct().getId(),
 				orderDetailRequest.size());
 	}
 	

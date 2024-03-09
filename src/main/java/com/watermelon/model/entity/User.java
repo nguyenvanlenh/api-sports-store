@@ -8,6 +8,7 @@ import org.hibernate.validator.constraints.Length;
 
 import com.watermelon.model.AbstractAuditEntity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -65,8 +66,7 @@ public class User extends AbstractAuditEntity implements Serializable {
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "id_user"), inverseJoinColumns = @JoinColumn(name = "id_role"))
 	private Set<Role> listRoles = new HashSet<>();
 	
-	@OneToMany
-	@JoinColumn(name = "user_id")
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
 	private Set<Rating> listRating = new HashSet<>();
 
 

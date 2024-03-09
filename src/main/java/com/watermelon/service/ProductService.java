@@ -6,8 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.watermelon.service.dto.ProductDTO;
-import com.watermelon.viewandmodel.error.ResponsePageData;
 import com.watermelon.viewandmodel.request.ProductRequest;
+import com.watermelon.viewandmodel.response.ResponsePageData;
 
 public interface ProductService {
 	
@@ -21,6 +21,6 @@ public interface ProductService {
 	ProductDTO updateProduct(ProductDTO productDTO);
 	ProductDTO addProduct(ProductRequest productRequest,List<MultipartFile> files);
 	
-	void updateQuantityProduct(int quantitySubtract, Long idProduct, Integer idSize);
+	void updateProductQuantityForSize(int quantitySubtract, Long idProduct, Integer idSize);
 
 }

@@ -31,8 +31,8 @@ import com.watermelon.service.dto.ProductDTO;
 import com.watermelon.service.dto.SizeDTO;
 import com.watermelon.service.mapper.imp.ProductMapper;
 import com.watermelon.utils.Constants;
-import com.watermelon.viewandmodel.error.ResponsePageData;
 import com.watermelon.viewandmodel.request.ProductRequest;
+import com.watermelon.viewandmodel.response.ResponsePageData;
 
 import jakarta.transaction.Transactional;
 
@@ -102,19 +102,15 @@ public class ProductServiceImp implements ProductService {
 		Optional<Product> optionalProduct = productRepository.findById(productDTO.id());
 		if (optionalProduct.isPresent()) {
 			Product existingProduct = optionalProduct.get();
-
-			// Copy các thuộc tính từ productDTO vào existingProduct
-			// không cho cập nhật id
 			BeanUtils.copyProperties(productDTO, existingProduct, "id");
 			
-			change(existingProduct,productDTO);
+			updateChangedFields(existingProduct,productDTO);
 
 			if (files != null && !files.isEmpty()) {
 				List<Image> savedImages = saveImage(files, existingProduct);
 				existingProduct.getListImages().addAll(savedImages);
 			}
 			
-			// Lưu lại product sau khi cập nhật
 			productRepository.save(existingProduct);
 
 			return new ProductMapper().toDTO(existingProduct);
@@ -127,14 +123,10 @@ public class ProductServiceImp implements ProductService {
 		if (optionalProduct.isPresent()) {
 			Product existingProduct = optionalProduct.get();
 			
-			// Copy các thuộc tính từ productDTO vào existingProduct
-			// không cho cập nhật id
 			BeanUtils.copyProperties(productDTO, existingProduct, "id");
 			
-			change(existingProduct,productDTO);
+			updateChangedFields(existingProduct,productDTO);
 			
-			
-			// Lưu lại product sau khi cập nhật
 			productRepository.save(existingProduct);
 			
 			return new ProductMapper().toDTO(existingProduct);
@@ -165,7 +157,7 @@ public class ProductServiceImp implements ProductService {
 		product.setCategory(category);
 
 		Product mainProduct = productRepository.save(product);
-		// Lưu ProductQuantity vào cơ sở dữ liệu
+		// save product quantity
 		List<ProductQuantity> savedQuantities = productRequest.listSize().stream().map(sizeItem -> {
 			ProductQuantity productQuantityWithSize = new ProductQuantity();
 			Size size = sizeRepository.findById(sizeItem.id()).get();
@@ -177,6 +169,7 @@ public class ProductServiceImp implements ProductService {
 
 		productQuantityRepository.saveAll(savedQuantities);
 
+		// save images
 		List<Image> savedImages = saveImage(files, mainProduct);
 
 		mainProduct.setListImages(savedImages.stream().collect(Collectors.toSet()));
@@ -187,11 +180,11 @@ public class ProductServiceImp implements ProductService {
 	}
 
 	
-	private void change(Product product, ProductDTO productDTO) {
+	// method only updated when the field on the product is changed
+	private void updateChangedFields(Product product, ProductDTO productDTO) {
 		if (product == null || productDTO == null) {
 			return;
 		}
-		// Thực hiện so sánh và cập nhật các thuộc tính
 		if (!isEqual(product.getName(), productDTO.name()))
 			product.setName(productDTO.name());
 
@@ -216,45 +209,40 @@ public class ProductServiceImp implements ProductService {
 		if (!isEqual(product.getTax(), productDTO.tax()))
 			product.setTax(productDTO.tax());
 
-		// Nếu cần cập nhật cả brand hoặc category, bạn có thể sử dụng id của chúng
 		if (productDTO.brand() != null && productDTO.brand().id() != product.getBrand().getId()) {
-			// Cập nhật brand
 			product.setBrand(brandRepository.findById(productDTO.brand().id()).orElse(null));
 		}
 
 		if (productDTO.category() != null && productDTO.category().id() != product.getCategory().getId()) {
-			// Cập nhật category
 			product.setCategory(categoryRepository.findById(productDTO.category().id()).orElse(null));
 		}
 
-		// Cập nhật ProductQuantities
-		updateProductQuantities(product, productDTO.listSize());
+		updateQuantityOfProductSize(product, productDTO.listSize());
 
-		// Cập nhật Images
 		updateProductImages(product, productDTO.listImages());
 	}
 
-	// Phương thức cập nhật ProductQuantities
-	private void updateProductQuantities(Product product, List<SizeDTO> newSizeList) {
+	// method update product quantity when update product
+	private void updateQuantityOfProductSize(Product product, List<SizeDTO> newSizeList) {
 		List<ProductQuantity> existingQuantities = productQuantityRepository.findByProduct_Id(product.getId());
-		// Xác định các ProductQuantities cần xóa
+		// list product quantity will be deleted
 		Set<ProductQuantity> quantitiesToRemove = existingQuantities.stream().filter(
 				quantity -> newSizeList.stream().noneMatch(sizeDTO -> sizeDTO.id() == quantity.getSize().getId()))
 				.collect(Collectors.toSet());
 
-		// Xóa các ProductQuantities không còn trong danh sách mới
+		// delete quantity when no longer in list
 		productQuantityRepository.deleteAll(quantitiesToRemove);
 
-		// Cập nhật hoặc thêm mới ProductQuantities
+		// update or add quantity of size
 		newSizeList.forEach(sizeDTO -> {
 			ProductQuantity existingQuantity = existingQuantities.stream()
 					.filter(quantity -> quantity.getSize().getId() == sizeDTO.id()).findFirst().orElse(null);
 
 			if (existingQuantity != null) {
-				// Nếu ProductQuantity đã tồn tại, cập nhật
+				// update
 				existingQuantity.setQuantity(sizeDTO.quantity());
 			} else {
-				// Nếu ProductQuantity chưa tồn tại, thêm mới
+				// add
 				ProductQuantity newQuantity = new ProductQuantity();
 				Size size = sizeRepository.findById(sizeDTO.id()).orElse(null);
 				if (size != null) {
@@ -267,7 +255,7 @@ public class ProductServiceImp implements ProductService {
 		});
 	}
 
-	// Phương thức cập nhật Images
+	// method update images when update product
 	private void updateProductImages(Product product, List<ImageDTO> newImageList) {
 		List<Image> existingImages = imageRepository.findByProduct_Id(product.getId());
 		// Xác định các Images cần xóa
@@ -283,30 +271,14 @@ public class ProductServiceImp implements ProductService {
 
 		// Xóa các Images không còn trong danh sách mới
 		imageRepository.deleteAll(imagesToRemove);
-
-//		// Cập nhật hoặc thêm mới Images
-//		newImageList.forEach(imageDTO -> {
-//			Image existingImage = existingImages.stream().filter(image -> image.getId() == imageDTO.id()).findFirst()
-//					.orElse(null);
-//
-//			if (existingImage != null) {
-//				// Nếu Image đã tồn tại, có thể cập nhật thông tin khác nếu cần
-//				// Hiện tại không có thông tin cần cập nhật
-//			} else {
-//				// Nếu Image chưa tồn tại, thêm mới
-//				Image newImage = new Image();
-//				newImage.setPath(imageDTO.path());
-//				newImage.setProduct(product);
-//				existingImages.add(imageRepository.save(newImage));
-//			}
-//		});
 	}
 
-	// Phương thức hỗ trợ so sánh null-safe
+	//method supports null-safe comparison
 	private boolean isEqual(Object obj1, Object obj2) {
 		return (obj1 == null && obj2 == null) || (obj1 != null && obj1.equals(obj2));
 	}
 
+	// method get list product by url key category
 	@Override
 	public ResponsePageData<List<ProductDTO>> getProductByUrlKeyCategory(String urlKey, Pageable pageable) {
 		Page<Product> pageProduct = productRepository.findByCategory_UrlKey(urlKey, pageable);
@@ -321,7 +293,7 @@ public class ProductServiceImp implements ProductService {
 		return result;
 	}
 
-	
+	// method save image when update product
 	private List<Image> saveImage(List<MultipartFile> files, Product product) {
 		List<String> listPath = cloudinaryServiceImp.upload(files);
 		// Lưu Image vào cơ sở dữ liệu
@@ -335,8 +307,10 @@ public class ProductServiceImp implements ProductService {
 		imageRepository.saveAll(savedImages);
 		return savedImages;
 	}
+	
+	// method update product quantity according to product size
 	@Override
-	public void updateQuantityProduct(int quantitySubtract, Long idProduct, Integer idSize) {
+	public void updateProductQuantityForSize(int quantitySubtract, Long idProduct, Integer idSize) {
 		Product product = productRepository.findById(idProduct)
 				.orElseThrow(() -> new RuntimeException("Product not found!"));
 		Size size = sizeRepository.findById(idSize)
