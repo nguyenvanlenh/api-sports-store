@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.watermelon.model.entity.Order;
@@ -30,16 +31,18 @@ public class OrderController {
 		return orderService.getAllOrder();
 	}
 	@GetMapping("/{id}")
+	@ResponseStatus(HttpStatus.OK)
 	public Order getOneOrderById(@PathVariable(name = "id") Long id) {
 		return orderService.getOrderById(id);
 	}
 	@PostMapping()
-	public ResponseEntity<Void> saveOrder(@RequestBody OrderRequest request){
+	@ResponseStatus(HttpStatus.CREATED)
+	public void saveOrder(@RequestBody OrderRequest request){
 		orderService.saveOrder(request);
-		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 	
 	@PatchMapping("/{id}")
+	@ResponseStatus(HttpStatus.OK)
 	public void updateStatus(@PathVariable(name = "id") Long id,@RequestBody OrderStatus status) {
 		orderService.updateOrderStatus(status, id);
 	}

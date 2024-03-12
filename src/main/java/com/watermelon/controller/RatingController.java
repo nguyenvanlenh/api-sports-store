@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.watermelon.service.RatingService;
@@ -33,28 +34,29 @@ public class RatingController {
 	private RatingService ratingService;
 	
 	@GetMapping("/{productId}/average-star")
+	@ResponseStatus(HttpStatus.OK)
 	public Double getTotal(@PathVariable Long productId){
 		return ratingService.caculatorAverageStar(productId);
 	}
 	
 	@GetMapping("/products/{productId}")
+	@ResponseStatus(HttpStatus.OK)
 	public ResponseEntity<?> getRatingListByProductId(@PathVariable(name = "productId") Long id,
-			@PageableDefault(page = 0, size = 20) @SortDefaults(@SortDefault(direction = Sort.Direction.DESC, sort = {
-			"price" })) Pageable pageable
+			@PageableDefault(page = 0, size = 20) Pageable pageable
 			){
 		ResponsePageData<List<RatingDTO>> data = ratingService.getRatingListByProductId(id, pageable);
 		return ResponseEntity.ok(new ResponseData(data, HttpStatus.OK.name(), HttpStatus.OK.getReasonPhrase()));
 	}
 	
 	@PostMapping
-	public ResponseEntity<Void> addRating(@RequestBody RequestRating requestRating){
+	@ResponseStatus(HttpStatus.CREATED)
+	public void addRating(@RequestBody RequestRating requestRating){
 		ratingService.addRating(requestRating);
-		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deleteRating(@PathVariable(name = "id") Long id){
+	@ResponseStatus(HttpStatus.OK)
+	public void deleteRating(@PathVariable(name = "id") Long id){
 		ratingService.deleteRating(id);
-		return ResponseEntity.ok().build();
 	}
 }

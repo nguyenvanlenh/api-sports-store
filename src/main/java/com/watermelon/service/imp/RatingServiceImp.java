@@ -80,7 +80,7 @@ public class RatingServiceImp implements RatingService{
 		int totalRatings = Integer.parseInt(totalStarAndRatings.get(0)[1].toString());
 		
 		Double averageStar = (totalStars * 1.0) /totalRatings;
-		
+		averageStar = Math.round(averageStar * 10.0) / 10.0;
 		return averageStar;
 	}
 

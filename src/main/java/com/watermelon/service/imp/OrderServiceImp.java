@@ -80,8 +80,7 @@ public class OrderServiceImp implements OrderService {
 
 	@Override
 	public Order getOrderById(Long id) {
-		return orderRepository.findById(id)
-				.orElseThrow(() -> new NotFoundException("Order not found!"));
+		return orderRepository.findById(id).orElseThrow(() -> new NotFoundException("Order not found!"));
 	}
 
 	@Transactional
@@ -97,37 +96,44 @@ public class OrderServiceImp implements OrderService {
 		// save order
 		Order orderSaved = orderRepository.save(order);
 
-		saveOrderDetails(orderRequest.listOrderDetails(),orderSaved);
+		saveOrderDetails(orderRequest.listOrderDetails(), orderSaved);
 		return orderSaved;
 	}
 
 	@Transactional
 	@Override
 	public void updateOrderStatus(OrderStatus orderStatus, Long idOrder) {
-	    Order order = orderRepository.findById(idOrder)
-	            .orElseThrow(() -> new NotFoundException("Order with ID: " + idOrder + " not found"));
-	    if (order.getOrderStatus().equals(EOrderStatus.CANCELLED)) {
-	        throw new ForbiddenException("Cannot update order status as this order has been cancelled!");
-	    }
-	    order.setOrderStatus(orderStatus);
-	    orderRepository.save(order);
+		Order order = orderRepository.findById(idOrder)
+				.orElseThrow(() -> new NotFoundException("Order with ID: " + idOrder + " not found"));
+		if (order.getOrderStatus().equals(EOrderStatus.CANCELLED)) {
+			throw new ForbiddenException("Cannot update order status as this order has been cancelled!");
+		}
+		// when user cancelled this order , system will plus product quantity on order to warehouse
+		if (orderStatus.getName().equals(EOrderStatus.CANCELLED)) {
+			order.getListDetails().forEach(orderDetail -> {
+				List<Size> sizes = sizeRepository.findByName(orderDetail.getSize());
+				productService.updateProductQuantityForSize(-orderDetail.getQuantity(), idOrder, sizes.get(0).getId());
+			});
+		}
+
+		order.setOrderStatus(orderStatus);
+		orderRepository.save(order);
 	}
 
 	@Transactional
 	@Override
 	public void updateDeliveryStatus(DeliveryStatus deliveryStatus, Long idOrder) {
-	    Order order = orderRepository.findById(idOrder)
-	            .orElseThrow(() -> new NotFoundException("Order with ID: " + idOrder + " not found"));
-	    if (order.getOrderStatus().equals(EOrderStatus.CANCELLED)) {
-	        throw new ForbiddenException("Cannot update delivery status as this order has been cancelled!");
-	    }
-	    if (order.getDeliveryStatus().equals(EDeliveryStatus.DELIVERED)) {
-	        throw new ForbiddenException("Cannot update delivery status as this order has been delivered!");
-	    }
-	    order.setDeliveryStatus(deliveryStatus);
-	    orderRepository.save(order);
+		Order order = orderRepository.findById(idOrder)
+				.orElseThrow(() -> new NotFoundException("Order with ID: " + idOrder + " not found"));
+		if (order.getOrderStatus().equals(EOrderStatus.CANCELLED)) {
+			throw new ForbiddenException("Cannot update delivery status as this order has been cancelled!");
+		}
+		if (order.getDeliveryStatus().equals(EDeliveryStatus.DELIVERED)) {
+			throw new ForbiddenException("Cannot update delivery status as this order has been delivered!");
+		}
+		order.setDeliveryStatus(deliveryStatus);
+		orderRepository.save(order);
 	}
-
 
 	private OrderDetail mapRequestToOrderDetail(OrderDetailRequest request) {
 
@@ -199,16 +205,16 @@ public class OrderServiceImp implements OrderService {
 		productService.updateProductQuantityForSize(orderDetail.getQuantity(), orderDetail.getProduct().getId(),
 				orderDetailRequest.size());
 	}
-	
+
 	private void saveOrderDetails(Set<OrderDetailRequest> listOrderDetails, Order orderSaved) {
 		// save list orderDetail
 		listOrderDetails.forEach(orderDetailRq -> {
-					OrderDetail orderDetail = mapRequestToOrderDetail(orderDetailRq);
+			OrderDetail orderDetail = mapRequestToOrderDetail(orderDetailRq);
 
-					updateQuantityProduct(orderDetail, orderDetailRq);
+			updateQuantityProduct(orderDetail, orderDetailRq);
 
-					orderDetail.setOrder(orderSaved);
-					orderDetailRepository.save(orderDetail);
-				});
+			orderDetail.setOrder(orderSaved);
+			orderDetailRepository.save(orderDetail);
+		});
 	}
 }

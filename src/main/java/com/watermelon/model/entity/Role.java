@@ -37,7 +37,7 @@ public class Role extends AbstractAuditEntity implements Serializable{
 	@JoinTable(name = "role_pers",
 	joinColumns =@JoinColumn(name = "id_role"),
 	inverseJoinColumns = @JoinColumn(name ="id_permission"))
-	private Set<Permission> listUsers = new HashSet<>();
+	private Set<Permission> listPermissions = new HashSet<>();
 	
 
 }
