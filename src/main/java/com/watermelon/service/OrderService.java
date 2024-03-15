@@ -5,7 +5,7 @@ import java.util.List;
 import com.watermelon.model.entity.DeliveryStatus;
 import com.watermelon.model.entity.Order;
 import com.watermelon.model.entity.OrderStatus;
-import com.watermelon.viewandmodel.request.OrderRequest;
+import com.watermelon.model.request.OrderRequest;
 
 public interface OrderService {
 

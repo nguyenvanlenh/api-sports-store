@@ -1,10 +1,22 @@
 package com.watermelon.exception;
 
-public class NotFoundException extends RuntimeException{
-	
-	public NotFoundException(String message) {
-		super(message);
-	}
-	
+import com.watermelon.utils.MessagesUtils;
 
+public class NotFoundException extends RuntimeException {
+
+  private String message;
+
+  public NotFoundException(String errorCode, Object... var2) {
+    this.message = MessagesUtils.getMessage(errorCode, var2);
+  }
+
+  @Override
+  public String getMessage() {
+    return message;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
+  }
 }
+

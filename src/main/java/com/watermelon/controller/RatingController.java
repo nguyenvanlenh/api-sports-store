@@ -2,12 +2,8 @@ package com.watermelon.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.data.web.SortDefault;
-import org.springframework.data.web.SortDefault.SortDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,19 +15,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.watermelon.model.request.RequestRating;
+import com.watermelon.model.response.ResponseData;
+import com.watermelon.model.response.ResponsePageData;
 import com.watermelon.service.RatingService;
 import com.watermelon.service.dto.RatingDTO;
-import com.watermelon.viewandmodel.request.RequestRating;
-import com.watermelon.viewandmodel.response.ResponseData;
-import com.watermelon.viewandmodel.response.ResponsePageData;
 
 @RestController
 @RequestMapping("/api/rating")
+
 public class RatingController {
 
 	
-	@Autowired
-	private RatingService ratingService;
+ RatingService ratingService;
 	
 	@GetMapping("/{productId}/average-star")
 	@ResponseStatus(HttpStatus.OK)
@@ -41,11 +37,11 @@ public class RatingController {
 	
 	@GetMapping("/products/{productId}")
 	@ResponseStatus(HttpStatus.OK)
-	public ResponseEntity<?> getRatingListByProductId(@PathVariable(name = "productId") Long id,
+	public ResponseData getRatingListByProductId(@PathVariable(name = "productId") Long id,
 			@PageableDefault(page = 0, size = 20) Pageable pageable
 			){
 		ResponsePageData<List<RatingDTO>> data = ratingService.getRatingListByProductId(id, pageable);
-		return ResponseEntity.ok(new ResponseData(data, HttpStatus.OK.name(), HttpStatus.OK.getReasonPhrase()));
+		return new ResponseData(data, HttpStatus.OK.name(), HttpStatus.OK.getReasonPhrase());
 	}
 	
 	@PostMapping

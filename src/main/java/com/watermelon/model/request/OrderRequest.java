@@ -1,4 +1,4 @@
-package com.watermelon.viewandmodel.request;
+package com.watermelon.model.request;
 
 import java.util.Set;
 

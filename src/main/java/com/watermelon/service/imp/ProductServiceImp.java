@@ -19,6 +19,8 @@ import com.watermelon.model.entity.Image;
 import com.watermelon.model.entity.Product;
 import com.watermelon.model.entity.ProductQuantity;
 import com.watermelon.model.entity.Size;
+import com.watermelon.model.request.ProductRequest;
+import com.watermelon.model.response.ResponsePageData;
 import com.watermelon.repository.BrandRepository;
 import com.watermelon.repository.CategoryRepository;
 import com.watermelon.repository.ImageRepository;
@@ -31,8 +33,6 @@ import com.watermelon.service.dto.ProductDTO;
 import com.watermelon.service.dto.SizeDTO;
 import com.watermelon.service.mapper.imp.ProductMapper;
 import com.watermelon.utils.Constants;
-import com.watermelon.viewandmodel.request.ProductRequest;
-import com.watermelon.viewandmodel.response.ResponsePageData;
 
 import jakarta.transaction.Transactional;
 
@@ -59,7 +59,7 @@ public class ProductServiceImp implements ProductService {
 	@Override
 	public ProductDTO getProductById(Long id) {
 		Optional<Product> product = Optional.ofNullable(
-				productRepository.findById(id).orElseThrow(() -> new NotFoundException("product not found!")));
+				productRepository.findById(id).orElseThrow(() -> new NotFoundException("PRODUCT_NOT_FOUND",id)));
 		ProductDTO result = new ProductMapper().toDTO(product.get());
 		return result;
 	}

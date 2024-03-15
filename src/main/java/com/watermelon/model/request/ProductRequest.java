@@ -1,4 +1,4 @@
-package com.watermelon.viewandmodel.request;
+package com.watermelon.model.request;
 
 import java.math.BigDecimal;
 import java.util.List;

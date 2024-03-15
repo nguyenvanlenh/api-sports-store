@@ -12,15 +12,14 @@ import com.watermelon.exception.NotFoundException;
 import com.watermelon.model.entity.Product;
 import com.watermelon.model.entity.Rating;
 import com.watermelon.model.entity.User;
+import com.watermelon.model.request.RequestRating;
+import com.watermelon.model.response.ResponsePageData;
 import com.watermelon.repository.ProductRepository;
 import com.watermelon.repository.RatingRepository;
 import com.watermelon.repository.UserRepository;
 import com.watermelon.service.RatingService;
-import com.watermelon.service.dto.ProductDTO;
 import com.watermelon.service.dto.RatingDTO;
 import com.watermelon.service.mapper.imp.RatingMapper;
-import com.watermelon.viewandmodel.request.RequestRating;
-import com.watermelon.viewandmodel.response.ResponsePageData;
 
 @Service
 public class RatingServiceImp implements RatingService{

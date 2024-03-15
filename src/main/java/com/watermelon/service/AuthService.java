@@ -1,11 +1,11 @@
 package com.watermelon.service;
 
-import com.watermelon.viewandmodel.request.RequestForgotPassword;
-import com.watermelon.viewandmodel.request.RequestLogin;
-import com.watermelon.viewandmodel.request.RequestRegister;
-import com.watermelon.viewandmodel.response.ResponseForgotPassword;
-import com.watermelon.viewandmodel.response.ResponseLogin;
-import com.watermelon.viewandmodel.response.ResponseRegister;
+import com.watermelon.model.request.RequestForgotPassword;
+import com.watermelon.model.request.RequestLogin;
+import com.watermelon.model.request.RequestRegister;
+import com.watermelon.model.response.ResponseForgotPassword;
+import com.watermelon.model.response.ResponseLogin;
+import com.watermelon.model.response.ResponseRegister;
 
 public interface AuthService {
 

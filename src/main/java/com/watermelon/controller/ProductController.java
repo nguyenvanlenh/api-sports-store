@@ -3,7 +3,6 @@ package com.watermelon.controller;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -24,21 +23,25 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.watermelon.model.request.ProductRequest;
+import com.watermelon.model.response.ResponseData;
+import com.watermelon.model.response.ResponsePageData;
 import com.watermelon.service.ImageService;
 import com.watermelon.service.ProductService;
 import com.watermelon.service.dto.ProductDTO;
-import com.watermelon.viewandmodel.request.ProductRequest;
-import com.watermelon.viewandmodel.response.ResponseData;
-import com.watermelon.viewandmodel.response.ResponsePageData;
+
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductController {
-	@Autowired
-	private ProductService productService;
-	@Autowired
-	private ImageService imageService;
+	ProductService productService;
+	ImageService imageService;
 
 	@GetMapping("/products")
 	@ResponseStatus(code = HttpStatus.OK)

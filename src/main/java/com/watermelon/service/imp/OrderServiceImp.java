@@ -20,6 +20,9 @@ import com.watermelon.model.entity.Product;
 import com.watermelon.model.entity.Size;
 import com.watermelon.model.enumeration.EDeliveryStatus;
 import com.watermelon.model.enumeration.EOrderStatus;
+import com.watermelon.model.request.OrderAddressRequest;
+import com.watermelon.model.request.OrderDetailRequest;
+import com.watermelon.model.request.OrderRequest;
 import com.watermelon.repository.BrandRepository;
 import com.watermelon.repository.CategoryRepository;
 import com.watermelon.repository.DeliveryMethodRepository;
@@ -32,9 +35,6 @@ import com.watermelon.repository.ProductRepository;
 import com.watermelon.repository.SizeRepository;
 import com.watermelon.service.OrderService;
 import com.watermelon.service.ProductService;
-import com.watermelon.viewandmodel.request.OrderAddressRequest;
-import com.watermelon.viewandmodel.request.OrderDetailRequest;
-import com.watermelon.viewandmodel.request.OrderRequest;
 
 import jakarta.transaction.Transactional;
 

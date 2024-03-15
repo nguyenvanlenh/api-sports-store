@@ -13,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.watermelon.service.ImageService;
-import com.watermelon.service.dto.ImageDTO;
 
 import jakarta.transaction.Transactional;
 

@@ -1,8 +1,21 @@
 package com.watermelon.exception;
 
-public class ForbiddenException extends RuntimeException{
+import com.watermelon.utils.MessagesUtils;
 
-    public ForbiddenException(String message) {
-        super(message);
-    }
+public class ForbiddenException extends RuntimeException {
+	
+	private String message;
+
+	public ForbiddenException(String errorCode, Object... var2) {
+		this.message = MessagesUtils.getMessage(errorCode, var2);
+	}
+
+	@Override
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
 }
