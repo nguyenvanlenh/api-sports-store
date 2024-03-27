@@ -7,6 +7,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
 
+import com.watermelon.listener.CustomAuditingEntityListener;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
@@ -16,7 +18,7 @@ import lombok.Setter;
 @MappedSuperclass
 @Getter
 @Setter
-@EntityListeners(AbstractAuditEntity.class)
+@EntityListeners(CustomAuditingEntityListener.class)
 public class AbstractAuditEntity {
 	@CreationTimestamp
 	@Column(name="created_on")

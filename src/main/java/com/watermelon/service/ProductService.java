@@ -5,9 +5,9 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.watermelon.model.dto.ProductDTO;
 import com.watermelon.model.request.ProductRequest;
 import com.watermelon.model.response.ResponsePageData;
-import com.watermelon.service.dto.ProductDTO;
 
 public interface ProductService {
 	

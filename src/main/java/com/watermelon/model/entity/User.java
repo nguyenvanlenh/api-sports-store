@@ -1,7 +1,6 @@
 package com.watermelon.model.entity;
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.hibernate.validator.constraints.Length;
@@ -35,9 +34,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class User extends AbstractAuditEntity implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,7 +41,7 @@ public class User extends AbstractAuditEntity implements Serializable {
 	@NotNull
 	@Column(unique = true)
 	private String username;
-	@Size(max = 50, min = 8)
+	@Size(max = 100, min = 8)
 	@NotNull
 	private String password;
 
@@ -64,10 +60,10 @@ public class User extends AbstractAuditEntity implements Serializable {
 	private boolean isActive;
 	@ManyToMany
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "id_user"), inverseJoinColumns = @JoinColumn(name = "id_role"))
-	private Set<Role> listRoles = new HashSet<>();
+	private Set<Role> listRoles ;
 	
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-	private Set<Rating> listRating = new HashSet<>();
+	private Set<Rating> listRating ;
 
 
 	

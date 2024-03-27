@@ -9,17 +9,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import com.watermelon.exception.NotFoundException;
+import com.watermelon.model.dto.RatingDTO;
+import com.watermelon.model.dto.mapper.imp.RatingMapper;
 import com.watermelon.model.entity.Product;
 import com.watermelon.model.entity.Rating;
 import com.watermelon.model.entity.User;
-import com.watermelon.model.request.RequestRating;
+import com.watermelon.model.request.RatingRequest;
 import com.watermelon.model.response.ResponsePageData;
 import com.watermelon.repository.ProductRepository;
 import com.watermelon.repository.RatingRepository;
 import com.watermelon.repository.UserRepository;
 import com.watermelon.service.RatingService;
-import com.watermelon.service.dto.RatingDTO;
-import com.watermelon.service.mapper.imp.RatingMapper;
 
 @Service
 public class RatingServiceImp implements RatingService{
@@ -45,7 +45,7 @@ public class RatingServiceImp implements RatingService{
 	}
 
 	@Override
-	public void addRating(RequestRating rq) {
+	public void addRating(RatingRequest rq) {
 		Rating rating = new Rating();
 		
 		rating.setContent(rq.content());

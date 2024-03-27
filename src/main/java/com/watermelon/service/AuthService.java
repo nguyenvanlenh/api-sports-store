@@ -1,16 +1,14 @@
 package com.watermelon.service;
 
-import com.watermelon.model.request.RequestForgotPassword;
-import com.watermelon.model.request.RequestLogin;
-import com.watermelon.model.request.RequestRegister;
-import com.watermelon.model.response.ResponseForgotPassword;
-import com.watermelon.model.response.ResponseLogin;
-import com.watermelon.model.response.ResponseRegister;
+import com.watermelon.model.request.ForgotPasswordRequest;
+import com.watermelon.model.request.LoginRequest;
+import com.watermelon.model.request.RegisterRequest;
+import com.watermelon.model.response.LoginResponse;
 
 public interface AuthService {
 
-	ResponseLogin login(RequestLogin request);
-	ResponseRegister register(RequestRegister request);
-	ResponseForgotPassword forgotPassword(RequestForgotPassword request);
+	LoginResponse login(LoginRequest request);
+	String register(RegisterRequest request);
+	String forgotPassword(ForgotPasswordRequest request);
 	
 }

@@ -1,7 +1,6 @@
 package com.watermelon.model.entity;
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Set;
 
 import com.watermelon.model.AbstractAuditEntity;
@@ -23,9 +22,6 @@ import lombok.Setter;
 @Setter
 public class Role extends AbstractAuditEntity implements Serializable{
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,11 +29,15 @@ public class Role extends AbstractAuditEntity implements Serializable{
 	private String name;
 	@Column(name = "is_active")
 	private boolean isActive;
+	
+	@ManyToMany(mappedBy = "listRoles")
+	private Set<User> listUsers;
+	
 	@ManyToMany
 	@JoinTable(name = "role_pers",
 	joinColumns =@JoinColumn(name = "id_role"),
 	inverseJoinColumns = @JoinColumn(name ="id_permission"))
-	private Set<Permission> listPermissions = new HashSet<>();
+	private Set<Permission> listPermissions;
 	
 
 }

@@ -13,6 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.watermelon.exception.NotFoundException;
+import com.watermelon.model.dto.ImageDTO;
+import com.watermelon.model.dto.ProductDTO;
+import com.watermelon.model.dto.SizeDTO;
+import com.watermelon.model.dto.mapper.imp.ProductMapper;
 import com.watermelon.model.entity.Brand;
 import com.watermelon.model.entity.Category;
 import com.watermelon.model.entity.Image;
@@ -28,10 +32,6 @@ import com.watermelon.repository.ProductQuantityRepository;
 import com.watermelon.repository.ProductRepository;
 import com.watermelon.repository.SizeRepository;
 import com.watermelon.service.ProductService;
-import com.watermelon.service.dto.ImageDTO;
-import com.watermelon.service.dto.ProductDTO;
-import com.watermelon.service.dto.SizeDTO;
-import com.watermelon.service.mapper.imp.ProductMapper;
 import com.watermelon.utils.Constants;
 
 import jakarta.transaction.Transactional;
