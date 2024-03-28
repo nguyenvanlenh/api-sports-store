@@ -3,7 +3,6 @@ package com.watermelon.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.BeanIds;
@@ -26,7 +25,11 @@ import com.watermelon.security.jwt.JwtAuthenticationFilter;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-	private final String[] PUBLIC_ENDPOINTS = { "/api/auth/login", "/api/auth/register" };
+	private final String[] PUBLIC_ENDPOINTS = { 
+			"/api/auth/login",
+			"/api/auth/register",
+			"/api/auth/verifyEmail"
+			};
 
 	private final String[] SWAGGER_ENDPOINTS = { "swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
 			"/javainuse-openapi/**" };
@@ -50,13 +53,12 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
-				.cors(cors -> cors.disable())
 				.csrf(csrf -> csrf.disable())
 				// không lưu trữ phiên người dùng trên server
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
 				.authorizeHttpRequests(authorize ->
-							authorize.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+							authorize.requestMatchers(PUBLIC_ENDPOINTS).permitAll()
 							.anyRequest().authenticated())
 
 				.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)

@@ -1,4 +1,4 @@
-package com.watermelon.listener;
+package com.watermelon.event.listener;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.data.auditing.AuditingHandler;

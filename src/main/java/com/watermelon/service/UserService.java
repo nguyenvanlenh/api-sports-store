@@ -7,4 +7,5 @@ public interface UserService {
 	boolean existsByUsername(String username);
 	boolean existsByEmail(String email);
 	User saveOrUpdate(User user);
+	void saveUserVerificationToken(User theUser, String token);
 }

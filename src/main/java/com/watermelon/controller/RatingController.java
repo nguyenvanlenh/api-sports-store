@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.watermelon.model.dto.RatingDTO;
-import com.watermelon.model.request.RatingRequest;
-import com.watermelon.model.response.ResponseData;
-import com.watermelon.model.response.ResponsePageData;
+import com.watermelon.model.dto.request.RatingRequest;
+import com.watermelon.model.dto.response.ResponseData;
+import com.watermelon.model.dto.response.ResponsePageData;
 import com.watermelon.service.RatingService;
 
 @RestController

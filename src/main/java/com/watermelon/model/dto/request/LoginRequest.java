@@ -1,4 +1,4 @@
-package com.watermelon.model.request;
+package com.watermelon.model.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 

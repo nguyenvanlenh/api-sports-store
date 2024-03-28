@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.watermelon.model.dto.request.OrderRequest;
 import com.watermelon.model.entity.Order;
 import com.watermelon.model.entity.OrderStatus;
-import com.watermelon.model.request.OrderRequest;
 import com.watermelon.service.OrderService;
 
 import lombok.AccessLevel;

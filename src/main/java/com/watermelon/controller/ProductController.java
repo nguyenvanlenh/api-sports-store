@@ -23,9 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.watermelon.model.dto.ProductDTO;
-import com.watermelon.model.request.ProductRequest;
-import com.watermelon.model.response.ResponseData;
-import com.watermelon.model.response.ResponsePageData;
+import com.watermelon.model.dto.request.ProductRequest;
+import com.watermelon.model.dto.response.ResponseData;
+import com.watermelon.model.dto.response.ResponsePageData;
 import com.watermelon.service.ImageService;
 import com.watermelon.service.ProductService;
 

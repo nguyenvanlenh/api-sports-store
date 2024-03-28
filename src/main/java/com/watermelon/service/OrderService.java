@@ -2,10 +2,10 @@ package com.watermelon.service;
 
 import java.util.List;
 
+import com.watermelon.model.dto.request.OrderRequest;
 import com.watermelon.model.entity.DeliveryStatus;
 import com.watermelon.model.entity.Order;
 import com.watermelon.model.entity.OrderStatus;
-import com.watermelon.model.request.OrderRequest;
 
 public interface OrderService {
 

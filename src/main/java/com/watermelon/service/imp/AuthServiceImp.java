@@ -1,5 +1,6 @@
 package com.watermelon.service.imp;
 
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,16 +13,22 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.watermelon.exception.NotFoundException;
+import com.watermelon.exception.ResourceExistedException;
+import com.watermelon.model.dto.request.ChangePasswordRequest;
+import com.watermelon.model.dto.request.ForgotPasswordRequest;
+import com.watermelon.model.dto.request.LoginRequest;
+import com.watermelon.model.dto.request.RegisterRequest;
+import com.watermelon.model.dto.response.LoginResponse;
 import com.watermelon.model.entity.Role;
 import com.watermelon.model.entity.User;
+import com.watermelon.model.entity.VerificationToken;
 import com.watermelon.model.enumeration.ERole;
-import com.watermelon.model.request.ForgotPasswordRequest;
-import com.watermelon.model.request.LoginRequest;
-import com.watermelon.model.request.RegisterRequest;
-import com.watermelon.model.response.LoginResponse;
 import com.watermelon.repository.RoleRepository;
 import com.watermelon.repository.UserRepository;
+import com.watermelon.repository.VerificationTokenRepository;
 import com.watermelon.security.CustomUserDetails;
 import com.watermelon.security.jwt.JwtTokenProvider;
 import com.watermelon.service.AuthService;
@@ -41,55 +48,54 @@ public class AuthServiceImp implements AuthService {
 	JwtTokenProvider jwtTokenProvider;
 	UserDetailsService userDetailsService;
 	AuthenticationManager authenticationManager;
+	VerificationTokenRepository tokenRepository;
 
+	@Transactional
 	@Override
 	public LoginResponse login(LoginRequest request) {
 		// Thực hiện xác thực người dùng
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(request.username(),
 				request.password());
 		Authentication authentication = authenticationManager.authenticate(token);
-		
+
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		CustomUserDetails customUserDetails = (CustomUserDetails) userDetailsService
 				.loadUserByUsername(request.username());
 		String jwtToken = jwtTokenProvider.generateToken(customUserDetails);
-		Set<String> listRoles = customUserDetails.getAuthorities().stream()
-				.map(authority -> authority.getAuthority())
+		Set<String> listRoles = customUserDetails.getAuthorities().stream().map(authority -> authority.getAuthority())
 				.collect(Collectors.toSet());
-		return new LoginResponse(
-				jwtToken,
-				true,
-				listRoles);
+		return new LoginResponse(jwtToken, true, listRoles);
 	}
 
+	@Transactional
 	@Override
-	public String register(RegisterRequest request) {
+	public User register(RegisterRequest request) {
 		if (userRepository.existsByUsername(request.username()))
-			throw new RuntimeException("username already exists!");
+			throw new ResourceExistedException("username already exists!");
 		if (userRepository.existsByEmail(request.email()))
-			throw new RuntimeException("email already exists!");
+			throw new ResourceExistedException("email already exists!");
 		User user = new User();
 		user.setUsername(request.username());
 		user.setPassword(passwordEncoder.encode(request.password()));
 		user.setEmail(request.email());
-		user.setActive(true);
+		user.setActive(false);
 		List<String> listRoles = request.listRoles();
 		Set<Role> setRoles = new HashSet<>();
 		if (listRoles.isEmpty()) {
 			Role role = roleRepository.findByName(ERole.USER.toString())
-					.orElseThrow(() -> new RuntimeException("Role not found!"));
+					.orElseThrow(() -> new NotFoundException("Role not found!"));
 			setRoles.add(role);
 		} else {
 			listRoles.forEach(role -> {
 				Role roleDetail = roleRepository.findByName(role)
-						.orElseThrow(() -> new RuntimeException("Role not found!"));
+						.orElseThrow(() -> new NotFoundException("Role not found!"));
 				setRoles.add(roleDetail);
 			});
 		}
 		user.setListRoles(setRoles);
 
-		userRepository.save(user);
-		return "Register success";
+		User userRegistered = userRepository.save(user);
+		return userRegistered;
 	}
 
 	@Override
@@ -97,5 +103,43 @@ public class AuthServiceImp implements AuthService {
 
 		return "";
 	}
+
+	@Override
+	public String changePassword(ChangePasswordRequest request) {
+		return null;
+	}
+
+	@Transactional
+	@Override
+	public String verifyEmail(String token) {
+		VerificationToken theToken = tokenRepository.findByToken(token)
+				.orElseThrow(() -> new NotFoundException("verification token not found"));
+
+		if (theToken.getUser().isActive()) {
+			return "This account has already been verified, please, login.";
+		}
+
+		String validationMessage = validateVerificationToken(theToken);
+		if (validationMessage.equalsIgnoreCase("valid")) {
+			theToken.getUser().setActive(true);
+			userRepository.save(theToken.getUser());
+			return "Email verified successfully. Now you can login to your account";
+		}
+		return validationMessage;
+	}
+
+	public String validateVerificationToken(VerificationToken token) {
+		if (token == null) {
+			return "Invalid verification token";
+		}
+
+		Calendar calendar = Calendar.getInstance();
+		if ((token.getExpirationTime().getTime() - calendar.getTime().getTime()) <= 0) {
+			return "Token already expired";
+		}
+		return "valid";
+	}
+
+	
 
 }

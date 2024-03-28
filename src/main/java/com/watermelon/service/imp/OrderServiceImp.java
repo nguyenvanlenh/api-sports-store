@@ -3,11 +3,13 @@ package com.watermelon.service.imp;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.watermelon.exception.ForbiddenException;
 import com.watermelon.exception.NotFoundException;
+import com.watermelon.model.dto.request.OrderAddressRequest;
+import com.watermelon.model.dto.request.OrderDetailRequest;
+import com.watermelon.model.dto.request.OrderRequest;
 import com.watermelon.model.entity.Brand;
 import com.watermelon.model.entity.Category;
 import com.watermelon.model.entity.DeliveryMethod;
@@ -20,9 +22,6 @@ import com.watermelon.model.entity.Product;
 import com.watermelon.model.entity.Size;
 import com.watermelon.model.enumeration.EDeliveryStatus;
 import com.watermelon.model.enumeration.EOrderStatus;
-import com.watermelon.model.request.OrderAddressRequest;
-import com.watermelon.model.request.OrderDetailRequest;
-import com.watermelon.model.request.OrderRequest;
 import com.watermelon.repository.BrandRepository;
 import com.watermelon.repository.CategoryRepository;
 import com.watermelon.repository.DeliveryMethodRepository;
@@ -37,41 +36,26 @@ import com.watermelon.service.OrderService;
 import com.watermelon.service.ProductService;
 
 import jakarta.transaction.Transactional;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class OrderServiceImp implements OrderService {
 
-	@Autowired
-	private ProductService productService;
-	@Autowired
-	private OrderRepository orderRepository;
-
-	@Autowired
-	private ProductRepository productRepository;
-
-	@Autowired
-	private OrderDetailRepository orderDetailRepository;
-
-	@Autowired
-	private OrderAddressRepository orderAddressRepository;
-
-	@Autowired
-	private DeliveryMethodRepository deliveryMethodRepository;
-
-	@Autowired
-	private OrderStatusRepository orderStatusRepository;
-
-	@Autowired
-	private DeliveryStatusRepository deliveryStatusRepository;
-
-	@Autowired
-	private SizeRepository sizeRepository;
-
-	@Autowired
-	private BrandRepository brandRepository;
-
-	@Autowired
-	private CategoryRepository categoryRepository;
+	ProductService productService;
+	OrderRepository orderRepository;
+	ProductRepository productRepository;
+	OrderDetailRepository orderDetailRepository;
+	OrderAddressRepository orderAddressRepository;
+	DeliveryMethodRepository deliveryMethodRepository;
+	OrderStatusRepository orderStatusRepository;
+	DeliveryStatusRepository deliveryStatusRepository;
+	SizeRepository sizeRepository;
+	BrandRepository brandRepository;
+	CategoryRepository categoryRepository;
 
 	@Override
 	public List<Order> getAllOrder() {
@@ -153,7 +137,7 @@ public class OrderServiceImp implements OrderService {
 				.orElseThrow(() -> new NotFoundException("Category not found!"));
 		orderDetail.setCategogy(category.getName());
 
-		Size size = sizeRepository.findById(request.size()).orElseThrow(() -> new RuntimeException("Size not found!"));
+		Size size = sizeRepository.findById(request.size()).orElseThrow(() -> new NotFoundException("Size not found!"));
 
 		orderDetail.setSize(size.getName());
 

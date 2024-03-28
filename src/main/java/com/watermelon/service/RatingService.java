@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 
 import com.watermelon.model.dto.RatingDTO;
-import com.watermelon.model.request.RatingRequest;
-import com.watermelon.model.response.ResponsePageData;
+import com.watermelon.model.dto.request.RatingRequest;
+import com.watermelon.model.dto.response.ResponsePageData;
 
 public interface RatingService {
 	ResponsePageData<List<RatingDTO>> getRatingListByProductId(Long productId, Pageable pageable);

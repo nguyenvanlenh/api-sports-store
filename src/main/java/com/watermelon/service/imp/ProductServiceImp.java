@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,14 +16,14 @@ import com.watermelon.model.dto.ImageDTO;
 import com.watermelon.model.dto.ProductDTO;
 import com.watermelon.model.dto.SizeDTO;
 import com.watermelon.model.dto.mapper.imp.ProductMapper;
+import com.watermelon.model.dto.request.ProductRequest;
+import com.watermelon.model.dto.response.ResponsePageData;
 import com.watermelon.model.entity.Brand;
 import com.watermelon.model.entity.Category;
 import com.watermelon.model.entity.Image;
 import com.watermelon.model.entity.Product;
 import com.watermelon.model.entity.ProductQuantity;
 import com.watermelon.model.entity.Size;
-import com.watermelon.model.request.ProductRequest;
-import com.watermelon.model.response.ResponsePageData;
 import com.watermelon.repository.BrandRepository;
 import com.watermelon.repository.CategoryRepository;
 import com.watermelon.repository.ImageRepository;
@@ -35,31 +34,29 @@ import com.watermelon.service.ProductService;
 import com.watermelon.utils.Constants;
 
 import jakarta.transaction.Transactional;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductServiceImp implements ProductService {
 
-	@Autowired
-	private ProductRepository productRepository;
+	ProductRepository productRepository;
 
-	@Autowired
-	private SizeRepository sizeRepository;
-	@Autowired
-	private BrandRepository brandRepository;
-	@Autowired
-	private CategoryRepository categoryRepository;
-	@Autowired
-	private ProductQuantityRepository productQuantityRepository;
-	@Autowired
-	private CloudinaryServiceImp cloudinaryServiceImp;
-	@Autowired
-	private ImageRepository imageRepository;
+	SizeRepository sizeRepository;
+	BrandRepository brandRepository;
+	CategoryRepository categoryRepository;
+	ProductQuantityRepository productQuantityRepository;
+	CloudinaryServiceImp cloudinaryServiceImp;
+	ImageRepository imageRepository;
 
 	@Transactional
 	@Override
 	public ProductDTO getProductById(Long id) {
 		Optional<Product> product = Optional.ofNullable(
-				productRepository.findById(id).orElseThrow(() -> new NotFoundException("PRODUCT_NOT_FOUND",id)));
+				productRepository.findById(id).orElseThrow(() -> new NotFoundException("PRODUCT_NOT_FOUND", id)));
 		ProductDTO result = new ProductMapper().toDTO(product.get());
 		return result;
 	}
@@ -103,14 +100,14 @@ public class ProductServiceImp implements ProductService {
 		if (optionalProduct.isPresent()) {
 			Product existingProduct = optionalProduct.get();
 			BeanUtils.copyProperties(productDTO, existingProduct, "id");
-			
-			updateChangedFields(existingProduct,productDTO);
+
+			updateChangedFields(existingProduct, productDTO);
 
 			if (files != null && !files.isEmpty()) {
 				List<Image> savedImages = saveImage(files, existingProduct);
 				existingProduct.getListImages().addAll(savedImages);
 			}
-			
+
 			productRepository.save(existingProduct);
 
 			return new ProductMapper().toDTO(existingProduct);
@@ -118,17 +115,18 @@ public class ProductServiceImp implements ProductService {
 			throw new NotFoundException("Product not found!");
 		}
 	}
+
 	public ProductDTO updateProduct(ProductDTO productDTO) {
 		Optional<Product> optionalProduct = productRepository.findById(productDTO.id());
 		if (optionalProduct.isPresent()) {
 			Product existingProduct = optionalProduct.get();
-			
+
 			BeanUtils.copyProperties(productDTO, existingProduct, "id");
-			
-			updateChangedFields(existingProduct,productDTO);
-			
+
+			updateChangedFields(existingProduct, productDTO);
+
 			productRepository.save(existingProduct);
-			
+
 			return new ProductMapper().toDTO(existingProduct);
 		} else {
 			throw new NotFoundException("Product not found!");
@@ -179,7 +177,6 @@ public class ProductServiceImp implements ProductService {
 		return result;
 	}
 
-	
 	// method only updated when the field on the product is changed
 	private void updateChangedFields(Product product, ProductDTO productDTO) {
 		if (product == null || productDTO == null) {
@@ -263,7 +260,7 @@ public class ProductServiceImp implements ProductService {
 				.filter(image -> newImageList.stream().noneMatch(imageDTO -> imageDTO.id() == image.getId()))
 				.collect(Collectors.toSet());
 
-		if(newImageList.size() == existingImages.size()) {
+		if (newImageList.size() == existingImages.size()) {
 			// phuong thuc phuc vu cho muc dich xoa hinh anh
 			// neu so luong hinh anh nhu cu thi khong lam gi ca
 			return;
@@ -273,7 +270,7 @@ public class ProductServiceImp implements ProductService {
 		imageRepository.deleteAll(imagesToRemove);
 	}
 
-	//method supports null-safe comparison
+	// method supports null-safe comparison
 	private boolean isEqual(Object obj1, Object obj2) {
 		return (obj1 == null && obj2 == null) || (obj1 != null && obj1.equals(obj2));
 	}
@@ -283,8 +280,8 @@ public class ProductServiceImp implements ProductService {
 	public ResponsePageData<List<ProductDTO>> getProductByUrlKeyCategory(String urlKey, Pageable pageable) {
 		Page<Product> pageProduct = productRepository.findByCategory_UrlKey(urlKey, pageable);
 		if (pageProduct.isEmpty()) {
-	        throw new NotFoundException("Not found by url key category: " + urlKey);
-	    }
+			throw new NotFoundException("Not found by url key category: " + urlKey);
+		}
 		List<ProductDTO> listProductDTO = new ProductMapper().toDTO(pageProduct.getContent());
 
 		ResponsePageData<List<ProductDTO>> result = new ResponsePageData<>(listProductDTO,
@@ -296,7 +293,6 @@ public class ProductServiceImp implements ProductService {
 	// method save image when update product
 	private List<Image> saveImage(List<MultipartFile> files, Product product) {
 		List<String> listPath = cloudinaryServiceImp.upload(files);
-		// Lưu Image vào cơ sở dữ liệu
 		List<Image> savedImages = listPath.stream().map(path -> {
 			Image image = new Image();
 			image.setPath(path);
@@ -307,28 +303,27 @@ public class ProductServiceImp implements ProductService {
 		imageRepository.saveAll(savedImages);
 		return savedImages;
 	}
-	
+
 	// method update product quantity according to product size
 	@Override
 	public void updateProductQuantityForSize(int quantitySubtract, Long idProduct, Integer idSize) {
 		Product product = productRepository.findById(idProduct)
-				.orElseThrow(() -> new RuntimeException("Product not found!"));
-		Size size = sizeRepository.findById(idSize)
-				.orElseThrow(() -> new RuntimeException("Size not found!"));
-		
+				.orElseThrow(() -> new NotFoundException("Product not found!"));
+		Size size = sizeRepository.findById(idSize).orElseThrow(() -> new NotFoundException("Size not found!"));
+
 		ProductQuantity productQuantity = productQuantityRepository.findByProduct_IdAndSize_Id(idProduct, idSize);
-		
+
 		int quantityOld = productQuantity.getQuantity();
-		
-		if(quantitySubtract>quantityOld) {
+
+		if (quantitySubtract > quantityOld) {
 			throw new RuntimeException("Quantity not enough!");
 		}
-		if(quantitySubtract> Constants.QUANTITY_PRODUCT_MAX_BUY) {
-			throw new RuntimeException("Quantity must to less than or equal "+Constants.QUANTITY_PRODUCT_MAX_BUY);
+		if (quantitySubtract > Constants.QUANTITY_PRODUCT_MAX_BUY) {
+			throw new RuntimeException("Quantity must to less than or equal " + Constants.QUANTITY_PRODUCT_MAX_BUY);
 		}
-		productQuantity.setQuantity(quantityOld-quantitySubtract);
+		productQuantity.setQuantity(quantityOld - quantitySubtract);
 		productQuantity.setProduct(product);
 		productQuantity.setSize(size);
-		
+
 	}
 }
