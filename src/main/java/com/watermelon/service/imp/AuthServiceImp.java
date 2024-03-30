@@ -28,6 +28,7 @@ import com.watermelon.model.entity.VerificationToken;
 import com.watermelon.model.enumeration.ERole;
 import com.watermelon.repository.RoleRepository;
 import com.watermelon.repository.UserRepository;
+import com.watermelon.repository.UserRolesRepository;
 import com.watermelon.repository.VerificationTokenRepository;
 import com.watermelon.security.CustomUserDetails;
 import com.watermelon.security.jwt.JwtTokenProvider;
@@ -49,6 +50,14 @@ public class AuthServiceImp implements AuthService {
 	UserDetailsService userDetailsService;
 	AuthenticationManager authenticationManager;
 	VerificationTokenRepository tokenRepository;
+	UserRolesRepository userRolesRepository;
+	
+	private static String VALID_TOKEN = "valid";
+	private static String INVALID_TOKEN = "Invalid verification token";
+	private static String TOKEN_EXPIRED = "Token already expired";
+	private static String ACCOUNT_VERIFIED = "This account has already been verified, please, login.";
+	private static String SUCCESS_VERIFIED = "Email verified successfully. Now you can login to your account";
+	
 
 	@Transactional
 	@Override
@@ -57,10 +66,9 @@ public class AuthServiceImp implements AuthService {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(request.username(),
 				request.password());
 		Authentication authentication = authenticationManager.authenticate(token);
-
-		SecurityContextHolder.getContext().setAuthentication(authentication);
 		CustomUserDetails customUserDetails = (CustomUserDetails) userDetailsService
 				.loadUserByUsername(request.username());
+		SecurityContextHolder.getContext().setAuthentication(authentication);
 		String jwtToken = jwtTokenProvider.generateToken(customUserDetails);
 		Set<String> listRoles = customUserDetails.getAuthorities().stream().map(authority -> authority.getAuthority())
 				.collect(Collectors.toSet());
@@ -116,28 +124,37 @@ public class AuthServiceImp implements AuthService {
 				.orElseThrow(() -> new NotFoundException("verification token not found"));
 
 		if (theToken.getUser().isActive()) {
-			return "This account has already been verified, please, login.";
+			return ACCOUNT_VERIFIED;
 		}
 
 		String validationMessage = validateVerificationToken(theToken);
 		if (validationMessage.equalsIgnoreCase("valid")) {
 			theToken.getUser().setActive(true);
+			// update active user
 			userRepository.save(theToken.getUser());
-			return "Email verified successfully. Now you can login to your account";
+			// delete token valid
+			tokenRepository.delete(theToken);
+			return SUCCESS_VERIFIED;
 		}
 		return validationMessage;
 	}
 
 	public String validateVerificationToken(VerificationToken token) {
 		if (token == null) {
-			return "Invalid verification token";
+			return INVALID_TOKEN;
 		}
 
 		Calendar calendar = Calendar.getInstance();
 		if ((token.getExpirationTime().getTime() - calendar.getTime().getTime()) <= 0) {
-			return "Token already expired";
+			// delete role default
+			userRolesRepository.deleteUserRoleByUserId(token.getUser().getId());
+			// delete token expired
+			tokenRepository.delete(token);
+			// delete user
+			userRepository.deleteById(token.getUser().getId());
+			return TOKEN_EXPIRED;
 		}
-		return "valid";
+		return VALID_TOKEN;
 	}
 
 	

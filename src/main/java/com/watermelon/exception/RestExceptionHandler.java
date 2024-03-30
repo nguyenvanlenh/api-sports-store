@@ -13,6 +13,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.watermelon.model.dto.response.ErrorResponse;
 
@@ -63,4 +66,18 @@ public class RestExceptionHandler {
 	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);
 		
 	}
+	 @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	 @ResponseStatus(HttpStatus.BAD_REQUEST)
+	    public ResponseEntity<?> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException e) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+	                new ErrorResponse(HttpStatus.BAD_REQUEST.name(),e.getLocalizedMessage())
+	        );
+	    }   
+	 @ExceptionHandler(NoHandlerFoundException.class)
+	    @ResponseStatus(HttpStatus.NOT_FOUND)
+	   public ResponseEntity<?> handleNotFoundException(NoHandlerFoundException e){
+	    	return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+	    			new ErrorResponse(HttpStatus.NOT_FOUND.name(),e.getMessage())
+	    	);
+	    }
 }

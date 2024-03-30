@@ -55,9 +55,9 @@ public class ProductServiceImp implements ProductService {
 	@Transactional
 	@Override
 	public ProductDTO getProductById(Long id) {
-		Optional<Product> product = Optional.ofNullable(
-				productRepository.findById(id).orElseThrow(() -> new NotFoundException("PRODUCT_NOT_FOUND", id)));
-		ProductDTO result = new ProductMapper().toDTO(product.get());
+		Product product = 
+				productRepository.findById(id).orElseThrow(() -> new NotFoundException("PRODUCT_NOT_FOUND", id));
+		ProductDTO result = new ProductMapper().toDTO(product);
 		return result;
 	}
 

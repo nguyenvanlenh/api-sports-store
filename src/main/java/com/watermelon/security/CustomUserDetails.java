@@ -71,6 +71,8 @@ public class CustomUserDetails implements UserDetails{
 		}
 		
 		
+		
+		
 		public CustomUserDetails mapUserToCustomUserDetail(User user) {
 			List<GrantedAuthority> listAuthorities = 
 					user.getListRoles().stream()
@@ -86,6 +88,7 @@ public class CustomUserDetails implements UserDetails{
 					.firstName(user.getFirstName())
 					.lastName(user.getLastName())
 					.authorities(listAuthorities)
+					.isActive(user.isActive())
 					.build();
 		}
 

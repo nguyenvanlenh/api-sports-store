@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.filter.CorsFilter;
 
 import com.watermelon.security.jwt.JwtAuthenticationFilter;
 
@@ -36,6 +37,7 @@ public class SecurityConfig {
 
 	@Autowired
 	private UserDetailsService userDetailsService;
+	
 
 	@Bean
 	public JwtAuthenticationFilter jwtAuthenticationFilter() {
@@ -54,16 +56,16 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
 				.csrf(csrf -> csrf.disable())
-				// không lưu trữ phiên người dùng trên server
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
 				.authorizeHttpRequests(authorize ->
 							authorize.requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-							.anyRequest().authenticated())
+							.anyRequest().permitAll())
 
 				.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
 
-				.httpBasic(Customizer.withDefaults());
+				.httpBasic(Customizer.withDefaults())
+				;
 		
 		return http.build();
 	}
