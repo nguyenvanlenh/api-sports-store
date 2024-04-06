@@ -52,6 +52,14 @@ public class ProductServiceImp implements ProductService {
 	CloudinaryServiceImp cloudinaryServiceImp;
 	ImageRepository imageRepository;
 
+	
+	/**
+     * Retrieves a product by its ID.
+     * 
+     * @param id The ID of the product to retrieve.
+     * @return The ProductDTO representing the retrieved product.
+     * @throws NotFoundException if the product with the specified ID is not found.
+     */
 	@Transactional(readOnly = true)
 	@Override
 	public ProductDTO getProductById(Long id) {
@@ -61,38 +69,71 @@ public class ProductServiceImp implements ProductService {
 		return result;
 	}
 
+	 /**
+     * Retrieves all products with pagination.
+     * 
+     * @param pageable The pagination information.
+     * @return A ResponsePageData containing the list of ProductDTOs and pagination details.
+     */
 	@Transactional(readOnly = true)
 	@Override
 	public ResponsePageData<List<ProductDTO>> getAllProduct(Pageable pageable) {
 		Page<Product> pageProduct = productRepository.findAll(pageable);
 		List<ProductDTO> listProductDTO = new ProductMapper().toDTO(pageProduct.getContent());
 
-		ResponsePageData<List<ProductDTO>> result = new ResponsePageData<>(listProductDTO,
-				pageProduct.getPageable().getPageNumber(), pageProduct.getSize(), pageProduct.getTotalPages(),
+		return new ResponsePageData<>(
+				listProductDTO,
+				pageProduct.getPageable().getPageNumber(),
+				pageProduct.getSize(),
+				pageProduct.getTotalPages(),
 				pageProduct.getTotalElements());
-		return result;
 	}
 
+	 /**
+     * Retrieves products containing a specified keyword with pagination.
+     * 
+     * @param keyword The keyword to search for in product names.
+     * @param pageable The pagination information.
+     * @return A ResponsePageData containing the list of ProductDTOs matching the keyword and pagination details.
+     */
 	@Transactional(readOnly = true)
 	@Override
 	public ResponsePageData<List<ProductDTO>> getProductContainName(String keyword, Pageable pageable) {
 		Page<Product> pageProduct = productRepository.findByNameContainingIgnoreCase(keyword, pageable);
 		List<ProductDTO> listProductDTO = new ProductMapper().toDTO(pageProduct.getContent());
-		ResponsePageData<List<ProductDTO>> result = new ResponsePageData<>(listProductDTO,
-				pageProduct.getPageable().getPageNumber(), pageProduct.getSize(), pageProduct.getTotalPages(),
+		return new ResponsePageData<>(
+				listProductDTO,
+				pageProduct.getPageable().getPageNumber(),
+				pageProduct.getSize(),
+				pageProduct.getTotalPages(),
 				pageProduct.getTotalElements());
-		return result;
 	}
 
+	 /**
+     * Deletes a product by its ID.
+     * 
+     * @param id The ID of the product to delete.
+     * @return true if the product is deleted successfully, false otherwise.
+     */
 	@Transactional
 	@Override
 	public boolean deleteProduct(Long id) {
-		return Optional.of(id).map(productId -> {
+		if (id != null && productRepository.existsById(id)) {
 			productRepository.deleteById(id);
-			return true;
-		}).orElse(false);
+		    return true;
+		}
+		return false;
 	}
 
+	
+	 /**
+     * Updates a product with new details and optional images.
+     * 
+     * @param productDTO The updated product details.
+     * @param files The list of image files to associate with the product.
+     * @return The ProductDTO representing the updated product.
+     * @throws NotFoundException if the product to update is not found.
+     */
 	@Transactional
 	@Override
 	public ProductDTO updateProduct(ProductDTO productDTO, List<MultipartFile> files) {
@@ -104,7 +145,7 @@ public class ProductServiceImp implements ProductService {
 			updateChangedFields(existingProduct, productDTO);
 
 			if (files != null && !files.isEmpty()) {
-				List<Image> savedImages = saveImage(files, existingProduct);
+				List<Image> savedImages = helperSaveImage(files, existingProduct);
 				existingProduct.getListImages().addAll(savedImages);
 			}
 
@@ -112,10 +153,12 @@ public class ProductServiceImp implements ProductService {
 
 			return new ProductMapper().toDTO(existingProduct);
 		} else {
-			throw new NotFoundException("Product not found!");
+			 throw new NotFoundException("PRODUCT_NOT_FOUND" ,productDTO.id());
 		}
 	}
-
+	
+	@Transactional
+	@Override	
 	public ProductDTO updateProduct(ProductDTO productDTO) {
 		Optional<Product> optionalProduct = productRepository.findById(productDTO.id());
 		if (optionalProduct.isPresent()) {
@@ -129,19 +172,27 @@ public class ProductServiceImp implements ProductService {
 
 			return new ProductMapper().toDTO(existingProduct);
 		} else {
-			throw new NotFoundException("Product not found!");
+			throw new NotFoundException("PRODUCT_NOT_FOUND" ,productDTO.id());
 		}
 	}
 
+	 /**
+     * Adds a new product with specified details and associated images.
+     * 
+     * @param productRequest The request containing new product details.
+     * @param files The list of image files to associate with the product.
+     * @return The ProductDTO representing the added product.
+     */
 	@Transactional
 	@Override
 	public ProductDTO addProduct(ProductRequest productRequest, List<MultipartFile> files) {
 		if (productRequest == null) {
 			return null;
 		}
-		Brand brand = brandRepository.findById(productRequest.idBrand()).get();
-		Category category = categoryRepository.findById(productRequest.idCategory()).get();
-
+		Brand brand = brandRepository.findById(productRequest.idBrand())
+				.orElseThrow(() -> new NotFoundException("BRAND_NOT_FOUND" ,productRequest.idBrand()));
+		Category category = categoryRepository.findById(productRequest.idCategory())
+				.orElseThrow(() -> new NotFoundException("CATEGORY_NOT_FOUND" ,productRequest.idCategory()));
 		Product product = new Product();
 		product.setName(productRequest.name());
 		product.setShortDescription(productRequest.shortDescription());
@@ -155,7 +206,8 @@ public class ProductServiceImp implements ProductService {
 		// save product quantity
 		List<ProductQuantity> savedQuantities = productRequest.listSize().stream().map(sizeItem -> {
 			ProductQuantity productQuantityWithSize = new ProductQuantity();
-			Size size = sizeRepository.findById(sizeItem.id()).get();
+			Size size = sizeRepository.findById(sizeItem.id())
+					.orElseThrow(() -> new NotFoundException("SIZE_NOT_FOUND" ,sizeItem.id()));
 			productQuantityWithSize.setQuantity(sizeItem.quantity());
 			productQuantityWithSize.setSize(size);
 			productQuantityWithSize.setProduct(mainProduct);
@@ -165,7 +217,7 @@ public class ProductServiceImp implements ProductService {
 		productQuantityRepository.saveAll(savedQuantities);
 
 		// save images
-		List<Image> savedImages = saveImage(files, mainProduct);
+		List<Image> savedImages = helperSaveImage(files, mainProduct);
 
 		mainProduct.setListImages(savedImages.stream().collect(Collectors.toSet()));
 		mainProduct.setQuantityOfSizes(savedQuantities.stream().collect(Collectors.toSet()));
@@ -173,8 +225,33 @@ public class ProductServiceImp implements ProductService {
 
 		return result;
 	}
+	/**
+	 * Saves uploaded images for a product during update.
+	 *
+	 * @param files   The list of image files to upload.
+	 * @param product The product entity to associate the uploaded images with.
+	 * @return The list of Image entities representing the saved images.
+	 */
+	private List<Image> helperSaveImage(List<MultipartFile> files, Product product) {
+		List<String> listPath = cloudinaryServiceImp.upload(files);
+		List<Image> savedImages = listPath.stream().map(path -> {
+			Image image = new Image();
+			image.setPath(path);
+			image.setProduct(product);
+			return image;
+		}).collect(Collectors.toList());
 
-	// method only updated when the field on the product is changed
+		imageRepository.saveAll(savedImages);
+		return savedImages;
+	}
+
+	/**
+	 * Updates the specified fields of a product based on changes in the corresponding ProductDTO.
+	 * This method is invoked during product update.
+	 *
+	 * @param product    The product entity to update.
+	 * @param productDTO The ProductDTO containing updated field values.
+	 */
 	private void updateChangedFields(Product product, ProductDTO productDTO) {
 		if (product == null || productDTO == null) {
 			return;
@@ -202,13 +279,19 @@ public class ProductServiceImp implements ProductService {
 			product.setCategory(categoryRepository.findById(productDTO.category().id()).orElse(null));
 		}
 
-		updateQuantityOfProductSize(product, productDTO.listSize());
+		helperUpdateQuantityOfProductSize(product, productDTO.listSize());
 
-		updateProductImages(product, productDTO.listImages());
+		helperUpdateProductImages(product, productDTO.listImages());
 	}
 
-	// method update product quantity when update product
-	private void updateQuantityOfProductSize(Product product, List<SizeDTO> newSizeList) {
+	/**
+	 * Updates the product quantity based on the provided list of size changes.
+	 * This method is invoked during product update.
+	 *
+	 * @param product    The product entity to update quantity for.
+	 * @param newSizeList The list of SizeDTO objects representing the updated sizes.
+	 */
+	private void helperUpdateQuantityOfProductSize(Product product, List<SizeDTO> newSizeList) {
 		List<ProductQuantity> existingQuantities = productQuantityRepository.findByProduct_Id(product.getId());
 		// list product quantity will be deleted
 		Set<ProductQuantity> quantitiesToRemove = existingQuantities.stream().filter(
@@ -240,8 +323,14 @@ public class ProductServiceImp implements ProductService {
 		});
 	}
 
-	// method update images when update product
-	private void updateProductImages(Product product, List<ImageDTO> newImageList) {
+	/**
+	 * Updates the product images based on the provided list of updated images.
+	 * This method is invoked during product update.
+	 *
+	 * @param product     The product entity to update images for.
+	 * @param newImageList The list of ImageDTO objects representing the updated images.
+	 */
+	private void helperUpdateProductImages(Product product, List<ImageDTO> newImageList) {
 		List<Image> existingImages = imageRepository.findByProduct_Id(product.getId());
 		// Xác định các Images cần xóa
 		Set<Image> imagesToRemove = existingImages.stream()
@@ -263,12 +352,19 @@ public class ProductServiceImp implements ProductService {
 		return (obj1 == null && obj2 == null) || (obj1 != null && obj1.equals(obj2));
 	}
 
-	// method get list product by url key category
+	/**
+	 * Retrieves a list of products based on the URL key of a category with pagination.
+	 *
+	 * @param urlKey   The URL key of the category to filter products by.
+	 * @param pageable The pagination information.
+	 * @return A ResponsePageData containing the list of ProductDTOs matching the category URL key and pagination details.
+	 * @throws NotFoundException if no products are found with the specified category URL key.
+	 */
 	@Override
 	public ResponsePageData<List<ProductDTO>> getProductByUrlKeyCategory(String urlKey, Pageable pageable) {
 		Page<Product> pageProduct = productRepository.findByCategory_UrlKey(urlKey, pageable);
 		if (pageProduct.isEmpty()) {
-			throw new NotFoundException("Not found by url key category: " + urlKey);
+			throw new NotFoundException("URL_KEY_CATEGORY_NOT_FOUND", urlKey);
 		}
 		List<ProductDTO> listProductDTO = new ProductMapper().toDTO(pageProduct.getContent());
 
@@ -278,36 +374,32 @@ public class ProductServiceImp implements ProductService {
 		return result;
 	}
 
-	// method save image when update product
-	private List<Image> saveImage(List<MultipartFile> files, Product product) {
-		List<String> listPath = cloudinaryServiceImp.upload(files);
-		List<Image> savedImages = listPath.stream().map(path -> {
-			Image image = new Image();
-			image.setPath(path);
-			image.setProduct(product);
-			return image;
-		}).collect(Collectors.toList());
 
-		imageRepository.saveAll(savedImages);
-		return savedImages;
-	}
-
-	// method update product quantity according to product size
+	/**
+	 * Updates the quantity of a product for a specific size by subtracting a specified quantity.
+	 *
+	 * @param quantitySubtract The quantity to subtract from the product's size.
+	 * @param idProduct        The ID of the product.
+	 * @param idSize           The ID of the size to update quantity for.
+	 * @throws NotFoundException      if the product or size is not found.
+	 * @throws RuntimeException       if the specified quantity to subtract is greater than available quantity or exceeds the maximum allowed.
+	 */
 	@Override
 	public void updateProductQuantityForSize(int quantitySubtract, Long idProduct, Integer idSize) {
 		Product product = productRepository.findById(idProduct)
-				.orElseThrow(() -> new NotFoundException("Product not found!"));
-		Size size = sizeRepository.findById(idSize).orElseThrow(() -> new NotFoundException("Size not found!"));
+				.orElseThrow(() -> new NotFoundException("PRODUCT_NOT_FOUND" ,idProduct));
+		Size size = sizeRepository.findById(idSize)
+				.orElseThrow(() -> new NotFoundException("SIZE_NOT_FOUND" , idSize));
 
 		ProductQuantity productQuantity = productQuantityRepository.findByProduct_IdAndSize_Id(idProduct, idSize);
 
 		int quantityOld = productQuantity.getQuantity();
 
 		if (quantitySubtract > quantityOld) {
-			throw new RuntimeException("Quantity not enough!");
+			throw new RuntimeException("Quantity to subtract exceeds available quantity!");
 		}
 		if (quantitySubtract > Constants.QUANTITY_PRODUCT_MAX_BUY) {
-			throw new RuntimeException("Quantity must to less than or equal " + Constants.QUANTITY_PRODUCT_MAX_BUY);
+			throw new RuntimeException("Quantity to subtract must be less than or equal to "+ Constants.QUANTITY_PRODUCT_MAX_BUY);
 		}
 		productQuantity.setQuantity(quantityOld - quantitySubtract);
 		productQuantity.setProduct(product);
