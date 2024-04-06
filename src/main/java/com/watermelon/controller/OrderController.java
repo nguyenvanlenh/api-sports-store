@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.watermelon.model.dto.request.OrderRequest;
+import com.watermelon.dto.request.OrderRequest;
 import com.watermelon.model.entity.Order;
 import com.watermelon.model.entity.OrderStatus;
 import com.watermelon.service.OrderService;
@@ -41,7 +41,7 @@ public class OrderController {
 	@PostMapping()
 	@ResponseStatus(HttpStatus.CREATED)
 	public void saveOrder(@RequestBody OrderRequest request){
-		orderService.saveOrder(request);
+		orderService.createOrder(request);
 	}
 	
 	@PatchMapping("/{id}")

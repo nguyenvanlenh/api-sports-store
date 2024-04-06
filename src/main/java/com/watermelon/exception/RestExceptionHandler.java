@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import com.watermelon.model.dto.response.ErrorResponse;
+import com.watermelon.dto.response.ErrorResponse;
 
 @ControllerAdvice
 public class RestExceptionHandler {

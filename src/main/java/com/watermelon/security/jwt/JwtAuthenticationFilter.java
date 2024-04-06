@@ -3,6 +3,7 @@ package com.watermelon.security.jwt;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,11 +24,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 
 	@Autowired
 	private UserDetailsService userDetailsService;
+	
+	private final String TYPE_AUTHORIZATION = "Bearer ";
 
 	private String getJwtFromRequest(HttpServletRequest request) {
-		String bearerToken = request.getHeader("Authorization");
-		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-			return bearerToken.substring(7);
+		String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
+		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(TYPE_AUTHORIZATION)) {
+			return bearerToken.substring(TYPE_AUTHORIZATION.length());
 		}
 		return null;
 	}

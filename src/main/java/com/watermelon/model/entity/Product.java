@@ -43,9 +43,6 @@ public class Product extends AbstractAuditEntity implements Serializable{
 	@Column(name= "short_description")
 	private String shortDescription;
 	private String description;
-	private String gtin;
-	private String sku;
-	private String slug;
 	private BigDecimal price;
 	@Max(value = 1)
 	private double tax;

@@ -15,13 +15,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.watermelon.dto.request.ChangePasswordRequest;
+import com.watermelon.dto.request.ForgotPasswordRequest;
+import com.watermelon.dto.request.LoginRequest;
+import com.watermelon.dto.request.RegisterRequest;
+import com.watermelon.dto.response.TokenResponse;
 import com.watermelon.exception.NotFoundException;
 import com.watermelon.exception.ResourceExistedException;
-import com.watermelon.model.dto.request.ChangePasswordRequest;
-import com.watermelon.model.dto.request.ForgotPasswordRequest;
-import com.watermelon.model.dto.request.LoginRequest;
-import com.watermelon.model.dto.request.RegisterRequest;
-import com.watermelon.model.dto.response.LoginResponse;
 import com.watermelon.model.entity.Role;
 import com.watermelon.model.entity.User;
 import com.watermelon.model.entity.VerificationToken;
@@ -61,7 +61,7 @@ public class AuthServiceImp implements AuthService {
 
 	@Transactional
 	@Override
-	public LoginResponse login(LoginRequest request) {
+	public TokenResponse login(LoginRequest request) {
 		// Thực hiện xác thực người dùng
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(request.username(),
 				request.password());
@@ -69,10 +69,18 @@ public class AuthServiceImp implements AuthService {
 		CustomUserDetails customUserDetails = (CustomUserDetails) userDetailsService
 				.loadUserByUsername(request.username());
 		SecurityContextHolder.getContext().setAuthentication(authentication);
-		String jwtToken = jwtTokenProvider.generateToken(customUserDetails);
+		String accessToken = jwtTokenProvider.generateToken("accessToken", customUserDetails);
+		String refreshToken = jwtTokenProvider.generateToken("refreshToken", customUserDetails);
 		Set<String> listRoles = customUserDetails.getAuthorities().stream().map(authority -> authority.getAuthority())
 				.collect(Collectors.toSet());
-		return new LoginResponse(jwtToken, true, listRoles);
+		return TokenResponse.builder()
+				.accessToken(accessToken)
+				.refreshToken(refreshToken)
+				.authenticated(true)
+				.username(customUserDetails.getUsername())
+				.userId(customUserDetails.getId())
+				.listRoles(listRoles)
+				.build();
 	}
 
 	@Transactional

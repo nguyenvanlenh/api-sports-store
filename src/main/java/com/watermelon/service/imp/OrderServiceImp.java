@@ -4,12 +4,13 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.watermelon.dto.request.OrderAddressRequest;
+import com.watermelon.dto.request.OrderDetailRequest;
+import com.watermelon.dto.request.OrderRequest;
 import com.watermelon.exception.ForbiddenException;
 import com.watermelon.exception.NotFoundException;
-import com.watermelon.model.dto.request.OrderAddressRequest;
-import com.watermelon.model.dto.request.OrderDetailRequest;
-import com.watermelon.model.dto.request.OrderRequest;
 import com.watermelon.model.entity.Brand;
 import com.watermelon.model.entity.Category;
 import com.watermelon.model.entity.DeliveryMethod;
@@ -35,7 +36,6 @@ import com.watermelon.repository.SizeRepository;
 import com.watermelon.service.OrderService;
 import com.watermelon.service.ProductService;
 
-import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -56,12 +56,14 @@ public class OrderServiceImp implements OrderService {
 	SizeRepository sizeRepository;
 	BrandRepository brandRepository;
 	CategoryRepository categoryRepository;
-
+	
+	@Transactional(readOnly = true)
 	@Override
 	public List<Order> getAllOrder() {
 		return orderRepository.findAll();
 	}
 
+	@Transactional(readOnly = true)
 	@Override
 	public Order getOrderById(Long id) {
 		return orderRepository.findById(id).orElseThrow(() -> new NotFoundException("Order not found!"));
@@ -69,7 +71,7 @@ public class OrderServiceImp implements OrderService {
 
 	@Transactional
 	@Override
-	public Order saveOrder(OrderRequest orderRequest) {
+	public Order createOrder(OrderRequest orderRequest) {
 		// initial order temp
 		Order order = mapRequestToOrder(orderRequest);
 		// save order address

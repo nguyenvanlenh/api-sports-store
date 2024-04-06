@@ -1,5 +1,6 @@
 package com.watermelon.security;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -70,18 +71,15 @@ public class CustomUserDetails implements UserDetails{
 			return true;
 		}
 		
-		
-		
-		
 		public CustomUserDetails mapUserToCustomUserDetail(User user) {
-			List<GrantedAuthority> listAuthorities = 
-					user.getListRoles().stream()
-					.flatMap(role ->
-					role.getListPermissions().stream()
-						.map(permission ->
-						new SimpleGrantedAuthority("ROLE_" + permission.getName())))
-						.collect(Collectors.toList());
+			List<GrantedAuthority> listAuthorities = new ArrayList<>();
+			user.getListRoles().forEach(role -> {
+						listAuthorities.add(new SimpleGrantedAuthority("ROLE_"+ role.getName()));
+						role.getListPermissions().forEach( permission ->
+						listAuthorities.add(new SimpleGrantedAuthority(permission.getName())));
+					});
 			return CustomUserDetails.builder()
+					.id(user.getId())
 					.username(user.getUsername())
 					.password(user.getPassword())
 					.email(user.getEmail())
@@ -91,7 +89,5 @@ public class CustomUserDetails implements UserDetails{
 					.isActive(user.isActive())
 					.build();
 		}
-
-
 		
 }

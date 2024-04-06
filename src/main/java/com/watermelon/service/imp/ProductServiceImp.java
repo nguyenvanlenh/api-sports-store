@@ -9,15 +9,16 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.watermelon.dto.ImageDTO;
+import com.watermelon.dto.ProductDTO;
+import com.watermelon.dto.SizeDTO;
+import com.watermelon.dto.mapper.imp.ProductMapper;
+import com.watermelon.dto.request.ProductRequest;
+import com.watermelon.dto.response.ResponsePageData;
 import com.watermelon.exception.NotFoundException;
-import com.watermelon.model.dto.ImageDTO;
-import com.watermelon.model.dto.ProductDTO;
-import com.watermelon.model.dto.SizeDTO;
-import com.watermelon.model.dto.mapper.imp.ProductMapper;
-import com.watermelon.model.dto.request.ProductRequest;
-import com.watermelon.model.dto.response.ResponsePageData;
 import com.watermelon.model.entity.Brand;
 import com.watermelon.model.entity.Category;
 import com.watermelon.model.entity.Image;
@@ -33,7 +34,6 @@ import com.watermelon.repository.SizeRepository;
 import com.watermelon.service.ProductService;
 import com.watermelon.utils.Constants;
 
-import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -52,7 +52,7 @@ public class ProductServiceImp implements ProductService {
 	CloudinaryServiceImp cloudinaryServiceImp;
 	ImageRepository imageRepository;
 
-	@Transactional
+	@Transactional(readOnly = true)
 	@Override
 	public ProductDTO getProductById(Long id) {
 		Product product = 
@@ -61,7 +61,7 @@ public class ProductServiceImp implements ProductService {
 		return result;
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	@Override
 	public ResponsePageData<List<ProductDTO>> getAllProduct(Pageable pageable) {
 		Page<Product> pageProduct = productRepository.findAll(pageable);
@@ -73,7 +73,7 @@ public class ProductServiceImp implements ProductService {
 		return result;
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	@Override
 	public ResponsePageData<List<ProductDTO>> getProductContainName(String keyword, Pageable pageable) {
 		Page<Product> pageProduct = productRepository.findByNameContainingIgnoreCase(keyword, pageable);
@@ -146,9 +146,6 @@ public class ProductServiceImp implements ProductService {
 		product.setName(productRequest.name());
 		product.setShortDescription(productRequest.shortDescription());
 		product.setDescription(productRequest.description());
-		product.setGtin(productRequest.gtin());
-		product.setSku(productRequest.sku());
-		product.setSlug(productRequest.slug());
 		product.setPrice(productRequest.price());
 		product.setTax(productRequest.tax());
 		product.setBrand(brand);
@@ -190,15 +187,6 @@ public class ProductServiceImp implements ProductService {
 
 		if (!isEqual(product.getDescription(), productDTO.description()))
 			product.setDescription(productDTO.description());
-
-		if (!isEqual(product.getGtin(), productDTO.gtin()))
-			product.setGtin(productDTO.gtin());
-
-		if (!isEqual(product.getSku(), productDTO.skug()))
-			product.setSku(productDTO.skug());
-
-		if (!isEqual(product.getSlug(), productDTO.slug()))
-			product.setSlug(productDTO.slug());
 
 		if (!isEqual(product.getPrice(), productDTO.price()))
 			product.setPrice(productDTO.price());

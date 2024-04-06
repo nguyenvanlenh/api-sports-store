@@ -8,11 +8,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import com.watermelon.dto.RatingDTO;
+import com.watermelon.dto.mapper.imp.RatingMapper;
+import com.watermelon.dto.request.RatingRequest;
+import com.watermelon.dto.response.ResponsePageData;
 import com.watermelon.exception.NotFoundException;
-import com.watermelon.model.dto.RatingDTO;
-import com.watermelon.model.dto.mapper.imp.RatingMapper;
-import com.watermelon.model.dto.request.RatingRequest;
-import com.watermelon.model.dto.response.ResponsePageData;
 import com.watermelon.model.entity.Product;
 import com.watermelon.model.entity.Rating;
 import com.watermelon.model.entity.User;

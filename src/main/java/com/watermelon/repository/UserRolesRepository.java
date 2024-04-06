@@ -9,7 +9,7 @@ import com.watermelon.model.entity.User;
 
 public interface UserRolesRepository extends JpaRepository<User, Long>{
 	
-	@Modifying
+	@Modifying(clearAutomatically = true)
 	@Query(nativeQuery = true, value = "DELETE FROM user_roles WHERE id_user = :userId")
 	void deleteUserRoleByUserId(@Param("userId") Long userId);
 

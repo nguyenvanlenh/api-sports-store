@@ -9,7 +9,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
 import org.springframework.data.web.SortDefault.SortDefaults;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,10 +21,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.watermelon.model.dto.ProductDTO;
-import com.watermelon.model.dto.request.ProductRequest;
-import com.watermelon.model.dto.response.ResponseData;
-import com.watermelon.model.dto.response.ResponsePageData;
+import com.watermelon.dto.ProductDTO;
+import com.watermelon.dto.request.ProductRequest;
+import com.watermelon.dto.response.ResponseData;
+import com.watermelon.dto.response.ResponsePageData;
 import com.watermelon.service.ImageService;
 import com.watermelon.service.ProductService;
 
@@ -44,12 +43,12 @@ public class ProductController {
 
 	@GetMapping
 	@ResponseStatus(code = HttpStatus.OK)
-	public ResponseData getAllProduct(
+	public ResponseData getProducts(
 			@PageableDefault(page = 0, size = 20) @SortDefaults(@SortDefault(direction = Sort.Direction.DESC, sort = {
 					"price" })) Pageable pageable,
 			@RequestParam(name = "search", required = false) String content,
 			@RequestParam(name = "category", required = false) String urlKey) {
-		Optional<ResponsePageData<List<ProductDTO>>> listData = null;
+		Optional<ResponsePageData<?>> listData = null;
 		if (content != null) {
 			listData = Optional.ofNullable(productService.getProductContainName(content, pageable));
 		} else if (urlKey != null) {
@@ -58,14 +57,14 @@ public class ProductController {
 			listData = Optional.ofNullable(productService.getAllProduct(pageable));
 		}
 
-		return new ResponseData(listData, HttpStatus.OK.name(), HttpStatus.OK.getReasonPhrase());
+		return new ResponseData(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase() ,listData);
 
 	}
 
 	@GetMapping("/{id}")
 	public ResponseData getProductById(@PathVariable(name = "id") Long id) {
 		ProductDTO data = productService.getProductById(id);
-		return new ResponseData(data, HttpStatus.OK.name(), HttpStatus.OK.getReasonPhrase());
+		return new ResponseData(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(),data);
 	}
 
 	@PostMapping
@@ -73,7 +72,7 @@ public class ProductController {
 	public ResponseData addProduct(@RequestPart("product") ProductRequest productRequest,
 			@RequestPart("file") List<MultipartFile> files) {
 		ProductDTO data = productService.addProduct(productRequest, files);
-		return new ResponseData(data, HttpStatus.CREATED.name(), HttpStatus.CREATED.getReasonPhrase());
+		return new ResponseData(HttpStatus.CREATED.value(), HttpStatus.CREATED.getReasonPhrase(),data);
 	}
 
 	@PostMapping("/upload")
@@ -81,7 +80,7 @@ public class ProductController {
 	public ResponseData upload(@RequestPart("files") List<MultipartFile> files) {
 		List<String> data = imageService.upload(files);
 
-		return new ResponseData(data, HttpStatus.OK.name(), HttpStatus.OK.getReasonPhrase());
+		return new ResponseData(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase() ,data);
 	}
 
 	@PutMapping
@@ -92,8 +91,6 @@ public class ProductController {
 	    productService.updateProduct(productDTO, files);
 
 	}
-
-	
 	
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.OK)

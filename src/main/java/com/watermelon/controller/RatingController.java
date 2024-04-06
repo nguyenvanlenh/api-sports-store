@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.watermelon.model.dto.RatingDTO;
-import com.watermelon.model.dto.request.RatingRequest;
-import com.watermelon.model.dto.response.ResponseData;
-import com.watermelon.model.dto.response.ResponsePageData;
+import com.watermelon.dto.RatingDTO;
+import com.watermelon.dto.request.RatingRequest;
+import com.watermelon.dto.response.ResponseData;
+import com.watermelon.dto.response.ResponsePageData;
 import com.watermelon.service.RatingService;
 
 @RestController
@@ -40,7 +40,7 @@ public class RatingController {
 			@PageableDefault(page = 0, size = 20) Pageable pageable
 			){
 		ResponsePageData<List<RatingDTO>> data = ratingService.getRatingListByProductId(id, pageable);
-		return new ResponseData(data, HttpStatus.OK.name(), HttpStatus.OK.getReasonPhrase());
+		return new ResponseData(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), data);
 	}
 	
 	@PostMapping

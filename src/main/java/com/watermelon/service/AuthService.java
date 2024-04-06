@@ -1,15 +1,15 @@
 package com.watermelon.service;
 
-import com.watermelon.model.dto.request.ForgotPasswordRequest;
-import com.watermelon.model.dto.request.LoginRequest;
-import com.watermelon.model.dto.request.RegisterRequest;
-import com.watermelon.model.dto.request.ChangePasswordRequest;
-import com.watermelon.model.dto.response.LoginResponse;
+import com.watermelon.dto.request.ChangePasswordRequest;
+import com.watermelon.dto.request.ForgotPasswordRequest;
+import com.watermelon.dto.request.LoginRequest;
+import com.watermelon.dto.request.RegisterRequest;
+import com.watermelon.dto.response.TokenResponse;
 import com.watermelon.model.entity.User;
 
 public interface AuthService {
 
-	LoginResponse login(LoginRequest request);
+	TokenResponse login(LoginRequest request);
 	User register(RegisterRequest request);
 	String forgotPassword(ForgotPasswordRequest request);
 	String changePassword(ChangePasswordRequest request);

@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.watermelon.dto.request.LoginRequest;
+import com.watermelon.dto.request.RegisterRequest;
+import com.watermelon.dto.response.TokenResponse;
 import com.watermelon.event.RegistrationCompleteEvent;
-import com.watermelon.model.dto.request.LoginRequest;
-import com.watermelon.model.dto.request.RegisterRequest;
-import com.watermelon.model.dto.response.LoginResponse;
 import com.watermelon.model.entity.User;
 import com.watermelon.service.AuthService;
 
@@ -39,7 +39,7 @@ public class AuthController {
 
 	@PostMapping("/login")
 	@ResponseStatus(code = HttpStatus.OK)
-	public LoginResponse login(@RequestBody @Valid LoginRequest request) {
+	public TokenResponse login(@RequestBody @Valid LoginRequest request) {
 		return authService.login(request);
 	}
 	

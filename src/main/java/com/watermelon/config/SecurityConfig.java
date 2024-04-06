@@ -60,7 +60,7 @@ public class SecurityConfig {
 
 				.authorizeHttpRequests(authorize ->
 							authorize.requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-							.anyRequest().permitAll())
+							.anyRequest().authenticated())
 
 				.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
 

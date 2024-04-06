@@ -7,6 +7,7 @@ import com.watermelon.model.AbstractAuditEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -33,7 +34,7 @@ public class Role extends AbstractAuditEntity implements Serializable{
 	@ManyToMany(mappedBy = "listRoles")
 	private Set<User> listUsers;
 	
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "role_pers",
 	joinColumns =@JoinColumn(name = "id_role"),
 	inverseJoinColumns = @JoinColumn(name ="id_permission"))
