@@ -18,40 +18,36 @@ import jakarta.transaction.Transactional;
 
 @Service
 @Primary
-public class CloudinaryServiceImp implements ImageService{
+public class CloudinaryServiceImp implements ImageService {
 
 	@Value("${cloudinary.cloud-name}")
-    private String cloudName;
+	private String cloudName;
 
-    @Value("${cloudinary.api-key}")
-    private String apiKey;
+	@Value("${cloudinary.api-key}")
+	private String apiKey;
 
-    @Value("${cloudinary.api-secret}")
-    private String apiSecret;
-    @Transactional
+	@Value("${cloudinary.api-secret}")
+	private String apiSecret;
+
+	@Transactional
 	@Override
 	public List<String> upload(List<MultipartFile> imageFiles) {
 		Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
-                "cloud_name", cloudName,
-                "api_key", apiKey,
-                "api_secret", apiSecret
-        ));
-		
-		return imageFiles.stream()
-                .map(file -> {
-                    try {
-                        Map<String, String> result = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
-                        String imageUrl = (String) result.get("url");
-                        // You can also retrieve other information like public ID, etc.
+				"cloud_name", cloudName,
+				"api_key", apiKey,
+				"api_secret", apiSecret));
 
-                        return imageUrl;
-                    } catch (IOException e) {
-                        // Handle the exception appropriately (e.g., log it or throw a custom exception)
-                        e.printStackTrace();
-                        return null;
-                    }
-                })
-                .collect(Collectors.toList());
+		return imageFiles.stream().map(file -> {
+			try {
+				Map<String, String> result = cloudinary.uploader()
+						.upload(file.getBytes(), ObjectUtils.emptyMap());
+				String imageUrl = (String) result.get("url");
+				return imageUrl;
+			} catch (IOException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}).collect(Collectors.toList());
 	}
 
 }

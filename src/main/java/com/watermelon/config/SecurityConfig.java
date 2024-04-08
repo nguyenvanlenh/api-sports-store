@@ -18,9 +18,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.filter.CorsFilter;
 
-import com.watermelon.security.jwt.JwtAuthenticationFilter;
+import com.watermelon.filter.ExceptionHandlerFilter;
+import com.watermelon.filter.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -43,6 +43,11 @@ public class SecurityConfig {
 	public JwtAuthenticationFilter jwtAuthenticationFilter() {
 		return new JwtAuthenticationFilter();
 	}
+	
+	@Bean
+	public ExceptionHandlerFilter exceptionHandlerFilter() {
+		return new ExceptionHandlerFilter();
+	}
 
 	@Bean
 	public DaoAuthenticationProvider authenticationProvider() {
@@ -53,7 +58,7 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	public SecurityFilterChain securityFilterChain(HttpSecurity http,ExceptionHandlerFilter exceptionHandlerFilter) throws Exception {
 		http
 				.csrf(csrf -> csrf.disable())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -63,6 +68,7 @@ public class SecurityConfig {
 							.anyRequest().authenticated())
 
 				.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+				.addFilterBefore(exceptionHandlerFilter(), JwtAuthenticationFilter.class)
 
 				.httpBasic(Customizer.withDefaults())
 				;
