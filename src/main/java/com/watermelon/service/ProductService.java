@@ -7,14 +7,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.watermelon.dto.ProductDTO;
 import com.watermelon.dto.request.ProductRequest;
-import com.watermelon.dto.response.ResponsePageData;
+import com.watermelon.dto.response.PaginationResponse;
 
 public interface ProductService {
 	
 	ProductDTO getProductById(Long id);
-	ResponsePageData<List<ProductDTO>> getAllProduct(Pageable pageable);
-	ResponsePageData<List<ProductDTO>> getProductContainName(String keyword, Pageable pageable);
-	ResponsePageData<List<ProductDTO>> getProductByUrlKeyCategory(String urlKey, Pageable pageable);
+	PaginationResponse<List<ProductDTO>> getAllProduct(Pageable pageable);
+	PaginationResponse<List<ProductDTO>> getProductContainName(String keyword, Pageable pageable);
+	PaginationResponse<List<ProductDTO>> getProductByUrlKeyCategory(String urlKey, Pageable pageable);
 	
 	boolean deleteProduct(Long id);
 	ProductDTO updateProduct(ProductDTO productDTO,List<MultipartFile> files);

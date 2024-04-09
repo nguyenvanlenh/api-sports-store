@@ -1,7 +1,6 @@
 package com.watermelon.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -17,14 +16,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.watermelon.dto.ProductDTO;
 import com.watermelon.dto.request.ProductRequest;
+import com.watermelon.dto.response.PaginationResponse;
 import com.watermelon.dto.response.ResponseData;
-import com.watermelon.dto.response.ResponsePageData;
 import com.watermelon.service.ImageService;
 import com.watermelon.service.ProductService;
 
@@ -42,60 +40,59 @@ public class ProductController {
 	ImageService imageService;
 
 	@GetMapping
-	@ResponseStatus(code = HttpStatus.OK)
-	public ResponseData getProducts(
-			@PageableDefault(page = 0, size = 20) @SortDefaults(@SortDefault(direction = Sort.Direction.DESC, sort = {
-					"price" })) Pageable pageable,
+	public ResponseData<PaginationResponse<?>> getProducts(
+			@PageableDefault(page = 0, size = 20) 
+			@SortDefaults(
+					@SortDefault(direction = Sort.Direction.DESC, sort = {"price" })
+					) Pageable pageable,
 			@RequestParam(name = "search", required = false) String content,
 			@RequestParam(name = "category", required = false) String urlKey) {
-		Optional<ResponsePageData<?>> listData = null;
+		PaginationResponse<?> listData = null;
 		if (content != null) {
-			listData = Optional.ofNullable(productService.getProductContainName(content, pageable));
+			listData = productService.getProductContainName(content, pageable);
 		} else if (urlKey != null) {
-			listData = Optional.ofNullable(productService.getProductByUrlKeyCategory(urlKey, pageable));
+			listData = productService.getProductByUrlKeyCategory(urlKey, pageable);
 		} else {
-			listData = Optional.ofNullable(productService.getAllProduct(pageable));
+			listData = productService.getAllProduct(pageable);
 		}
 
-		return new ResponseData(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase() ,listData);
+		return new ResponseData<>(HttpStatus.OK.value(), "Data users" ,listData);
 
 	}
 
 	@GetMapping("/{id}")
-	public ResponseData getProductById(@PathVariable(name = "id") Long id) {
+	public ResponseData<ProductDTO> getProductById(@PathVariable(name = "id") Long id) {
 		ProductDTO data = productService.getProductById(id);
-		return new ResponseData(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(),data);
+		return new ResponseData<>(HttpStatus.OK.value(), "Data user",data);
 	}
 
 	@PostMapping
-	@ResponseStatus(code =HttpStatus.CREATED)
-	public ResponseData addProduct(@RequestPart("product") ProductRequest productRequest,
+	public ResponseData<ProductDTO> addProduct(@RequestPart("product") ProductRequest productRequest,
 			@RequestPart("file") List<MultipartFile> files) {
 		ProductDTO data = productService.addProduct(productRequest, files);
-		return new ResponseData(HttpStatus.CREATED.value(), HttpStatus.CREATED.getReasonPhrase(),data);
+		return new ResponseData<>(HttpStatus.CREATED.value(), "User added successfully",data);
 	}
 
 	@PostMapping("/upload")
-	@ResponseStatus(code =HttpStatus.OK)
-	public ResponseData upload(@RequestPart("files") List<MultipartFile> files) {
+	public ResponseData<List<String>> upload(@RequestPart("files") List<MultipartFile> files) {
 		List<String> data = imageService.upload(files);
 
-		return new ResponseData(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase() ,data);
+		return new ResponseData<>(HttpStatus.CREATED.value(), "Images upload successfully" ,data);
 	}
 
 	@PutMapping
-	@ResponseStatus(HttpStatus.OK)
-	public void updateProduct(@RequestPart("product") ProductDTO productDTO,
+	public ResponseData<?> updateProduct(@RequestPart("product") ProductDTO productDTO,
 	        @RequestPart(name = "files", required = false) List<MultipartFile> files) {
 	    
 	    productService.updateProduct(productDTO, files);
+	    return new ResponseData<>(HttpStatus.ACCEPTED.value(), "Product updated successfully");
 
 	}
 	
 	@DeleteMapping("/{id}")
-	@ResponseStatus(HttpStatus.OK)
-	public void deleteProductById(@PathVariable (name = "id") Long id){
+	public ResponseData<?> deleteProductById(@PathVariable (name = "id") Long id){
 		productService.deleteProduct(id);
+		return new ResponseData<>(HttpStatus.NO_CONTENT.value(), "User delete successfully");
 	}
 	
 

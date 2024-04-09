@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.watermelon.dto.request.OrderRequest;
+import com.watermelon.dto.response.ResponseData;
 import com.watermelon.model.entity.Order;
 import com.watermelon.model.entity.OrderStatus;
 import com.watermelon.service.OrderService;
@@ -30,24 +31,24 @@ public class OrderController {
 	OrderService orderService;
 	
 	@GetMapping()
-	public List<Order> getAllOrder(){
-		return orderService.getAllOrder();
+	public ResponseData<List<Order>> getAllOrder(){
+		return new ResponseData<>(HttpStatus.OK.value(),"Data orders",orderService.getAllOrder());
 	}
 	@GetMapping("/{id}")
-	@ResponseStatus(HttpStatus.OK)
-	public Order getOneOrderById(@PathVariable(name = "id") Long id) {
-		return orderService.getOrderById(id);
+	public ResponseData<Order> getOneOrderById(@PathVariable(name = "id") Long id) {
+		return  new ResponseData<>(HttpStatus.OK.value(),"Data order",orderService.getOrderById(id));
 	}
 	@PostMapping()
 	@ResponseStatus(HttpStatus.CREATED)
-	public void saveOrder(@RequestBody OrderRequest request){
+	public ResponseData<?> saveOrder(@RequestBody OrderRequest request){
 		orderService.createOrder(request);
+		return new ResponseData<>(HttpStatus.CREATED.value(),"Order added successfully");
 	}
 	
 	@PatchMapping("/{id}")
-	@ResponseStatus(HttpStatus.OK)
-	public void updateStatus(@PathVariable(name = "id") Long id,@RequestBody OrderStatus status) {
+	public ResponseData<?> updateStatus(@PathVariable(name = "id") Long id,@RequestBody OrderStatus status) {
 		orderService.updateOrderStatus(status, id);
+		return new ResponseData<>(HttpStatus.ACCEPTED.value(),"Order updated successfully");
 	}
 
 }

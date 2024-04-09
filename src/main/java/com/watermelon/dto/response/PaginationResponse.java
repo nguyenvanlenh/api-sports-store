@@ -2,7 +2,7 @@ package com.watermelon.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record ResponsePageData<T>(
+public record PaginationResponse<T>(
 		T content,
 		@JsonProperty("current_page")
 		int currentPage,

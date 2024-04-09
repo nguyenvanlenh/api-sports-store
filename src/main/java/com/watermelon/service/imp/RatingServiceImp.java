@@ -11,7 +11,7 @@ import org.springframework.util.ObjectUtils;
 import com.watermelon.dto.RatingDTO;
 import com.watermelon.dto.mapper.imp.RatingMapper;
 import com.watermelon.dto.request.RatingRequest;
-import com.watermelon.dto.response.ResponsePageData;
+import com.watermelon.dto.response.PaginationResponse;
 import com.watermelon.exception.NotFoundException;
 import com.watermelon.model.entity.Product;
 import com.watermelon.model.entity.Rating;
@@ -34,28 +34,28 @@ public class RatingServiceImp implements RatingService{
 	private UserRepository userRepository;
 
 	@Override
-	public ResponsePageData<List<RatingDTO>> getRatingListByProductId(Long productId, Pageable pageable) {
+	public PaginationResponse<List<RatingDTO>> getRatingListByProductId(Long productId, Pageable pageable) {
 		Page<Rating> pageRating = ratingRepository.findByProduct_Id(productId, pageable);
 		List<RatingDTO> listRatingDTO = new RatingMapper().toDTO(pageRating.getContent());
 		
-		ResponsePageData<List<RatingDTO>> result = new ResponsePageData<>(listRatingDTO,
+		PaginationResponse<List<RatingDTO>> result = new PaginationResponse<>(listRatingDTO,
 				pageRating.getPageable().getPageNumber(), pageRating.getSize(), pageRating.getTotalPages(),
 				pageRating.getTotalElements());
 		return result;
 	}
 
 	@Override
-	public void addRating(RatingRequest rq) {
+	public void addRating(RatingRequest request) {
 		Rating rating = new Rating();
 		
-		rating.setContent(rq.content());
-		rating.setStar(rq.star());
-		Product product = productRepository.findById(rq.productId())
-				.orElseThrow(()-> new NotFoundException("product not found!"));
+		rating.setContent(request.content());
+		rating.setStar(request.star());
+		Product product = productRepository.findById(request.productId())
+				.orElseThrow(()-> new NotFoundException("PRODUCT_NOT_FOUND" ,request.productId()));
 		rating.setProduct(product);
 		
-		User user = userRepository.findById(rq.userId())
-				.orElseThrow(()-> new NotFoundException("user not found!"));
+		User user = userRepository.findById(request.userId())
+				.orElseThrow(()-> new NotFoundException("USER_NOT_FOUND",request.userId()));
 		rating.setUser(user);
 		
 		ratingRepository.save(rating);
@@ -65,7 +65,7 @@ public class RatingServiceImp implements RatingService{
 	@Override
 	public void deleteRating(Long id) {
 		Rating rating = ratingRepository.findById(id)
-				.orElseThrow(()-> new NotFoundException("rating not found!"));
+				.orElseThrow(()-> new NotFoundException("RATING_NOT_FOUND",id));
 		ratingRepository.delete(rating);
 		
 	}

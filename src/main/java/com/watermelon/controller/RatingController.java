@@ -11,13 +11,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.watermelon.dto.RatingDTO;
 import com.watermelon.dto.request.RatingRequest;
+import com.watermelon.dto.response.PaginationResponse;
 import com.watermelon.dto.response.ResponseData;
-import com.watermelon.dto.response.ResponsePageData;
 import com.watermelon.service.RatingService;
 
 @RestController
@@ -29,29 +28,27 @@ public class RatingController {
  RatingService ratingService;
 	
 	@GetMapping("/{productId}/average-star")
-	@ResponseStatus(HttpStatus.OK)
-	public Double getTotal(@PathVariable Long productId){
-		return ratingService.caculatorAverageStar(productId);
+	public ResponseData<Double> getTotal(@PathVariable Long productId){
+		return new ResponseData<>(HttpStatus.OK.value(),"Average star of product "+productId,ratingService.caculatorAverageStar(productId));
 	}
 	
 	@GetMapping("/products/{productId}")
-	@ResponseStatus(HttpStatus.OK)
-	public ResponseData getRatingListByProductId(@PathVariable(name = "productId") Long id,
+	public ResponseData<PaginationResponse<List<RatingDTO>>> getRatingListByProductId(@PathVariable(name = "productId") Long id,
 			@PageableDefault(page = 0, size = 20) Pageable pageable
 			){
-		ResponsePageData<List<RatingDTO>> data = ratingService.getRatingListByProductId(id, pageable);
-		return new ResponseData(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase(), data);
+		PaginationResponse<List<RatingDTO>> data = ratingService.getRatingListByProductId(id, pageable);
+		return new ResponseData<>(HttpStatus.OK.value(), "List rating of product " + id, data);
 	}
 	
 	@PostMapping
-	@ResponseStatus(HttpStatus.CREATED)
-	public void addRating(@RequestBody RatingRequest requestRating){
+	public ResponseData<?> addRating(@RequestBody RatingRequest requestRating){
 		ratingService.addRating(requestRating);
+		return new ResponseData<>(HttpStatus.CREATED.value(), "Rating added successfully");
 	}
 	
 	@DeleteMapping("/{id}")
-	@ResponseStatus(HttpStatus.OK)
-	public void deleteRating(@PathVariable(name = "id") Long id){
+	public ResponseData<?> deleteRating(@PathVariable(name = "id") Long id){
 		ratingService.deleteRating(id);
+		return new ResponseData<>(HttpStatus.NO_CONTENT.value(), "Rating deleted successfully");
 	}
 }
