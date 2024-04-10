@@ -10,7 +10,7 @@ import com.watermelon.dto.request.OrderAddressRequest;
 import com.watermelon.dto.request.OrderDetailRequest;
 import com.watermelon.dto.request.OrderRequest;
 import com.watermelon.exception.ForbiddenException;
-import com.watermelon.exception.NotFoundException;
+import com.watermelon.exception.ResourceNotFoundException;
 import com.watermelon.model.entity.Brand;
 import com.watermelon.model.entity.Category;
 import com.watermelon.model.entity.DeliveryMethod;
@@ -66,7 +66,7 @@ public class OrderServiceImp implements OrderService {
 	@Transactional(readOnly = true)
 	@Override
 	public Order getOrderById(Long id) {
-		return orderRepository.findById(id).orElseThrow(() -> new NotFoundException("ORDER_NOT_FOUND",id));
+		return orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("ORDER_NOT_FOUND",id));
 	}
 
 	@Transactional
@@ -90,7 +90,7 @@ public class OrderServiceImp implements OrderService {
 	@Override
 	public void updateOrderStatus(OrderStatus orderStatus, Long idOrder) {
 		Order order = orderRepository.findById(idOrder)
-				.orElseThrow(() -> new NotFoundException("ORDER_NOT_FOUND",idOrder));
+				.orElseThrow(() -> new ResourceNotFoundException("ORDER_NOT_FOUND",idOrder));
 		if (order.getOrderStatus().equals(EOrderStatus.CANCELLED)) {
 			throw new ForbiddenException("Cannot update order status as this order has been cancelled!");
 		}
@@ -110,7 +110,7 @@ public class OrderServiceImp implements OrderService {
 	@Override
 	public void updateDeliveryStatus(DeliveryStatus deliveryStatus, Long idOrder) {
 		Order order = orderRepository.findById(idOrder)
-				.orElseThrow(() -> new NotFoundException("ORDER_NOT_FOUND",idOrder));
+				.orElseThrow(() -> new ResourceNotFoundException("ORDER_NOT_FOUND",idOrder));
 		if (order.getOrderStatus().equals(EOrderStatus.CANCELLED)) {
 			throw new ForbiddenException("Cannot update delivery status as this order has been cancelled!");
 		}
@@ -126,21 +126,21 @@ public class OrderServiceImp implements OrderService {
 		OrderDetail orderDetail = new OrderDetail();
 
 		Product product = productRepository.findById(request.idProduct())
-				.orElseThrow(() -> new NotFoundException("PRODUCT_NOT_FOUND",request.idProduct()));
+				.orElseThrow(() -> new ResourceNotFoundException("PRODUCT_NOT_FOUND",request.idProduct()));
 		orderDetail.setProduct(product);
 		orderDetail.setQuantity(request.quantity());
 		orderDetail.setPrice(request.price());
 
 		Brand brand = brandRepository.findById(request.brand())
-				.orElseThrow(() -> new NotFoundException("BRAND_NOT_FOUND",request.brand()));
+				.orElseThrow(() -> new ResourceNotFoundException("BRAND_NOT_FOUND",request.brand()));
 		orderDetail.setBrand(brand.getName());
 
 		Category category = categoryRepository.findById(request.categogy())
-				.orElseThrow(() -> new NotFoundException("CATEGORY_NOT_FOUND",request.categogy()));
+				.orElseThrow(() -> new ResourceNotFoundException("CATEGORY_NOT_FOUND",request.categogy()));
 		orderDetail.setCategogy(category.getName());
 
 		Size size = sizeRepository.findById(request.size())
-				.orElseThrow(() -> new NotFoundException("SIZE_NOT_FOUND",request.size()));
+				.orElseThrow(() -> new ResourceNotFoundException("SIZE_NOT_FOUND",request.size()));
 
 		orderDetail.setSize(size.getName());
 
@@ -173,15 +173,15 @@ public class OrderServiceImp implements OrderService {
 		order.setRejectReason(request.rejectReason());
 
 		OrderStatus orderStatus = orderStatusRepository.findById(request.orderStatus())
-				.orElseThrow(() -> new NotFoundException("ORDER_STATUS_NOT_FOUND",request.orderStatus()));
+				.orElseThrow(() -> new ResourceNotFoundException("ORDER_STATUS_NOT_FOUND",request.orderStatus()));
 		order.setOrderStatus(orderStatus);
 
 		DeliveryMethod deliveryMethod = deliveryMethodRepository.findById(request.deliveryMethod())
-				.orElseThrow(() -> new NotFoundException("DELIVERY_METHOD_NOT_FOUND",request.deliveryMethod()));
+				.orElseThrow(() -> new ResourceNotFoundException("DELIVERY_METHOD_NOT_FOUND",request.deliveryMethod()));
 		order.setDeliveryMethod(deliveryMethod);
 
 		DeliveryStatus deliveryStatus = deliveryStatusRepository.findById(request.deliveryStatus())
-				.orElseThrow(() -> new NotFoundException("DELIVERY_STATUS_NOT_FOUND",request.deliveryStatus()));
+				.orElseThrow(() -> new ResourceNotFoundException("DELIVERY_STATUS_NOT_FOUND",request.deliveryStatus()));
 		order.setDeliveryStatus(deliveryStatus);
 
 		return order;

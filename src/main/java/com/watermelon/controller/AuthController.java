@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.watermelon.dto.request.LoginRequest;
 import com.watermelon.dto.request.RegisterRequest;
+import com.watermelon.dto.response.ResponseData;
 import com.watermelon.dto.response.TokenResponse;
 import com.watermelon.event.RegistrationCompleteEvent;
 import com.watermelon.model.entity.User;
@@ -31,22 +31,20 @@ public class AuthController {
 	private ApplicationEventPublisher publisher;
 
 	@PostMapping("/register")
-	@ResponseStatus(code = HttpStatus.CREATED)
-	public void register(@RequestBody @Valid RegisterRequest registerRequest, final HttpServletRequest servletRequest) {
+	public ResponseData<Long> register(@RequestBody @Valid RegisterRequest registerRequest, final HttpServletRequest servletRequest) {
 		User user = authService.register(registerRequest);
 		publisher.publishEvent(new RegistrationCompleteEvent(user, applicationUrl(servletRequest)));
+		return new ResponseData<>(HttpStatus.CREATED.value(), "User registered successfully", user.getId());
 	}
 
 	@PostMapping("/login")
-	@ResponseStatus(code = HttpStatus.OK)
-	public TokenResponse login(@RequestBody @Valid LoginRequest request) {
-		return authService.login(request);
+	public ResponseData<TokenResponse> login(@RequestBody @Valid LoginRequest request) {
+		return new ResponseData<>( HttpStatus.ACCEPTED.value(), "Login successful" ,authService.login(request));
 	}
 	
 	@GetMapping("/verifyEmail")
-	@ResponseStatus(code = HttpStatus.OK)
-    public String verifyEmail(@RequestParam("token") String token){
-        return authService.verifyEmail(token);
+    public ResponseData<String> verifyEmail(@RequestParam("token") String token){
+        return new ResponseData<>(HttpStatus.OK.value(),authService.verifyEmail(token));
     }
 	
 

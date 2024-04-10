@@ -2,11 +2,11 @@ package com.watermelon.exception;
 
 import com.watermelon.utils.MessagesUtils;
 
-public class NotFoundException extends RuntimeException {
+public class ResourceNotFoundException extends RuntimeException {
 
   private String message;
 
-  public NotFoundException(String errorCode, Object... var2) {
+  public ResourceNotFoundException(String errorCode, Object... var2) {
     this.message = MessagesUtils.getMessage(errorCode, var2);
   }
 

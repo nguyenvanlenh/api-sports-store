@@ -18,7 +18,7 @@ import com.watermelon.dto.SizeDTO;
 import com.watermelon.dto.mapper.imp.ProductMapper;
 import com.watermelon.dto.request.ProductRequest;
 import com.watermelon.dto.response.PaginationResponse;
-import com.watermelon.exception.NotFoundException;
+import com.watermelon.exception.ResourceNotFoundException;
 import com.watermelon.model.entity.Brand;
 import com.watermelon.model.entity.Category;
 import com.watermelon.model.entity.Image;
@@ -58,13 +58,13 @@ public class ProductServiceImp implements ProductService {
      * 
      * @param id The ID of the product to retrieve.
      * @return The ProductDTO representing the retrieved product.
-     * @throws NotFoundException if the product with the specified ID is not found.
+     * @throws ResourceNotFoundException if the product with the specified ID is not found.
      */
 	@Transactional(readOnly = true)
 	@Override
 	public ProductDTO getProductById(Long id) {
 		Product product = 
-				productRepository.findById(id).orElseThrow(() -> new NotFoundException("PRODUCT_NOT_FOUND", id));
+				productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("PRODUCT_NOT_FOUND", id));
 		ProductDTO result = new ProductMapper().toDTO(product);
 		return result;
 	}
@@ -82,11 +82,11 @@ public class ProductServiceImp implements ProductService {
 		List<ProductDTO> listProductDTO = new ProductMapper().toDTO(pageProduct.getContent());
 
 		return new PaginationResponse<>(
-				listProductDTO,
 				pageProduct.getPageable().getPageNumber(),
 				pageProduct.getSize(),
 				pageProduct.getTotalPages(),
-				pageProduct.getTotalElements());
+				pageProduct.getTotalElements(),
+				listProductDTO);
 	}
 
 	 /**
@@ -102,11 +102,11 @@ public class ProductServiceImp implements ProductService {
 		Page<Product> pageProduct = productRepository.findByNameContainingIgnoreCase(keyword, pageable);
 		List<ProductDTO> listProductDTO = new ProductMapper().toDTO(pageProduct.getContent());
 		return new PaginationResponse<>(
-				listProductDTO,
 				pageProduct.getPageable().getPageNumber(),
 				pageProduct.getSize(),
 				pageProduct.getTotalPages(),
-				pageProduct.getTotalElements());
+				pageProduct.getTotalElements(),
+				listProductDTO);
 	}
 
 	 /**
@@ -132,7 +132,7 @@ public class ProductServiceImp implements ProductService {
      * @param productDTO The updated product details.
      * @param files The list of image files to associate with the product.
      * @return The ProductDTO representing the updated product.
-     * @throws NotFoundException if the product to update is not found.
+     * @throws ResourceNotFoundException if the product to update is not found.
      */
 	@Transactional
 	@Override
@@ -153,7 +153,7 @@ public class ProductServiceImp implements ProductService {
 
 			return new ProductMapper().toDTO(existingProduct);
 		} else {
-			 throw new NotFoundException("PRODUCT_NOT_FOUND" ,productDTO.id());
+			 throw new ResourceNotFoundException("PRODUCT_NOT_FOUND" ,productDTO.id());
 		}
 	}
 	
@@ -172,7 +172,7 @@ public class ProductServiceImp implements ProductService {
 
 			return new ProductMapper().toDTO(existingProduct);
 		} else {
-			throw new NotFoundException("PRODUCT_NOT_FOUND" ,productDTO.id());
+			throw new ResourceNotFoundException("PRODUCT_NOT_FOUND" ,productDTO.id());
 		}
 	}
 
@@ -190,9 +190,9 @@ public class ProductServiceImp implements ProductService {
 			return null;
 		}
 		Brand brand = brandRepository.findById(productRequest.idBrand())
-				.orElseThrow(() -> new NotFoundException("BRAND_NOT_FOUND" ,productRequest.idBrand()));
+				.orElseThrow(() -> new ResourceNotFoundException("BRAND_NOT_FOUND" ,productRequest.idBrand()));
 		Category category = categoryRepository.findById(productRequest.idCategory())
-				.orElseThrow(() -> new NotFoundException("CATEGORY_NOT_FOUND" ,productRequest.idCategory()));
+				.orElseThrow(() -> new ResourceNotFoundException("CATEGORY_NOT_FOUND" ,productRequest.idCategory()));
 		Product product = new Product();
 		product.setName(productRequest.name());
 		product.setShortDescription(productRequest.shortDescription());
@@ -207,7 +207,7 @@ public class ProductServiceImp implements ProductService {
 		List<ProductQuantity> savedQuantities = productRequest.listSize().stream().map(sizeItem -> {
 			ProductQuantity productQuantityWithSize = new ProductQuantity();
 			Size size = sizeRepository.findById(sizeItem.id())
-					.orElseThrow(() -> new NotFoundException("SIZE_NOT_FOUND" ,sizeItem.id()));
+					.orElseThrow(() -> new ResourceNotFoundException("SIZE_NOT_FOUND" ,sizeItem.id()));
 			productQuantityWithSize.setQuantity(sizeItem.quantity());
 			productQuantityWithSize.setSize(size);
 			productQuantityWithSize.setProduct(mainProduct);
@@ -358,19 +358,20 @@ public class ProductServiceImp implements ProductService {
 	 * @param urlKey   The URL key of the category to filter products by.
 	 * @param pageable The pagination information.
 	 * @return A ResponsePageData containing the list of ProductDTOs matching the category URL key and pagination details.
-	 * @throws NotFoundException if no products are found with the specified category URL key.
+	 * @throws ResourceNotFoundException if no products are found with the specified category URL key.
 	 */
 	@Override
 	public PaginationResponse<List<ProductDTO>> getProductByUrlKeyCategory(String urlKey, Pageable pageable) {
 		Page<Product> pageProduct = productRepository.findByCategory_UrlKey(urlKey, pageable);
 		if (pageProduct.isEmpty()) {
-			throw new NotFoundException("URL_KEY_CATEGORY_NOT_FOUND", urlKey);
+			throw new ResourceNotFoundException("URL_KEY_CATEGORY_NOT_FOUND", urlKey);
 		}
 		List<ProductDTO> listProductDTO = new ProductMapper().toDTO(pageProduct.getContent());
 
-		PaginationResponse<List<ProductDTO>> result = new PaginationResponse<>(listProductDTO,
-				pageProduct.getPageable().getPageNumber(), pageProduct.getSize(), pageProduct.getTotalPages(),
-				pageProduct.getTotalElements());
+		PaginationResponse<List<ProductDTO>> result = new PaginationResponse<>(
+				pageProduct.getPageable().getPageNumber(),
+				pageProduct.getSize(), pageProduct.getTotalPages(),
+				pageProduct.getTotalElements(),listProductDTO);
 		return result;
 	}
 
@@ -381,15 +382,15 @@ public class ProductServiceImp implements ProductService {
 	 * @param quantitySubtract The quantity to subtract from the product's size.
 	 * @param idProduct        The ID of the product.
 	 * @param idSize           The ID of the size to update quantity for.
-	 * @throws NotFoundException      if the product or size is not found.
+	 * @throws ResourceNotFoundException      if the product or size is not found.
 	 * @throws RuntimeException       if the specified quantity to subtract is greater than available quantity or exceeds the maximum allowed.
 	 */
 	@Override
 	public void updateProductQuantityForSize(int quantitySubtract, Long idProduct, Integer idSize) {
 		Product product = productRepository.findById(idProduct)
-				.orElseThrow(() -> new NotFoundException("PRODUCT_NOT_FOUND" ,idProduct));
+				.orElseThrow(() -> new ResourceNotFoundException("PRODUCT_NOT_FOUND" ,idProduct));
 		Size size = sizeRepository.findById(idSize)
-				.orElseThrow(() -> new NotFoundException("SIZE_NOT_FOUND" , idSize));
+				.orElseThrow(() -> new ResourceNotFoundException("SIZE_NOT_FOUND" , idSize));
 
 		ProductQuantity productQuantity = productQuantityRepository.findByProduct_IdAndSize_Id(idProduct, idSize);
 

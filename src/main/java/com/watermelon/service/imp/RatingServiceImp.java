@@ -12,7 +12,7 @@ import com.watermelon.dto.RatingDTO;
 import com.watermelon.dto.mapper.imp.RatingMapper;
 import com.watermelon.dto.request.RatingRequest;
 import com.watermelon.dto.response.PaginationResponse;
-import com.watermelon.exception.NotFoundException;
+import com.watermelon.exception.ResourceNotFoundException;
 import com.watermelon.model.entity.Product;
 import com.watermelon.model.entity.Rating;
 import com.watermelon.model.entity.User;
@@ -38,9 +38,11 @@ public class RatingServiceImp implements RatingService{
 		Page<Rating> pageRating = ratingRepository.findByProduct_Id(productId, pageable);
 		List<RatingDTO> listRatingDTO = new RatingMapper().toDTO(pageRating.getContent());
 		
-		PaginationResponse<List<RatingDTO>> result = new PaginationResponse<>(listRatingDTO,
-				pageRating.getPageable().getPageNumber(), pageRating.getSize(), pageRating.getTotalPages(),
-				pageRating.getTotalElements());
+		PaginationResponse<List<RatingDTO>> result = new PaginationResponse<>(
+				pageRating.getPageable().getPageNumber(),
+				pageRating.getSize(), pageRating.getTotalPages(),
+				pageRating.getTotalElements(),
+				listRatingDTO);
 		return result;
 	}
 
@@ -51,11 +53,11 @@ public class RatingServiceImp implements RatingService{
 		rating.setContent(request.content());
 		rating.setStar(request.star());
 		Product product = productRepository.findById(request.productId())
-				.orElseThrow(()-> new NotFoundException("PRODUCT_NOT_FOUND" ,request.productId()));
+				.orElseThrow(()-> new ResourceNotFoundException("PRODUCT_NOT_FOUND" ,request.productId()));
 		rating.setProduct(product);
 		
 		User user = userRepository.findById(request.userId())
-				.orElseThrow(()-> new NotFoundException("USER_NOT_FOUND",request.userId()));
+				.orElseThrow(()-> new ResourceNotFoundException("USER_NOT_FOUND",request.userId()));
 		rating.setUser(user);
 		
 		ratingRepository.save(rating);
@@ -65,7 +67,7 @@ public class RatingServiceImp implements RatingService{
 	@Override
 	public void deleteRating(Long id) {
 		Rating rating = ratingRepository.findById(id)
-				.orElseThrow(()-> new NotFoundException("RATING_NOT_FOUND",id));
+				.orElseThrow(()-> new ResourceNotFoundException("RATING_NOT_FOUND",id));
 		ratingRepository.delete(rating);
 		
 	}

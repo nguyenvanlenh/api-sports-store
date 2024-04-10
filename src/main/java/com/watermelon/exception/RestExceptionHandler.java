@@ -1,7 +1,5 @@
 package com.watermelon.exception;
 
-import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -29,58 +27,73 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestControllerAdvice
 public class RestExceptionHandler {
 
-	@ExceptionHandler(NotFoundException.class)
-	public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException ex) {
-		ErrorResponse error = new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+	@ExceptionHandler(ResourceNotFoundException.class)
+	public ResponseEntity<ErrorResponse> handleNotFoundException(ResourceNotFoundException e,HttpServletRequest request) {
+		ErrorResponse error = new ErrorResponse(HttpStatus.NOT_FOUND.value(),
+				e.getMessage(),
+				 request.getRequestURI());
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
 	}
 
 	@ExceptionHandler(ForbiddenException.class)
-	public ResponseEntity<ErrorResponse> handleForbiddenException(ForbiddenException ex) {
-		ErrorResponse error = new ErrorResponse(HttpStatus.FORBIDDEN.value(), ex.getMessage());
+	public ResponseEntity<ErrorResponse> handleForbiddenException(ForbiddenException e,HttpServletRequest request) {
+		ErrorResponse error = new ErrorResponse(HttpStatus.FORBIDDEN.value(),
+				e.getMessage(),
+				 request.getRequestURI());
 		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
 	}
 
 	@ExceptionHandler(UsernameNotFoundException.class)
-	ResponseEntity<ErrorResponse> handlingUsernameNotFoundException(UsernameNotFoundException e) {
-		ErrorResponse error = new ErrorResponse(HttpStatus.NOT_FOUND.value(), e.getLocalizedMessage());
+	ResponseEntity<ErrorResponse> handlingUsernameNotFoundException(UsernameNotFoundException e,HttpServletRequest request) {
+		ErrorResponse error = new ErrorResponse(HttpStatus.NOT_FOUND.value(),
+				e.getMessage(),
+				 request.getRequestURI());
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
 	}
 
 	@ExceptionHandler(AuthenticationException.class)
-	ResponseEntity<ErrorResponse> handlingAuthenticationException(AuthenticationException e) {
-		ErrorResponse error = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), e.getLocalizedMessage());
+	ResponseEntity<ErrorResponse> handlingAuthenticationException(AuthenticationException e,HttpServletRequest request) {
+		ErrorResponse error = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(),
+				e.getLocalizedMessage(),
+				 request.getRequestURI());
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
 	}
 
 	@ExceptionHandler(ResourceExistedException.class)
-	ResponseEntity<ErrorResponse> handlingResourceExistedException(ResourceExistedException e) {
-		ErrorResponse error = new ErrorResponse(HttpStatus.CONFLICT.value(), e.getLocalizedMessage());
+	ResponseEntity<ErrorResponse> handlingResourceExistedException(ResourceExistedException e,HttpServletRequest request) {
+		ErrorResponse error = new ErrorResponse(HttpStatus.CONFLICT.value(),
+				e.getLocalizedMessage(),
+				 request.getRequestURI());
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	ResponseEntity<?> handlingMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-		Map<String, Object> responseBody = new LinkedHashMap<>();
-		responseBody.put("status", HttpStatus.BAD_REQUEST.value());
+	ResponseEntity<?> handlingMethodArgumentNotValidException(MethodArgumentNotValidException e,
+			HttpServletRequest request) {
 
-		Map<String, String> errors = e.getBindingResult().getFieldErrors().stream().collect(
-				Collectors.toMap(fieldError -> fieldError.getField(), fieldError -> fieldError.getDefaultMessage()));
+		String errors = e.getBindingResult().getFieldErrors()
+				.stream().map(
+				fieldError -> fieldError.getDefaultMessage())
+				.collect(Collectors.joining(","));
 
-		responseBody.put("errors", errors);
-		responseBody.put("timestamp", new Date());
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);
+		ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), errors,
+				request.getRequestURI());
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
 
 	}
 
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public ResponseEntity<?> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException e) {
+	public ResponseEntity<?> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException e,HttpServletRequest request) {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-				.body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getLocalizedMessage()));
+				.body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(),
+						e.getLocalizedMessage(),
+	    				 request.getRequestURI()));
 	}
 
 	@ExceptionHandler({ 
@@ -97,7 +110,7 @@ public class RestExceptionHandler {
 		MissingServletRequestPartException.class,
 		BindException.class, NoHandlerFoundException.class,
 		AsyncRequestTimeoutException.class })
-	public ResponseEntity<ErrorResponse> handleException(Exception e) {
+	public ResponseEntity<ErrorResponse> handleException(Exception e,HttpServletRequest request) {
 		HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
 		if (e instanceof HttpRequestMethodNotSupportedException) {
 			httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
@@ -113,6 +126,8 @@ public class RestExceptionHandler {
 				|| e instanceof AsyncRequestTimeoutException) {
 			httpStatus = HttpStatus.NOT_FOUND;
 		}
-		return ResponseEntity.status(httpStatus).body(new ErrorResponse(httpStatus.value(), e.getMessage()));
+		return ResponseEntity.status(httpStatus).body(new ErrorResponse(httpStatus.value(),
+				e.getMessage(),
+				request.getRequestURI()));
 	}
 }

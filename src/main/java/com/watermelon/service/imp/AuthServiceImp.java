@@ -20,7 +20,7 @@ import com.watermelon.dto.request.ForgotPasswordRequest;
 import com.watermelon.dto.request.LoginRequest;
 import com.watermelon.dto.request.RegisterRequest;
 import com.watermelon.dto.response.TokenResponse;
-import com.watermelon.exception.NotFoundException;
+import com.watermelon.exception.ResourceNotFoundException;
 import com.watermelon.exception.ResourceExistedException;
 import com.watermelon.model.entity.Role;
 import com.watermelon.model.entity.User;
@@ -99,12 +99,12 @@ public class AuthServiceImp implements AuthService {
 		Set<Role> setRoles = new HashSet<>();
 		if (listRoles.isEmpty()) {
 			Role role = roleRepository.findByName(ERole.USER.toString())
-					.orElseThrow(() -> new NotFoundException("Role not found!"));
+					.orElseThrow(() -> new ResourceNotFoundException("Role not found!"));
 			setRoles.add(role);
 		} else {
 			listRoles.forEach(role -> {
 				Role roleDetail = roleRepository.findByName(role)
-						.orElseThrow(() -> new NotFoundException("Role not found!"));
+						.orElseThrow(() -> new ResourceNotFoundException("Role not found!"));
 				setRoles.add(roleDetail);
 			});
 		}
@@ -129,7 +129,7 @@ public class AuthServiceImp implements AuthService {
 	@Override
 	public String verifyEmail(String token) {
 		VerificationToken theToken = tokenRepository.findByToken(token)
-				.orElseThrow(() -> new NotFoundException("verification token not found"));
+				.orElseThrow(() -> new ResourceNotFoundException("verification token not found"));
 
 		if (theToken.getUser().isActive()) {
 			return ACCOUNT_VERIFIED;
