@@ -71,6 +71,8 @@ public class SecurityConfig {
 				.addFilterBefore(exceptionHandlerFilter(), JwtAuthenticationFilter.class)
 
 				.httpBasic(Customizer.withDefaults())
+				.exceptionHandling(handling ->
+					handling.authenticationEntryPoint(new JwtAuthenticationEntryPoint()))
 				;
 		
 		return http.build();

@@ -5,12 +5,16 @@ import java.sql.Timestamp;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
+@AllArgsConstructor
 public class ErrorResponse {
 	int status;
 	String message;

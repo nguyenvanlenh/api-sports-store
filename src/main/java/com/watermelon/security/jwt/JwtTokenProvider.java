@@ -2,19 +2,18 @@ package com.watermelon.security.jwt;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.Set;
 import java.util.StringJoiner;
+import java.util.UUID;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import com.watermelon.dto.response.TokenResponse;
-import com.watermelon.security.CustomUserDetails;
+import com.watermelon.utils.Constants;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -43,24 +42,25 @@ public class JwtTokenProvider {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     }
 
-	public String generateToken(String tokenType, CustomUserDetails userDetails) {
+	public String generateToken(String tokenType, UserDetails userDetails) {
 		Date now = new Date();
-		Date timeExpiration = new Date(now.getTime() + JWT_ACCESS_EXPIRATION * 60 * 60 * 1000);
+		Date timeExpiration = new Date(now.getTime() + JWT_ACCESS_EXPIRATION * 60 * 60);
 
-		if (tokenType.equals("refreshToken"))
+		if (tokenType.equals(Constants.REFRESH_TOKEN))
 			timeExpiration = new Date(now.getTime() + JWT_REFRESH_EXPIRATION * 60 * 60 * 24 * 1000);
 
 		return Jwts.builder()
+				.setId(UUID.randomUUID().toString())
 				.setSubject(userDetails.getUsername())
 				.setIssuer("watermelon.com")
 				.setIssuedAt(now)
 				.setExpiration(timeExpiration)
-				.claim("roles", buildScope(userDetails))
+				.claim("roles", buildClaimRoles(userDetails))
 				.signWith(getSecretKey(), SignatureAlgorithm.HS512)
 				.compact();
 	}
 	
-	private String buildScope(CustomUserDetails userDetails) {
+	private String buildClaimRoles(UserDetails userDetails) {
 		  StringJoiner stringJoiner = new StringJoiner(" ");
 		  if(!CollectionUtils.isEmpty(userDetails.getAuthorities()))
 			  userDetails.getAuthorities()
@@ -70,40 +70,6 @@ public class JwtTokenProvider {
 		return stringJoiner.toString();
 	}
 	
-	public TokenResponse getRefreshToken(CustomUserDetails userDetails){
-			String accessToken = generateToken("accessToken", userDetails);
-			String refreshToken = generateToken("refreshToken", userDetails);
-			Set<String> listRoles = userDetails.getAuthorities().stream().map(authority -> authority.getAuthority())
-					.collect(Collectors.toSet());
-			return TokenResponse.builder()
-					.accessToken(accessToken)
-					.refreshToken(refreshToken)
-					.authenticated(true)
-					.username(userDetails.getUsername())
-					.userId(userDetails.getId())
-					.listRoles(listRoles)
-					.build();
-		
-	}
-	public TokenResponse getAccessToken(String refreshToken){
-			
-			String username = getUsernameFromToken(refreshToken);
-			CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(username); 
-			String accessToken = generateToken("accessToken", userDetails);
-			Set<String> listRoles = userDetails.getAuthorities()
-					.stream()
-					.map(authority -> authority.getAuthority())
-					.collect(Collectors.toSet());
-			return TokenResponse.builder()
-					.accessToken(accessToken)
-					.refreshToken(refreshToken)
-					.authenticated(true)
-					.username(username)
-					.userId(userDetails.getId())
-					.listRoles(listRoles)
-					.build();
-		
-	}
 	
 	
 	private Claims getAllClaimsFromToken(String token) {

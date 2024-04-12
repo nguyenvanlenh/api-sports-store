@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.watermelon.dto.request.LoginRequest;
+import com.watermelon.dto.request.RefreshRequest;
 import com.watermelon.dto.request.RegisterRequest;
 import com.watermelon.dto.response.ResponseData;
 import com.watermelon.dto.response.TokenResponse;
@@ -50,6 +51,15 @@ public class AuthController {
 
 	private String applicationUrl(HttpServletRequest request) {
 		return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+	}
+	
+	@PostMapping("/refreshToken")
+	public  ResponseData<TokenResponse> getRefreshToken(@RequestBody RefreshRequest request) {
+		TokenResponse response = authService.getRefreshToken(request);
+		if (response.isAuthenticated()) {
+			return new ResponseData<>(HttpStatus.OK.value(),"Refresh token",response);
+		}
+		return new ResponseData<>(HttpStatus.BAD_REQUEST.value(), "Failed to get refresh token");
 	}
 
 }

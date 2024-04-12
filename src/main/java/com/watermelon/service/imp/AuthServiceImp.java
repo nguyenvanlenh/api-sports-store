@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,10 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.watermelon.dto.request.ChangePasswordRequest;
 import com.watermelon.dto.request.ForgotPasswordRequest;
 import com.watermelon.dto.request.LoginRequest;
+import com.watermelon.dto.request.RefreshRequest;
 import com.watermelon.dto.request.RegisterRequest;
 import com.watermelon.dto.response.TokenResponse;
-import com.watermelon.exception.ResourceNotFoundException;
 import com.watermelon.exception.ResourceExistedException;
+import com.watermelon.exception.ResourceNotFoundException;
 import com.watermelon.model.entity.Role;
 import com.watermelon.model.entity.User;
 import com.watermelon.model.entity.VerificationToken;
@@ -33,6 +35,7 @@ import com.watermelon.repository.VerificationTokenRepository;
 import com.watermelon.security.CustomUserDetails;
 import com.watermelon.security.jwt.JwtTokenProvider;
 import com.watermelon.service.AuthService;
+import com.watermelon.utils.Constants;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -69,15 +72,14 @@ public class AuthServiceImp implements AuthService {
 		CustomUserDetails customUserDetails = (CustomUserDetails) userDetailsService
 				.loadUserByUsername(request.username());
 		SecurityContextHolder.getContext().setAuthentication(authentication);
-		String accessToken = jwtTokenProvider.generateToken("accessToken", customUserDetails);
-		String refreshToken = jwtTokenProvider.generateToken("refreshToken", customUserDetails);
+		String accessToken = jwtTokenProvider.generateToken(Constants.ACCESS_TOKEN, customUserDetails);
+		String refreshToken = jwtTokenProvider.generateToken(Constants.REFRESH_TOKEN, customUserDetails);
 		Set<String> listRoles = customUserDetails.getAuthorities().stream().map(authority -> authority.getAuthority())
 				.collect(Collectors.toSet());
 		return TokenResponse.builder()
 				.accessToken(accessToken)
 				.refreshToken(refreshToken)
 				.authenticated(true)
-				.username(customUserDetails.getUsername())
 				.userId(customUserDetails.getId())
 				.listRoles(listRoles)
 				.build();
@@ -136,7 +138,7 @@ public class AuthServiceImp implements AuthService {
 		}
 
 		String validationMessage = validateVerificationToken(theToken);
-		if (validationMessage.equalsIgnoreCase("valid")) {
+		if (validationMessage.equalsIgnoreCase(VALID_TOKEN)) {
 			theToken.getUser().setActive(true);
 			// update active user
 			userRepository.save(theToken.getUser());
@@ -165,6 +167,22 @@ public class AuthServiceImp implements AuthService {
 		return VALID_TOKEN;
 	}
 
+	@Override
+	public TokenResponse getRefreshToken(RefreshRequest request) {
+		String token = request.token();
+		String accessToken = null;
+		boolean authenticated = false;
+		if(jwtTokenProvider.validateToken(token)) {
+			String username = jwtTokenProvider.getUsernameFromToken(token);
+			UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+			accessToken = jwtTokenProvider.generateToken(Constants.ACCESS_TOKEN, userDetails);
+			authenticated = true;
+		}
+		return TokenResponse.builder()
+				.accessToken(accessToken)
+				.authenticated(authenticated)
+				.build();
+	}
 	
 
 }
