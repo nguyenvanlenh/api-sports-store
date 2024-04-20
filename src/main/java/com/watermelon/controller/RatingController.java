@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.watermelon.dto.RatingDTO;
 import com.watermelon.dto.request.RatingRequest;
-import com.watermelon.dto.response.PaginationResponse;
+import com.watermelon.dto.response.PageResponse;
 import com.watermelon.dto.response.ResponseData;
 import com.watermelon.service.RatingService;
 
@@ -38,10 +38,10 @@ public class RatingController {
 	}
 	
 	@GetMapping("/products/{productId}")
-	public ResponseData<PaginationResponse<List<RatingDTO>>> getRatingListByProductId(@PathVariable(name = "productId") Long id,
+	public ResponseData<PageResponse<List<RatingDTO>>> getRatingListByProductId(@PathVariable(name = "productId") Long id,
 			@PageableDefault(page = 0, size = 20) Pageable pageable
 			){
-		PaginationResponse<List<RatingDTO>> data = ratingService.getRatingListByProductId(id, pageable);
+		PageResponse<List<RatingDTO>> data = ratingService.getRatingListByProductId(id, pageable);
 		return new ResponseData<>(HttpStatus.OK.value(), "List rating of product " + id, data);
 	}
 	

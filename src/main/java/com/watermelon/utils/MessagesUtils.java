@@ -11,6 +11,9 @@ public class MessagesUtils {
 
 	static ResourceBundle messageBundle = ResourceBundle.getBundle("messages.messages", Locale.getDefault());
 	
+	private MessagesUtils() {
+		
+	}
     public static String getMessage(String errorCode, Object... var2) {
     	String message;
     	try {

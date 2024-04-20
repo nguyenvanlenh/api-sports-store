@@ -13,8 +13,5 @@ public class BrandMapper implements EntityMapper<BrandDTO, Brand> {
 		}
 		return new BrandDTO(entity.getId(), entity.getName());
 	}
-	
-
-	
 
 }

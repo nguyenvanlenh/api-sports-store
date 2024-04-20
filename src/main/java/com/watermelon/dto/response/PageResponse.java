@@ -1,6 +1,6 @@
 package com.watermelon.dto.response;
 
-public record PaginationResponse<T>(
+public record PageResponse<T>(
 		int currentPage,
 		int size,
 		int totalPage,

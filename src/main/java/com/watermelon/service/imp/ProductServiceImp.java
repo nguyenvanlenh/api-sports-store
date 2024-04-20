@@ -15,7 +15,7 @@ import com.watermelon.dto.ImageDTO;
 import com.watermelon.dto.ProductDTO;
 import com.watermelon.dto.SizeDTO;
 import com.watermelon.dto.request.ProductRequest;
-import com.watermelon.dto.response.PaginationResponse;
+import com.watermelon.dto.response.PageResponse;
 import com.watermelon.exception.InvalidQuantityException;
 import com.watermelon.exception.ResourceNotFoundException;
 import com.watermelon.mapper.imp.ProductMapper;
@@ -77,11 +77,11 @@ public class ProductServiceImp implements ProductService {
      */
 	@Transactional(readOnly = true)
 	@Override
-	public PaginationResponse<List<ProductDTO>> getAllProduct(Pageable pageable) {
+	public PageResponse<List<ProductDTO>> getAllProduct(Pageable pageable) {
 		Page<Product> pageProduct = productRepository.findAll(pageable);
 		List<ProductDTO> listProductDTO = new ProductMapper().toDTO(pageProduct.getContent());
 
-		return new PaginationResponse<>(
+		return new PageResponse<>(
 				pageProduct.getPageable().getPageNumber(),
 				pageProduct.getSize(),
 				pageProduct.getTotalPages(),
@@ -98,10 +98,10 @@ public class ProductServiceImp implements ProductService {
      */
 	@Transactional(readOnly = true)
 	@Override
-	public PaginationResponse<List<ProductDTO>> getProductContainName(String keyword, Pageable pageable) {
+	public PageResponse<List<ProductDTO>> getProductContainName(String keyword, Pageable pageable) {
 		Page<Product> pageProduct = productRepository.findByNameContainingIgnoreCase(keyword, pageable);
 		List<ProductDTO> listProductDTO = new ProductMapper().toDTO(pageProduct.getContent());
-		return new PaginationResponse<>(
+		return new PageResponse<>(
 				pageProduct.getPageable().getPageNumber(),
 				pageProduct.getSize(),
 				pageProduct.getTotalPages(),
@@ -346,14 +346,14 @@ public class ProductServiceImp implements ProductService {
 	 * @throws ResourceNotFoundException if no products are found with the specified category URL key.
 	 */
 	@Override
-	public PaginationResponse<List<ProductDTO>> getProductByUrlKeyCategory(String urlKey, Pageable pageable) {
+	public PageResponse<List<ProductDTO>> getProductByUrlKeyCategory(String urlKey, Pageable pageable) {
 		Page<Product> pageProduct = productRepository.findByCategory_UrlKey(urlKey, pageable);
 		if (pageProduct.isEmpty()) {
 			throw new ResourceNotFoundException("URL_KEY_CATEGORY_NOT_FOUND", urlKey);
 		}
 		List<ProductDTO> listProductDTO = new ProductMapper().toDTO(pageProduct.getContent());
 
-		return new PaginationResponse<>(
+		return new PageResponse<>(
 				pageProduct.getPageable().getPageNumber(),
 				pageProduct.getSize(), pageProduct.getTotalPages(),
 				pageProduct.getTotalElements(),listProductDTO);

@@ -9,7 +9,7 @@ import org.springframework.util.ObjectUtils;
 
 import com.watermelon.dto.RatingDTO;
 import com.watermelon.dto.request.RatingRequest;
-import com.watermelon.dto.response.PaginationResponse;
+import com.watermelon.dto.response.PageResponse;
 import com.watermelon.mapper.imp.RatingMapper;
 import com.watermelon.model.entity.Product;
 import com.watermelon.model.entity.Rating;
@@ -31,11 +31,11 @@ public class RatingServiceImp implements RatingService {
 	CommonService commonService;
 
 	@Override
-	public PaginationResponse<List<RatingDTO>> getRatingListByProductId(Long productId, Pageable pageable) {
+	public PageResponse<List<RatingDTO>> getRatingListByProductId(Long productId, Pageable pageable) {
 		Page<Rating> pageRating = ratingRepository.findByProduct_Id(productId, pageable);
 		List<RatingDTO> listRatingDTO = new RatingMapper().toDTO(pageRating.getContent());
 
-		PaginationResponse<List<RatingDTO>> result = new PaginationResponse<>(pageRating.getPageable().getPageNumber(),
+		PageResponse<List<RatingDTO>> result = new PageResponse<>(pageRating.getPageable().getPageNumber(),
 				pageRating.getSize(), pageRating.getTotalPages(), pageRating.getTotalElements(), listRatingDTO);
 		return result;
 	}

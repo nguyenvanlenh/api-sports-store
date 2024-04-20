@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.watermelon.dto.ProductDTO;
 import com.watermelon.dto.request.ProductRequest;
-import com.watermelon.dto.response.PaginationResponse;
+import com.watermelon.dto.response.PageResponse;
 import com.watermelon.dto.response.ResponseData;
 import com.watermelon.service.ImageService;
 import com.watermelon.service.ProductService;
@@ -40,14 +40,14 @@ public class ProductController {
 	ImageService imageService;
 
 	@GetMapping
-	public ResponseData<PaginationResponse<List<ProductDTO>>> getProducts(
+	public ResponseData<PageResponse<List<ProductDTO>>> getProducts(
 			@PageableDefault(page = 0, size = 20) 
 			@SortDefaults(
 					@SortDefault(direction = Sort.Direction.DESC, sort = {"price" })
 					) Pageable pageable,
 			@RequestParam(name = "search", required = false) String content,
 			@RequestParam(name = "category", required = false) String urlKey) {
-		PaginationResponse<List<ProductDTO>> listData = null;
+		PageResponse<List<ProductDTO>> listData = null;
 		if (content != null) {
 			listData = productService.getProductContainName(content, pageable);
 		} else if (urlKey != null) {

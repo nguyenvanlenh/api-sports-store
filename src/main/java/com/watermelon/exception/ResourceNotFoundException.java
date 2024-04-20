@@ -4,19 +4,15 @@ import com.watermelon.utils.MessagesUtils;
 
 public class ResourceNotFoundException extends RuntimeException {
 
-  private String message;
+	private final String message;
 
-  public ResourceNotFoundException(String errorCode, Object... var2) {
-    this.message = MessagesUtils.getMessage(errorCode, var2);
-  }
+	public ResourceNotFoundException(String errorCode, Object... var2) {
+		this.message = MessagesUtils.getMessage(errorCode, var2);
+	}
 
-  @Override
-  public String getMessage() {
-    return message;
-  }
+	@Override
+	public String getMessage() {
+		return message;
+	}
 
-  public void setMessage(String message) {
-    this.message = message;
-  }
 }
-

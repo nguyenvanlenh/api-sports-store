@@ -6,10 +6,8 @@ import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.function.Function;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -35,8 +33,6 @@ public class JwtTokenProvider {
 	private int JWT_ACCESS_EXPIRATION;
 	@Value("${jwt.refresh.expiration}")
 	private int JWT_REFRESH_EXPIRATION;
-	
-	@Autowired UserDetailsService userDetailsService;
 
 	private Key getSecretKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());

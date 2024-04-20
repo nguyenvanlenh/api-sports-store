@@ -30,19 +30,18 @@ public class SecurityConfig {
 			"/api/auth/verifyEmail"
 			};
 
-	private final String[] SWAGGER_ENDPOINTS = { "swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
+	private final String[] SWAGGER_ENDPOINTS = { 
+			"swagger-ui.html",
+			"/swagger-ui/**",
+			"/v3/api-docs/**",
 			"/javainuse-openapi/**" };
-
-
-	@Bean
-	public JwtAuthenticationFilter jwtAuthenticationFilter() {
-		return new JwtAuthenticationFilter();
-	}
 	
-	@Bean
-	public ExceptionHandlerFilter exceptionHandlerFilter() {
-		return new ExceptionHandlerFilter();
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	
+	public SecurityConfig(final JwtAuthenticationFilter jwtAuthenticationFilter) {
+		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
 	}
+
 
 	@Bean
 	public DaoAuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
@@ -62,8 +61,8 @@ public class SecurityConfig {
 							authorize.requestMatchers(PUBLIC_ENDPOINTS).permitAll()
 							.anyRequest().authenticated())
 
-				.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-				.addFilterBefore(exceptionHandlerFilter(), JwtAuthenticationFilter.class)
+				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+				.addFilterBefore(exceptionHandlerFilter, JwtAuthenticationFilter.class)
 
 				.httpBasic(Customizer.withDefaults())
 				.exceptionHandling(handling ->

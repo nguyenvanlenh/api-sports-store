@@ -24,16 +24,4 @@ public class ProductMapper implements EntityMapper<ProductDTO, Product> {
 				new SizeMapper().toDTO(entity.getQuantityOfSizes().stream().toList()));
 	}
 
-//	@Override
-//	public Product toEntity(ProductDTO dto) {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-//
-//	@Override
-//	public List<Product> toEntity(List<ProductDTO> dtos) {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-
 }
