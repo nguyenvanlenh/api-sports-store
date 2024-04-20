@@ -3,7 +3,6 @@ package com.watermelon.service.imp;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
@@ -41,13 +40,12 @@ public class CloudinaryServiceImp implements ImageService {
 			try {
 				Map<String, String> result = cloudinary.uploader()
 						.upload(file.getBytes(), ObjectUtils.emptyMap());
-				String imageUrl = (String) result.get("url");
-				return imageUrl;
+				return result.get("url").toString();
 			} catch (IOException e) {
 				e.printStackTrace();
 				return null;
 			}
-		}).collect(Collectors.toList());
+		}).toList();
 	}
 
 }

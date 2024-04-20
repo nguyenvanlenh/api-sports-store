@@ -40,13 +40,13 @@ public class OrderController {
 	}
 	@PostMapping()
 	@ResponseStatus(HttpStatus.CREATED)
-	public ResponseData<?> saveOrder(@RequestBody OrderRequest request){
+	public ResponseData<Void> saveOrder(@RequestBody OrderRequest request){
 		orderService.createOrder(request);
 		return new ResponseData<>(HttpStatus.CREATED.value(),"Order added successfully");
 	}
 	
 	@PatchMapping("/{id}")
-	public ResponseData<?> updateStatus(@PathVariable(name = "id") Long id,@RequestBody OrderStatus status) {
+	public ResponseData<Void> updateStatus(@PathVariable(name = "id") Long id,@RequestBody OrderStatus status) {
 		orderService.updateOrderStatus(status, id);
 		return new ResponseData<>(HttpStatus.ACCEPTED.value(),"Order updated successfully");
 	}

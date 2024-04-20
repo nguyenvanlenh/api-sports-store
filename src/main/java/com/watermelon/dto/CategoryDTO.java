@@ -1,6 +1,6 @@
 package com.watermelon.dto;
 
-import com.watermelon.dto.mapper.EntityMapper;
+import com.watermelon.mapper.EntityMapper;
 import com.watermelon.model.entity.Category;
 
 public record CategoryDTO(int id, String name)implements EntityMapper<CategoryDTO, Category>{

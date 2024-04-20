@@ -1,7 +1,7 @@
-package com.watermelon.dto.mapper.imp;
+package com.watermelon.mapper.imp;
 
 import com.watermelon.dto.ImageDTO;
-import com.watermelon.dto.mapper.EntityMapper;
+import com.watermelon.mapper.EntityMapper;
 import com.watermelon.model.entity.Image;
 
 public class ImageMapper implements EntityMapper<ImageDTO, Image>{

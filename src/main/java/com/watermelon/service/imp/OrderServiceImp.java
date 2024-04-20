@@ -10,7 +10,6 @@ import com.watermelon.dto.request.OrderAddressRequest;
 import com.watermelon.dto.request.OrderDetailRequest;
 import com.watermelon.dto.request.OrderRequest;
 import com.watermelon.exception.ForbiddenException;
-import com.watermelon.exception.ResourceNotFoundException;
 import com.watermelon.model.entity.Brand;
 import com.watermelon.model.entity.Category;
 import com.watermelon.model.entity.DeliveryMethod;
@@ -23,16 +22,11 @@ import com.watermelon.model.entity.Product;
 import com.watermelon.model.entity.Size;
 import com.watermelon.model.enumeration.EDeliveryStatus;
 import com.watermelon.model.enumeration.EOrderStatus;
-import com.watermelon.repository.BrandRepository;
-import com.watermelon.repository.CategoryRepository;
-import com.watermelon.repository.DeliveryMethodRepository;
-import com.watermelon.repository.DeliveryStatusRepository;
 import com.watermelon.repository.OrderAddressRepository;
 import com.watermelon.repository.OrderDetailRepository;
 import com.watermelon.repository.OrderRepository;
-import com.watermelon.repository.OrderStatusRepository;
-import com.watermelon.repository.ProductRepository;
 import com.watermelon.repository.SizeRepository;
+import com.watermelon.service.CommonService;
 import com.watermelon.service.OrderService;
 import com.watermelon.service.ProductService;
 
@@ -47,15 +41,10 @@ public class OrderServiceImp implements OrderService {
 
 	ProductService productService;
 	OrderRepository orderRepository;
-	ProductRepository productRepository;
 	OrderDetailRepository orderDetailRepository;
 	OrderAddressRepository orderAddressRepository;
-	DeliveryMethodRepository deliveryMethodRepository;
-	OrderStatusRepository orderStatusRepository;
-	DeliveryStatusRepository deliveryStatusRepository;
 	SizeRepository sizeRepository;
-	BrandRepository brandRepository;
-	CategoryRepository categoryRepository;
+	CommonService commonService;
 	
 	@Transactional(readOnly = true)
 	@Override
@@ -66,7 +55,7 @@ public class OrderServiceImp implements OrderService {
 	@Transactional(readOnly = true)
 	@Override
 	public Order getOrderById(Long id) {
-		return orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("ORDER_NOT_FOUND",id));
+		return commonService.findOrderById(id);
 	}
 
 	@Transactional
@@ -89,8 +78,7 @@ public class OrderServiceImp implements OrderService {
 	@Transactional
 	@Override
 	public void updateOrderStatus(OrderStatus orderStatus, Long idOrder) {
-		Order order = orderRepository.findById(idOrder)
-				.orElseThrow(() -> new ResourceNotFoundException("ORDER_NOT_FOUND",idOrder));
+		Order order = commonService.findOrderById(idOrder);
 		if (order.getOrderStatus().equals(EOrderStatus.CANCELLED)) {
 			throw new ForbiddenException("Cannot update order status as this order has been cancelled!");
 		}
@@ -109,8 +97,7 @@ public class OrderServiceImp implements OrderService {
 	@Transactional
 	@Override
 	public void updateDeliveryStatus(DeliveryStatus deliveryStatus, Long idOrder) {
-		Order order = orderRepository.findById(idOrder)
-				.orElseThrow(() -> new ResourceNotFoundException("ORDER_NOT_FOUND",idOrder));
+		Order order = commonService.findOrderById(idOrder);
 		if (order.getOrderStatus().equals(EOrderStatus.CANCELLED)) {
 			throw new ForbiddenException("Cannot update delivery status as this order has been cancelled!");
 		}
@@ -125,22 +112,18 @@ public class OrderServiceImp implements OrderService {
 
 		OrderDetail orderDetail = new OrderDetail();
 
-		Product product = productRepository.findById(request.idProduct())
-				.orElseThrow(() -> new ResourceNotFoundException("PRODUCT_NOT_FOUND",request.idProduct()));
+		Product product = commonService.findProductById(request.idProduct());
 		orderDetail.setProduct(product);
 		orderDetail.setQuantity(request.quantity());
 		orderDetail.setPrice(request.price());
 
-		Brand brand = brandRepository.findById(request.brand())
-				.orElseThrow(() -> new ResourceNotFoundException("BRAND_NOT_FOUND",request.brand()));
+		Brand brand = commonService.findBrandProductById(request.brand());
 		orderDetail.setBrand(brand.getName());
 
-		Category category = categoryRepository.findById(request.categogy())
-				.orElseThrow(() -> new ResourceNotFoundException("CATEGORY_NOT_FOUND",request.categogy()));
+		Category category = commonService.findCategoryProductById(request.categogy());
 		orderDetail.setCategogy(category.getName());
 
-		Size size = sizeRepository.findById(request.size())
-				.orElseThrow(() -> new ResourceNotFoundException("SIZE_NOT_FOUND",request.size()));
+		Size size = commonService.findSizeProductById(request.size());
 
 		orderDetail.setSize(size.getName());
 
@@ -172,16 +155,13 @@ public class OrderServiceImp implements OrderService {
 		order.setCouponCode(request.coupondCode());
 		order.setRejectReason(request.rejectReason());
 
-		OrderStatus orderStatus = orderStatusRepository.findById(request.orderStatus())
-				.orElseThrow(() -> new ResourceNotFoundException("ORDER_STATUS_NOT_FOUND",request.orderStatus()));
+		OrderStatus orderStatus = commonService.findOrderStatusById(request.orderStatus());
 		order.setOrderStatus(orderStatus);
 
-		DeliveryMethod deliveryMethod = deliveryMethodRepository.findById(request.deliveryMethod())
-				.orElseThrow(() -> new ResourceNotFoundException("DELIVERY_METHOD_NOT_FOUND",request.deliveryMethod()));
+		DeliveryMethod deliveryMethod = commonService.findDeliveryMethodById(request.deliveryMethod());
 		order.setDeliveryMethod(deliveryMethod);
 
-		DeliveryStatus deliveryStatus = deliveryStatusRepository.findById(request.deliveryStatus())
-				.orElseThrow(() -> new ResourceNotFoundException("DELIVERY_STATUS_NOT_FOUND",request.deliveryStatus()));
+		DeliveryStatus deliveryStatus = commonService.findDeliveryStatusById(request.deliveryStatus());
 		order.setDeliveryStatus(deliveryStatus);
 
 		return order;

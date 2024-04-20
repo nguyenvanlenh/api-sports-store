@@ -1,6 +1,6 @@
 package com.watermelon.dto;
 
-import com.watermelon.dto.mapper.EntityMapper;
+import com.watermelon.mapper.EntityMapper;
 import com.watermelon.model.entity.ProductQuantity;
 
 public record SizeDTO(int id, String name, int quantity)implements EntityMapper<SizeDTO, ProductQuantity>{

@@ -2,7 +2,7 @@ package com.watermelon.dto;
 
 import java.time.ZonedDateTime;
 
-import com.watermelon.dto.mapper.EntityMapper;
+import com.watermelon.mapper.EntityMapper;
 import com.watermelon.model.entity.Rating;
 
 public record RatingDTO(

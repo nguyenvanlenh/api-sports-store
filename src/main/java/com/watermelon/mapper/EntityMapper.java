@@ -1,4 +1,4 @@
-package com.watermelon.dto.mapper;
+package com.watermelon.mapper;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,7 +14,4 @@ public interface EntityMapper<D,E> {
 				.map(this::toDTO)
 				.collect(Collectors.toList());
 	}
-//	E toEntity(D dto);
-//	List<E> toEntity(List<D> dtos);
-
 }

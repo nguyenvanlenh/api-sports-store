@@ -13,16 +13,17 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableAsync
 @EnableScheduling
+@RequiredArgsConstructor
 @Slf4j
 public class AsyncConfig implements AsyncConfigurer {
 
-	@Autowired
-	private TaskExecutionProperties taskExecutionProperties;
+	private final TaskExecutionProperties taskExecutionProperties;
 
 	@Override
 	@Bean(name = "taskExecutor")

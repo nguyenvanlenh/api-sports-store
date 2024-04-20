@@ -1,11 +1,9 @@
 package com.watermelon.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -35,9 +33,6 @@ public class SecurityConfig {
 	private final String[] SWAGGER_ENDPOINTS = { "swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
 			"/javainuse-openapi/**" };
 
-	@Autowired
-	private UserDetailsService userDetailsService;
-	
 
 	@Bean
 	public JwtAuthenticationFilter jwtAuthenticationFilter() {
@@ -50,7 +45,7 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public DaoAuthenticationProvider authenticationProvider() {
+	public DaoAuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
 		DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 		authProvider.setUserDetailsService(userDetailsService);
 		authProvider.setPasswordEncoder(passwordEncoder());
@@ -83,7 +78,7 @@ public class SecurityConfig {
 		return new BCryptPasswordEncoder();
 	}
 
-	@Bean(name = BeanIds.AUTHENTICATION_MANAGER)
+	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
 		return authConfig.getAuthenticationManager();
 	}

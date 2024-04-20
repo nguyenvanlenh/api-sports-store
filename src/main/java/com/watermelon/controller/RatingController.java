@@ -19,9 +19,14 @@ import com.watermelon.dto.response.PaginationResponse;
 import com.watermelon.dto.response.ResponseData;
 import com.watermelon.service.RatingService;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+
 @RestController
 @RequestMapping("/api/rating")
-
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class RatingController {
 
 	
@@ -41,13 +46,13 @@ public class RatingController {
 	}
 	
 	@PostMapping
-	public ResponseData<?> addRating(@RequestBody RatingRequest requestRating){
+	public ResponseData<Void> addRating(@RequestBody RatingRequest requestRating){
 		ratingService.addRating(requestRating);
 		return new ResponseData<>(HttpStatus.CREATED.value(), "Rating added successfully");
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseData<?> deleteRating(@PathVariable(name = "id") Long id){
+	public ResponseData<Void> deleteRating(@PathVariable(name = "id") Long id){
 		ratingService.deleteRating(id);
 		return new ResponseData<>(HttpStatus.NO_CONTENT.value(), "Rating deleted successfully");
 	}

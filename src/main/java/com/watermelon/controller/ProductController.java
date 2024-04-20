@@ -40,14 +40,14 @@ public class ProductController {
 	ImageService imageService;
 
 	@GetMapping
-	public ResponseData<PaginationResponse<?>> getProducts(
+	public ResponseData<PaginationResponse<List<ProductDTO>>> getProducts(
 			@PageableDefault(page = 0, size = 20) 
 			@SortDefaults(
 					@SortDefault(direction = Sort.Direction.DESC, sort = {"price" })
 					) Pageable pageable,
 			@RequestParam(name = "search", required = false) String content,
 			@RequestParam(name = "category", required = false) String urlKey) {
-		PaginationResponse<?> listData = null;
+		PaginationResponse<List<ProductDTO>> listData = null;
 		if (content != null) {
 			listData = productService.getProductContainName(content, pageable);
 		} else if (urlKey != null) {
@@ -81,7 +81,7 @@ public class ProductController {
 	}
 
 	@PutMapping
-	public ResponseData<?> updateProduct(@RequestPart("product") ProductDTO productDTO,
+	public ResponseData<Void> updateProduct(@RequestPart("product") ProductDTO productDTO,
 	        @RequestPart(name = "files", required = false) List<MultipartFile> files) {
 	    
 	    productService.updateProduct(productDTO, files);
@@ -90,7 +90,7 @@ public class ProductController {
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseData<?> deleteProductById(@PathVariable (name = "id") Long id){
+	public ResponseData<Void> deleteProductById(@PathVariable (name = "id") Long id){
 		productService.deleteProduct(id);
 		return new ResponseData<>(HttpStatus.NO_CONTENT.value(), "User delete successfully");
 	}

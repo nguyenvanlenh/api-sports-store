@@ -1,6 +1,5 @@
 package com.watermelon.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,15 +20,18 @@ import com.watermelon.service.AuthService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthController {
 
-	@Autowired
-	private AuthService authService;
-	@Autowired
-	private ApplicationEventPublisher publisher;
+	AuthService authService;
+	ApplicationEventPublisher publisher;
 
 	@PostMapping("/register")
 	public ResponseData<Long> register(@RequestBody @Valid RegisterRequest registerRequest, final HttpServletRequest servletRequest) {
@@ -44,8 +46,8 @@ public class AuthController {
 	}
 	
 	@GetMapping("/verifyEmail")
-    public ResponseData<String> verifyEmail(@RequestParam("token") String token){
-        return new ResponseData<>(HttpStatus.OK.value(),authService.verifyEmail(token));
+    public String verifyEmail(@RequestParam("token") String token){
+        return authService.verifyEmail(token);
     }
 	
 

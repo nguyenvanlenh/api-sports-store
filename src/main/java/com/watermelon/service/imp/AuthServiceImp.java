@@ -1,5 +1,12 @@
 package com.watermelon.service.imp;
 
+import static com.watermelon.utils.Constants.EmailVerificationMessage.EMAIL_NOTIFY_ACCOUNT_ALREADY_VERIFIED;
+import static com.watermelon.utils.Constants.EmailVerificationMessage.EMAIL_NOTIFY_INVALID_TOKEN;
+import static com.watermelon.utils.Constants.EmailVerificationMessage.EMAIL_NOTIFY_SUCCESSFULLY_VERIFIED;
+import static com.watermelon.utils.Constants.EmailVerificationMessage.EMAIL_NOTIFY_TOKEN_EXPIRED;
+import static com.watermelon.utils.Constants.EmailVerificationMessage.EMAIL_NOTIFY_TOKEN_NOT_FOUND;
+import static com.watermelon.utils.Constants.EmailVerificationMessage.EMAIL_NOTIFY_VALID_TOKEN;
+
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
@@ -28,13 +35,13 @@ import com.watermelon.model.entity.Role;
 import com.watermelon.model.entity.User;
 import com.watermelon.model.entity.VerificationToken;
 import com.watermelon.model.enumeration.ERole;
-import com.watermelon.repository.RoleRepository;
 import com.watermelon.repository.UserRepository;
 import com.watermelon.repository.UserRolesRepository;
 import com.watermelon.repository.VerificationTokenRepository;
 import com.watermelon.security.CustomUserDetails;
 import com.watermelon.security.jwt.JwtTokenProvider;
 import com.watermelon.service.AuthService;
+import com.watermelon.service.CommonService;
 import com.watermelon.utils.Constants;
 
 import lombok.AccessLevel;
@@ -48,18 +55,12 @@ public class AuthServiceImp implements AuthService {
 
 	UserRepository userRepository;
 	PasswordEncoder passwordEncoder;
-	RoleRepository roleRepository;
 	JwtTokenProvider jwtTokenProvider;
 	UserDetailsService userDetailsService;
 	AuthenticationManager authenticationManager;
 	VerificationTokenRepository tokenRepository;
 	UserRolesRepository userRolesRepository;
-	
-	private static String VALID_TOKEN = "valid";
-	private static String INVALID_TOKEN = "Invalid verification token";
-	private static String TOKEN_EXPIRED = "Token already expired";
-	private static String ACCOUNT_VERIFIED = "This account has already been verified, please, login.";
-	private static String SUCCESS_VERIFIED = "Email verified successfully. Now you can login to your account";
+	CommonService commonService;
 	
 
 	@Transactional
@@ -100,13 +101,11 @@ public class AuthServiceImp implements AuthService {
 		List<String> listRoles = request.listRoles();
 		Set<Role> setRoles = new HashSet<>();
 		if (listRoles.isEmpty()) {
-			Role role = roleRepository.findByName(ERole.USER.toString())
-					.orElseThrow(() -> new ResourceNotFoundException("Role not found!"));
+			Role role =commonService.findRoleByName(ERole.USER.toString());
 			setRoles.add(role);
 		} else {
 			listRoles.forEach(role -> {
-				Role roleDetail = roleRepository.findByName(role)
-						.orElseThrow(() -> new ResourceNotFoundException("Role not found!"));
+				Role roleDetail = commonService.findRoleByName(role);
 				setRoles.add(roleDetail);
 			});
 		}
@@ -131,27 +130,27 @@ public class AuthServiceImp implements AuthService {
 	@Override
 	public String verifyEmail(String token) {
 		VerificationToken theToken = tokenRepository.findByToken(token)
-				.orElseThrow(() -> new ResourceNotFoundException("verification token not found"));
+				.orElseThrow(() -> new ResourceNotFoundException(EMAIL_NOTIFY_TOKEN_NOT_FOUND));
 
 		if (theToken.getUser().isActive()) {
-			return ACCOUNT_VERIFIED;
+			return EMAIL_NOTIFY_ACCOUNT_ALREADY_VERIFIED;
 		}
 
 		String validationMessage = validateVerificationToken(theToken);
-		if (validationMessage.equalsIgnoreCase(VALID_TOKEN)) {
+		if (validationMessage.equalsIgnoreCase(EMAIL_NOTIFY_VALID_TOKEN)) {
 			theToken.getUser().setActive(true);
 			// update active user
 			userRepository.save(theToken.getUser());
 			// delete token valid
 			tokenRepository.delete(theToken);
-			return SUCCESS_VERIFIED;
+			return EMAIL_NOTIFY_SUCCESSFULLY_VERIFIED;
 		}
 		return validationMessage;
 	}
 
 	public String validateVerificationToken(VerificationToken token) {
 		if (token == null) {
-			return INVALID_TOKEN;
+			return EMAIL_NOTIFY_INVALID_TOKEN;
 		}
 
 		Calendar calendar = Calendar.getInstance();
@@ -162,9 +161,9 @@ public class AuthServiceImp implements AuthService {
 			tokenRepository.delete(token);
 			// delete user
 			userRepository.deleteById(token.getUser().getId());
-			return TOKEN_EXPIRED;
+			return EMAIL_NOTIFY_TOKEN_EXPIRED;
 		}
-		return VALID_TOKEN;
+		return EMAIL_NOTIFY_VALID_TOKEN;
 	}
 
 	@Override

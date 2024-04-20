@@ -3,11 +3,11 @@ package com.watermelon.dto;
 import java.math.BigDecimal;
 import java.util.List;
 
-import com.watermelon.dto.mapper.EntityMapper;
-import com.watermelon.dto.mapper.imp.BrandMapper;
-import com.watermelon.dto.mapper.imp.CategoryMapper;
-import com.watermelon.dto.mapper.imp.ImageMapper;
-import com.watermelon.dto.mapper.imp.SizeMapper;
+import com.watermelon.mapper.EntityMapper;
+import com.watermelon.mapper.imp.BrandMapper;
+import com.watermelon.mapper.imp.CategoryMapper;
+import com.watermelon.mapper.imp.ImageMapper;
+import com.watermelon.mapper.imp.SizeMapper;
 import com.watermelon.model.entity.Product;
 
 

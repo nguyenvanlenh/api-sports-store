@@ -1,7 +1,6 @@
 package com.watermelon.service.imp;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -15,10 +14,11 @@ import org.springframework.web.multipart.MultipartFile;
 import com.watermelon.dto.ImageDTO;
 import com.watermelon.dto.ProductDTO;
 import com.watermelon.dto.SizeDTO;
-import com.watermelon.dto.mapper.imp.ProductMapper;
 import com.watermelon.dto.request.ProductRequest;
 import com.watermelon.dto.response.PaginationResponse;
+import com.watermelon.exception.InvalidQuantityException;
 import com.watermelon.exception.ResourceNotFoundException;
+import com.watermelon.mapper.imp.ProductMapper;
 import com.watermelon.model.entity.Brand;
 import com.watermelon.model.entity.Category;
 import com.watermelon.model.entity.Image;
@@ -31,6 +31,7 @@ import com.watermelon.repository.ImageRepository;
 import com.watermelon.repository.ProductQuantityRepository;
 import com.watermelon.repository.ProductRepository;
 import com.watermelon.repository.SizeRepository;
+import com.watermelon.service.CommonService;
 import com.watermelon.service.ProductService;
 import com.watermelon.utils.Constants;
 
@@ -44,13 +45,13 @@ import lombok.experimental.FieldDefaults;
 public class ProductServiceImp implements ProductService {
 
 	ProductRepository productRepository;
-
 	SizeRepository sizeRepository;
 	BrandRepository brandRepository;
 	CategoryRepository categoryRepository;
 	ProductQuantityRepository productQuantityRepository;
 	CloudinaryServiceImp cloudinaryServiceImp;
 	ImageRepository imageRepository;
+	CommonService commonService;
 
 	
 	/**
@@ -63,8 +64,7 @@ public class ProductServiceImp implements ProductService {
 	@Transactional(readOnly = true)
 	@Override
 	public ProductDTO getProductById(Long id) {
-		Product product = 
-				productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("PRODUCT_NOT_FOUND", id));
+		Product product = commonService.findProductById(id);
 		ProductDTO result = new ProductMapper().toDTO(product);
 		return result;
 	}
@@ -137,43 +137,33 @@ public class ProductServiceImp implements ProductService {
 	@Transactional
 	@Override
 	public ProductDTO updateProduct(ProductDTO productDTO, List<MultipartFile> files) {
-		Optional<Product> optionalProduct = productRepository.findById(productDTO.id());
-		if (optionalProduct.isPresent()) {
-			Product existingProduct = optionalProduct.get();
-			BeanUtils.copyProperties(productDTO, existingProduct, "id");
+		Product product = commonService.findProductById(productDTO.id());
+		BeanUtils.copyProperties(productDTO, product, "id");
 
-			updateChangedFields(existingProduct, productDTO);
+		updateChangedFields(product, productDTO);
 
-			if (files != null && !files.isEmpty()) {
-				List<Image> savedImages = helperSaveImage(files, existingProduct);
-				existingProduct.getListImages().addAll(savedImages);
-			}
-
-			productRepository.save(existingProduct);
-
-			return new ProductMapper().toDTO(existingProduct);
-		} else {
-			 throw new ResourceNotFoundException("PRODUCT_NOT_FOUND" ,productDTO.id());
+		if (files != null && !files.isEmpty()) {
+			List<Image> savedImages = helperSaveImage(files, product);
+			product.getListImages().addAll(savedImages);
 		}
+
+		Product productUpdated = productRepository.save(product);
+
+		return new ProductMapper().toDTO(productUpdated);
 	}
 	
 	@Transactional
 	@Override	
 	public ProductDTO updateProduct(ProductDTO productDTO) {
-		Optional<Product> optionalProduct = productRepository.findById(productDTO.id());
-		if (optionalProduct.isPresent()) {
-			Product existingProduct = optionalProduct.get();
+		Product product = commonService.findProductById(productDTO.id());
 
-			BeanUtils.copyProperties(productDTO, existingProduct, "id");
+		BeanUtils.copyProperties(productDTO, product, "id");
 
-			updateChangedFields(existingProduct, productDTO);
+		updateChangedFields(product, productDTO);
 
-			productRepository.save(existingProduct);
+		Product productUpdated = productRepository.save(product);
 
-			return new ProductMapper().toDTO(existingProduct);
-		} else {
-			throw new ResourceNotFoundException("PRODUCT_NOT_FOUND" ,productDTO.id());
-		}
+		return new ProductMapper().toDTO(productUpdated);
 	}
 
 	 /**
@@ -189,10 +179,8 @@ public class ProductServiceImp implements ProductService {
 		if (productRequest == null) {
 			return null;
 		}
-		Brand brand = brandRepository.findById(productRequest.idBrand())
-				.orElseThrow(() -> new ResourceNotFoundException("BRAND_NOT_FOUND" ,productRequest.idBrand()));
-		Category category = categoryRepository.findById(productRequest.idCategory())
-				.orElseThrow(() -> new ResourceNotFoundException("CATEGORY_NOT_FOUND" ,productRequest.idCategory()));
+		Brand brand = commonService.findBrandProductById(productRequest.idBrand());
+		Category category = commonService.findCategoryProductById(productRequest.idCategory());
 		Product product = new Product();
 		product.setName(productRequest.name());
 		product.setShortDescription(productRequest.shortDescription());
@@ -206,8 +194,7 @@ public class ProductServiceImp implements ProductService {
 		// save product quantity
 		List<ProductQuantity> savedQuantities = productRequest.listSize().stream().map(sizeItem -> {
 			ProductQuantity productQuantityWithSize = new ProductQuantity();
-			Size size = sizeRepository.findById(sizeItem.id())
-					.orElseThrow(() -> new ResourceNotFoundException("SIZE_NOT_FOUND" ,sizeItem.id()));
+			Size size = commonService.findSizeProductById(sizeItem.id());
 			productQuantityWithSize.setQuantity(sizeItem.quantity());
 			productQuantityWithSize.setSize(size);
 			productQuantityWithSize.setProduct(mainProduct);
@@ -221,9 +208,7 @@ public class ProductServiceImp implements ProductService {
 
 		mainProduct.setListImages(savedImages.stream().collect(Collectors.toSet()));
 		mainProduct.setQuantityOfSizes(savedQuantities.stream().collect(Collectors.toSet()));
-		ProductDTO result = new ProductMapper().toDTO(mainProduct);
-
-		return result;
+		return new ProductMapper().toDTO(mainProduct);
 	}
 	/**
 	 * Saves uploaded images for a product during update.
@@ -368,11 +353,10 @@ public class ProductServiceImp implements ProductService {
 		}
 		List<ProductDTO> listProductDTO = new ProductMapper().toDTO(pageProduct.getContent());
 
-		PaginationResponse<List<ProductDTO>> result = new PaginationResponse<>(
+		return new PaginationResponse<>(
 				pageProduct.getPageable().getPageNumber(),
 				pageProduct.getSize(), pageProduct.getTotalPages(),
 				pageProduct.getTotalElements(),listProductDTO);
-		return result;
 	}
 
 
@@ -387,20 +371,18 @@ public class ProductServiceImp implements ProductService {
 	 */
 	@Override
 	public void updateProductQuantityForSize(int quantitySubtract, Long idProduct, Integer idSize) {
-		Product product = productRepository.findById(idProduct)
-				.orElseThrow(() -> new ResourceNotFoundException("PRODUCT_NOT_FOUND" ,idProduct));
-		Size size = sizeRepository.findById(idSize)
-				.orElseThrow(() -> new ResourceNotFoundException("SIZE_NOT_FOUND" , idSize));
+		Product product = commonService.findProductById(idProduct);
+		Size size = commonService.findSizeProductById(idSize);
 
 		ProductQuantity productQuantity = productQuantityRepository.findByProduct_IdAndSize_Id(idProduct, idSize);
 
 		int quantityOld = productQuantity.getQuantity();
 
 		if (quantitySubtract > quantityOld) {
-			throw new RuntimeException("Quantity to subtract exceeds available quantity!");
+			throw new InvalidQuantityException("Quantity to subtract exceeds available quantity!");
 		}
 		if (quantitySubtract > Constants.QUANTITY_PRODUCT_MAX_BUY) {
-			throw new RuntimeException("Quantity to subtract must be less than or equal to "+ Constants.QUANTITY_PRODUCT_MAX_BUY);
+			throw new InvalidQuantityException("Quantity to subtract must be less than or equal to "+ Constants.QUANTITY_PRODUCT_MAX_BUY);
 		}
 		productQuantity.setQuantity(quantityOld - quantitySubtract);
 		productQuantity.setProduct(product);
