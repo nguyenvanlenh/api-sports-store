@@ -1,4 +1,6 @@
 package com.watermelon.dto.request;
 
-public record ProductImageRequest(String path) {
+import java.io.Serializable;
+
+public record ProductImageRequest(String path) implements Serializable {
 }

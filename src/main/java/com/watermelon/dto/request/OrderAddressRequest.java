@@ -1,5 +1,7 @@
 package com.watermelon.dto.request;
 
+import java.io.Serializable;
+
 public record OrderAddressRequest(
 		String addressLine1,
 		String addressLine2,
@@ -7,6 +9,6 @@ public record OrderAddressRequest(
 		String district,
 		String province,
 		String country
-		) {
+		) implements Serializable {
 
 }

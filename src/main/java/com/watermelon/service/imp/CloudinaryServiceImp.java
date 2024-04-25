@@ -40,7 +40,7 @@ public class CloudinaryServiceImp implements ImageService {
 			try {
 				Map<String, String> result = cloudinary.uploader()
 						.upload(file.getBytes(), ObjectUtils.emptyMap());
-				return result.get("url").toString();
+				return result.get("url");
 			} catch (IOException e) {
 				e.printStackTrace();
 				return null;

@@ -1,6 +1,5 @@
 package com.watermelon.model.entity;
 
-import java.io.Serializable;
 
 import com.watermelon.model.AbstractAuditEntity;
 
@@ -21,7 +20,7 @@ import lombok.Setter;
 })
 @Getter
 @Setter
-public class ProductQuantity extends AbstractAuditEntity implements Serializable{
+public class ProductQuantity extends AbstractAuditEntity{
 	
 	/**
 	 * 

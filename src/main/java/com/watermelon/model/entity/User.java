@@ -1,6 +1,5 @@
 package com.watermelon.model.entity;
 
-import java.io.Serializable;
 import java.util.Set;
 
 import org.hibernate.validator.constraints.Length;
@@ -35,7 +34,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User extends AbstractAuditEntity implements Serializable {
+public class User extends AbstractAuditEntity {
 
 	private static final long serialVersionUID = 1L;
 	@Id

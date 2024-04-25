@@ -1,6 +1,5 @@
 package com.watermelon.model.entity;
 
-import java.io.Serializable;
 import java.util.Set;
 
 import com.watermelon.model.AbstractAuditEntity;
@@ -19,12 +18,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "categories")
 @Getter
 @NoArgsConstructor
-public class Category extends AbstractAuditEntity implements Serializable{
+public class Category extends AbstractAuditEntity{
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -4,8 +4,11 @@ import com.watermelon.mapper.EntityMapper;
 import com.watermelon.model.entity.Brand;
 
 import lombok.Builder;
+
+import java.io.Serializable;
+
 @Builder
-public record BrandDTO(int id, String name) implements EntityMapper<BrandDTO, Brand> {
+public record BrandDTO(int id, String name) implements EntityMapper<BrandDTO, Brand>, Serializable {
 
 	@Override
 	public BrandDTO toDTO(Brand entity) {

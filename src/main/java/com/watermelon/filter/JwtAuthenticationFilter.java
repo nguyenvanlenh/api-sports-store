@@ -35,7 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	HandlerExceptionResolver exceptionResolver;
 
-	static String TYPE_AUTHORIZATION = "Bearer ";
+	static final String TYPE_AUTHORIZATION = "Bearer ";
 
 	public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider,
 			UserDetailsService userDetailsService,

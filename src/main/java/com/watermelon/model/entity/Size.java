@@ -1,6 +1,5 @@
 package com.watermelon.model.entity;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,7 +21,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Size extends AbstractAuditEntity implements Serializable{
+public class Size extends AbstractAuditEntity{
 	
 	/**
 	 * 

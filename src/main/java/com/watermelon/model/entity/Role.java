@@ -1,6 +1,5 @@
 package com.watermelon.model.entity;
 
-import java.io.Serializable;
 import java.util.Set;
 
 import com.watermelon.model.AbstractAuditEntity;
@@ -21,7 +20,7 @@ import lombok.Setter;
 @Table(name = "roles")
 @Getter
 @Setter
-public class Role extends AbstractAuditEntity implements Serializable{
+public class Role extends AbstractAuditEntity{
 
 	private static final long serialVersionUID = 1L;
 	@Id

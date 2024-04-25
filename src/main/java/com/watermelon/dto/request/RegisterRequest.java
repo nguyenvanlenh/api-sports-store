@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
+import java.io.Serializable;
+
 public record RegisterRequest (
 		@NotBlank(message = "username cannot be blank")
 		@Length(min = 5, max = 20, message = "username must be between 5-20 characters")
@@ -18,6 +20,7 @@ public record RegisterRequest (
 		@NotBlank(message = "email cannot be blank")
 		String email,
 		@JsonProperty("list_roles")
-		java.util.List<String> listRoles){
+		java.util.List<String> listRoles
+		)implements Serializable {
 
 }

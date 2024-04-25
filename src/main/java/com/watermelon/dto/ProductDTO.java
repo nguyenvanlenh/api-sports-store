@@ -1,5 +1,6 @@
 package com.watermelon.dto;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -24,7 +25,7 @@ public record ProductDTO(
 		CategoryDTO category,
 		List<ImageDTO> listImages,
 		List<SizeDTO> listSize) 
-implements EntityMapper<ProductDTO, Product> {
+		implements EntityMapper<ProductDTO, Product> , Serializable {
 
 	@Override
 	public ProductDTO toDTO(Product entity) {

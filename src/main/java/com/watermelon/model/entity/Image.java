@@ -1,6 +1,5 @@
 package com.watermelon.model.entity;
 
-import java.io.Serializable;
 
 import com.watermelon.model.AbstractAuditEntity;
 
@@ -18,12 +17,8 @@ import lombok.Setter;
 @Table(name ="images")
 @Getter
 @Setter
-public class Image extends AbstractAuditEntity implements Serializable{
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+public class Image extends AbstractAuditEntity{
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;

@@ -1,4 +1,6 @@
 package com.watermelon.dto.request;
 
-public record ProductSizeRequest(int id, int quantity) {
+import java.io.Serializable;
+
+public record ProductSizeRequest(int id, int quantity) implements Serializable {
 }

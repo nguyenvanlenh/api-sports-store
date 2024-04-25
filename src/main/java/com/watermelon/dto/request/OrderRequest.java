@@ -1,5 +1,6 @@
 package com.watermelon.dto.request;
 
+import java.io.Serializable;
 import java.util.Set;
 
 public record OrderRequest(
@@ -15,6 +16,6 @@ public record OrderRequest(
 		String coupondCode,
 		String rejectReason,
 		Set<OrderDetailRequest> listOrderDetails
-		) {
+		) implements Serializable {
 
 }

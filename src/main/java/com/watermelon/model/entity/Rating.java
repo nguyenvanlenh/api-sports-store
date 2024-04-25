@@ -1,7 +1,5 @@
 package com.watermelon.model.entity;
 
-import java.io.Serializable;
-
 import com.watermelon.model.AbstractAuditEntity;
 
 import jakarta.persistence.Column;
@@ -21,7 +19,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Rating extends AbstractAuditEntity implements Serializable {
+public class Rating extends AbstractAuditEntity{
 
 	/**
 	 * 

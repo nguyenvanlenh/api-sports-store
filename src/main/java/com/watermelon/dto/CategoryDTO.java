@@ -4,8 +4,11 @@ import com.watermelon.mapper.EntityMapper;
 import com.watermelon.model.entity.Category;
 
 import lombok.Builder;
+
+import java.io.Serializable;
+
 @Builder
-public record CategoryDTO(int id, String name)implements EntityMapper<CategoryDTO, Category>{
+public record CategoryDTO(int id, String name)implements EntityMapper<CategoryDTO, Category>, Serializable {
 
 	@Override
 	public CategoryDTO toDTO(Category entity) {

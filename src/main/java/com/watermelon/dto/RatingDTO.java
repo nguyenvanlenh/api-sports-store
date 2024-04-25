@@ -1,5 +1,6 @@
 package com.watermelon.dto;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 import com.watermelon.mapper.EntityMapper;
@@ -11,7 +12,7 @@ public record RatingDTO(
 		int star,
 		Long productId,
 		Long userId,
-		ZonedDateTime createdOn) implements EntityMapper<RatingDTO, Rating>{
+		ZonedDateTime createdOn) implements EntityMapper<RatingDTO, Rating>, Serializable {
 
 	@Override
 	public RatingDTO toDTO(Rating entity) {

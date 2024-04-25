@@ -1,5 +1,7 @@
 package com.watermelon.dto.request;
 
+import java.io.Serializable;
+
 public record OrderDetailRequest(
 		Long idProduct,
 		Integer quantity,
@@ -8,6 +10,6 @@ public record OrderDetailRequest(
 		Integer size,
 		Integer categogy,
 		Integer brand,
-		String taxPercent) {
+		String taxPercent) implements Serializable {
 
 }

@@ -1,6 +1,5 @@
 package com.watermelon.model.entity;
 
-import java.io.Serializable;
 
 import com.watermelon.model.AbstractAuditEntity;
 
@@ -19,7 +18,7 @@ import lombok.Setter;
 @Table(name ="Order_details")
 @Getter
 @Setter
-public class OrderDetail extends AbstractAuditEntity implements Serializable{
+public class OrderDetail extends AbstractAuditEntity{
 	
 
 	private static final long serialVersionUID = 1L;

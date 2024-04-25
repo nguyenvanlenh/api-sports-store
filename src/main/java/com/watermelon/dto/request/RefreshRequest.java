@@ -1,5 +1,7 @@
 package com.watermelon.dto.request;
 
-public record RefreshRequest(String token) {
+import java.io.Serializable;
+
+public record RefreshRequest(String token) implements Serializable {
 
 }
