@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -67,23 +68,23 @@ public class AuthServiceImp implements AuthService {
 	@Override
 	public TokenResponse login(LoginRequest request) {
 		// Thực hiện xác thực người dùng
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(request.username(),
-				request.password());
-		Authentication authentication = authenticationManager.authenticate(token);
-		CustomUserDetails customUserDetails = (CustomUserDetails) userDetailsService
-				.loadUserByUsername(request.username());
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-		String accessToken = jwtTokenProvider.generateToken(Constants.ACCESS_TOKEN, customUserDetails);
-		String refreshToken = jwtTokenProvider.generateToken(Constants.REFRESH_TOKEN, customUserDetails);
-		Set<String> listRoles = customUserDetails.getAuthorities().stream().map(authority -> authority.getAuthority())
-				.collect(Collectors.toSet());
-		return TokenResponse.builder()
-				.accessToken(accessToken)
-				.refreshToken(refreshToken)
-				.authenticated(true)
-				.userId(customUserDetails.getId())
-				.listRoles(listRoles)
-				.build();
+			UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(request.username(),
+					request.password());
+			Authentication authentication = authenticationManager.authenticate(token);
+			CustomUserDetails customUserDetails = (CustomUserDetails) userDetailsService
+					.loadUserByUsername(request.username());
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			String accessToken = jwtTokenProvider.generateToken(Constants.ACCESS_TOKEN, customUserDetails);
+			String refreshToken = jwtTokenProvider.generateToken(Constants.REFRESH_TOKEN, customUserDetails);
+			Set<String> listRoles = customUserDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+					.collect(Collectors.toSet());
+			return TokenResponse.builder()
+					.accessToken(accessToken)
+					.refreshToken(refreshToken)
+					.authenticated(true)
+					.userId(customUserDetails.getId())
+					.listRoles(listRoles)
+					.build();
 	}
 
 	@Transactional
@@ -111,8 +112,7 @@ public class AuthServiceImp implements AuthService {
 		}
 		user.setListRoles(setRoles);
 
-		User userRegistered = userRepository.save(user);
-		return userRegistered;
+		return userRepository.save(user);
 	}
 
 	@Override
@@ -167,7 +167,7 @@ public class AuthServiceImp implements AuthService {
 	}
 
 	@Override
-	public TokenResponse getRefreshToken(RefreshRequest request) {
+	public TokenResponse getAccessTokenFromRefeshToken(RefreshRequest request) {
 		String token = request.token();
 		String accessToken = null;
 		boolean authenticated = false;

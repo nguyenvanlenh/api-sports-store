@@ -3,7 +3,6 @@ package com.watermelon.mapper;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public interface EntityMapper<D,E> {
 	
@@ -12,6 +11,6 @@ public interface EntityMapper<D,E> {
 		return Optional.ofNullable(
 				entities).orElse(Collections.emptyList()).stream()
 				.map(this::toDTO)
-				.collect(Collectors.toList());
+				.toList();
 	}
 }

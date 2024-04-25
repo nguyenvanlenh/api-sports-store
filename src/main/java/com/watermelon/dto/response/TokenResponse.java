@@ -11,7 +11,7 @@ import lombok.Data;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TokenResponse implements Serializable {
-    private boolean authenticated;
+    private Boolean authenticated;
     private Long userId;
     private String accessToken;
     private String refreshToken;

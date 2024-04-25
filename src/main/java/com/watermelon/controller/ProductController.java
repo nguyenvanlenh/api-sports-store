@@ -56,21 +56,21 @@ public class ProductController {
 			listData = productService.getAllProduct(pageable);
 		}
 
-		return new ResponseData<>(HttpStatus.OK.value(), "Data users" ,listData);
+		return new ResponseData<>(HttpStatus.OK.value(), "Data products" ,listData);
 
 	}
 
 	@GetMapping("/{id}")
 	public ResponseData<ProductDTO> getProductById(@PathVariable(name = "id") Long id) {
 		ProductDTO data = productService.getProductById(id);
-		return new ResponseData<>(HttpStatus.OK.value(), "Data user",data);
+		return new ResponseData<>(HttpStatus.OK.value(), "Data product" ,data);
 	}
 
 	@PostMapping
 	public ResponseData<ProductDTO> addProduct(@RequestPart("product") ProductRequest productRequest,
 			@RequestPart("file") List<MultipartFile> files) {
 		ProductDTO data = productService.addProduct(productRequest, files);
-		return new ResponseData<>(HttpStatus.CREATED.value(), "User added successfully",data);
+		return new ResponseData<>(HttpStatus.CREATED.value(), "Product added successfully",data);
 	}
 
 	@PostMapping("/upload")

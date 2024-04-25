@@ -3,6 +3,8 @@ package com.watermelon.dto;
 import com.watermelon.mapper.EntityMapper;
 import com.watermelon.model.entity.Category;
 
+import lombok.Builder;
+@Builder
 public record CategoryDTO(int id, String name)implements EntityMapper<CategoryDTO, Category>{
 
 	@Override

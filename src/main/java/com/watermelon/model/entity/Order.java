@@ -1,5 +1,6 @@
 package com.watermelon.model.entity;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,11 +17,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name="Orders")
-@Data
+@Getter
+@Setter
 public class Order extends AbstractAuditEntity{
 	
 	@Id

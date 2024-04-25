@@ -35,9 +35,8 @@ public class RatingServiceImp implements RatingService {
 		Page<Rating> pageRating = ratingRepository.findByProduct_Id(productId, pageable);
 		List<RatingDTO> listRatingDTO = new RatingMapper().toDTO(pageRating.getContent());
 
-		PageResponse<List<RatingDTO>> result = new PageResponse<>(pageRating.getPageable().getPageNumber(),
+		return new PageResponse<>(pageRating.getPageable().getPageNumber(),
 				pageRating.getSize(), pageRating.getTotalPages(), pageRating.getTotalElements(), listRatingDTO);
-		return result;
 	}
 
 	@Override

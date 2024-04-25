@@ -1,6 +1,5 @@
 package com.watermelon.service.imp;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -9,14 +8,18 @@ import com.watermelon.model.entity.VerificationToken;
 import com.watermelon.repository.UserRepository;
 import com.watermelon.repository.VerificationTokenRepository;
 import com.watermelon.service.UserService;
+
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserServiceImp implements UserService{
 
-	@Autowired
-	private UserRepository userRepository;
+	UserRepository userRepository;
 	
-	@Autowired
-	private VerificationTokenRepository tokenRepository;
+	VerificationTokenRepository tokenRepository;
 	@Override
 	public User findByUsername(String username) {
 		return userRepository.findByUsername(username)

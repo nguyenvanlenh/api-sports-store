@@ -3,6 +3,8 @@ package com.watermelon.dto;
 import com.watermelon.mapper.EntityMapper;
 import com.watermelon.model.entity.Brand;
 
+import lombok.Builder;
+@Builder
 public record BrandDTO(int id, String name) implements EntityMapper<BrandDTO, Brand> {
 
 	@Override

@@ -28,31 +28,32 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtTokenProvider {
 
 	@Value("${jwt.token.secretKey}")
-	public String SECRET_KEY;
+	public String secretKey;
 	@Value("${jwt.access.expiration}")
-	private int JWT_ACCESS_EXPIRATION;
+	private int jwtAccessExpiration;
 	@Value("${jwt.refresh.expiration}")
-	private int JWT_REFRESH_EXPIRATION;
+	private int jwtRefreshExpiration;
 
 	private Key getSecretKey() {
-        return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+        return Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
 	public String generateToken(String tokenType, UserDetails userDetails) {
 		Date now = new Date();
-		Date timeExpiration = new Date(now.getTime() + JWT_ACCESS_EXPIRATION * 60 * 60);
+		Date timeExpiration = new Date(now.getTime() + jwtAccessExpiration * 60 * 1000 );
 
 		if (tokenType.equals(Constants.REFRESH_TOKEN))
-			timeExpiration = new Date(now.getTime() + JWT_REFRESH_EXPIRATION * 60 * 60 * 24 * 1000);
+			timeExpiration = new Date(now.getTime() + jwtRefreshExpiration * 60 * 60 * 24 * 1000);
 
 		return Jwts.builder()
 				.setId(UUID.randomUUID().toString())
 				.setSubject(userDetails.getUsername())
-				.setIssuer("watermelon.com")
+				.setIssuer("watermelon")
 				.setIssuedAt(now)
 				.setExpiration(timeExpiration)
 				.claim("roles", buildClaimRoles(userDetails))
 				.signWith(getSecretKey(), SignatureAlgorithm.HS512)
+				.setHeaderParam("typ", "JWT")
 				.compact();
 	}
 	
@@ -60,9 +61,9 @@ public class JwtTokenProvider {
 		  StringJoiner stringJoiner = new StringJoiner(" ");
 		  if(!CollectionUtils.isEmpty(userDetails.getAuthorities()))
 			  userDetails.getAuthorities()
-			  .forEach(authority -> {
-				  stringJoiner.add(authority.getAuthority());
-			  });
+			  .forEach(authority ->
+				  stringJoiner.add(authority.getAuthority())
+			  );
 		return stringJoiner.toString();
 	}
 	

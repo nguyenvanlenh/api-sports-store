@@ -1,5 +1,7 @@
 package com.watermelon.model.entity;
 
+import java.io.Serializable;
+
 import com.watermelon.model.AbstractAuditEntity;
 
 import jakarta.persistence.Column;
@@ -10,13 +12,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name ="Order_details")
-@Data
-public class OrderDetail extends AbstractAuditEntity{
+@Getter
+@Setter
+public class OrderDetail extends AbstractAuditEntity implements Serializable{
 	
+
+	private static final long serialVersionUID = 1L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;

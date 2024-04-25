@@ -10,7 +10,9 @@ import com.watermelon.mapper.imp.ImageMapper;
 import com.watermelon.mapper.imp.SizeMapper;
 import com.watermelon.model.entity.Product;
 
+import lombok.Builder;
 
+@Builder
 public record ProductDTO(
 		Long id,
 		String name, 

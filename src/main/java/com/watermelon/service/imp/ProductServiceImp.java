@@ -65,8 +65,7 @@ public class ProductServiceImp implements ProductService {
 	@Override
 	public ProductDTO getProductById(Long id) {
 		Product product = commonService.findProductById(id);
-		ProductDTO result = new ProductMapper().toDTO(product);
-		return result;
+		return new ProductMapper().toDTO(product);
 	}
 
 	 /**
@@ -199,7 +198,7 @@ public class ProductServiceImp implements ProductService {
 			productQuantityWithSize.setSize(size);
 			productQuantityWithSize.setProduct(mainProduct);
 			return productQuantityWithSize;
-		}).collect(Collectors.toList());
+		}).toList();
 
 		productQuantityRepository.saveAll(savedQuantities);
 
@@ -224,7 +223,7 @@ public class ProductServiceImp implements ProductService {
 			image.setPath(path);
 			image.setProduct(product);
 			return image;
-		}).collect(Collectors.toList());
+		}).toList();
 
 		imageRepository.saveAll(savedImages);
 		return savedImages;

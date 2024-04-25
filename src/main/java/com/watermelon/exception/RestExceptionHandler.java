@@ -8,9 +8,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -28,6 +31,9 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice
@@ -64,6 +70,20 @@ public class RestExceptionHandler {
 				getServletPath(request));
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
 	}
+	@ExceptionHandler(BadCredentialsException.class)
+	ResponseEntity<ErrorResponse> handlingBadCredentialsException(BadCredentialsException e,WebRequest request) {
+		ErrorResponse error = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(),
+				"The username or password is incorrect",
+				getServletPath(request));
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+	}
+	@ExceptionHandler(UserNotActivatedException.class)
+	ResponseEntity<ErrorResponse> handlingUserNotActivatedException(UserNotActivatedException e,WebRequest request) {
+		ErrorResponse error = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(),
+				e.getMessage(),
+				getServletPath(request));
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+	}
 
 	@ExceptionHandler(ResourceExistedException.class)
 	ResponseEntity<ErrorResponse> handlingResourceExistedException(ResourceExistedException e,WebRequest request) {
@@ -79,7 +99,7 @@ public class RestExceptionHandler {
 
 		String errors = e.getBindingResult().getFieldErrors()
 				.stream().map(
-				fieldError -> fieldError.getDefaultMessage())
+				FieldError::getDefaultMessage)
 				.collect(Collectors.joining(", "));
 
 		ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), errors,
@@ -93,7 +113,7 @@ public class RestExceptionHandler {
 	public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException e,WebRequest request) {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 				.body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(),
-						e.getLocalizedMessage(),
+						"Param invalid",
 						getServletPath(request)));
 	}
 
@@ -130,6 +150,13 @@ public class RestExceptionHandler {
 		return ResponseEntity.status(httpStatus).body(new ErrorResponse(httpStatus.value(),
 				e.getMessage(),
 				request.getRequestURI()));
+	}
+	@ExceptionHandler({ SignatureException.class, ExpiredJwtException.class, AccessDeniedException.class,MalformedJwtException.class })
+	public ResponseEntity<ErrorResponse> handleSecurityException(Exception e, WebRequest request) {
+		return ResponseEntity.status(HttpStatus.FORBIDDEN)
+				.body(new ErrorResponse(HttpStatus.FORBIDDEN.value(),
+						e.getMessage(),
+						getServletPath(request)));
 	}
 	
 	private String getServletPath(WebRequest webRequest) {

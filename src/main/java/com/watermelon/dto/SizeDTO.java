@@ -3,6 +3,8 @@ package com.watermelon.dto;
 import com.watermelon.mapper.EntityMapper;
 import com.watermelon.model.entity.ProductQuantity;
 
+import lombok.Builder;
+@Builder
 public record SizeDTO(int id, String name, int quantity)implements EntityMapper<SizeDTO, ProductQuantity>{
 
 	public SizeDTO toDTO(ProductQuantity productQuantity) {

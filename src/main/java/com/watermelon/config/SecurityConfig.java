@@ -17,20 +17,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.watermelon.filter.ExceptionHandlerFilter;
 import com.watermelon.filter.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-	private final String[] PUBLIC_ENDPOINTS = { 
+	private static final String[] PUBLIC_ENDPOINTS = {
 			"/api/auth/login",
 			"/api/auth/register",
-			"/api/auth/verifyEmail"
+			"/api/auth/verifyEmail",
+//			"/api/auth/refreshToken"
 			};
 
-	private final String[] SWAGGER_ENDPOINTS = { 
+	private static final String[] SWAGGER_ENDPOINTS = {
 			"swagger-ui.html",
 			"/swagger-ui/**",
 			"/v3/api-docs/**",
@@ -52,23 +52,23 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http,ExceptionHandlerFilter exceptionHandlerFilter) throws Exception {
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
 				.csrf(csrf -> csrf.disable())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
 				.authorizeHttpRequests(authorize ->
-							authorize.requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-							.anyRequest().authenticated())
+						authorize.requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+								.anyRequest().authenticated())
 
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-				.addFilterBefore(exceptionHandlerFilter, JwtAuthenticationFilter.class)
+//				.addFilterBefore(exceptionHandlerFilter, JwtAuthenticationFilter.class)
 
 				.httpBasic(Customizer.withDefaults())
 				.exceptionHandling(handling ->
-					handling.authenticationEntryPoint(new JwtAuthenticationEntryPoint()))
-				;
-		
+						handling.authenticationEntryPoint(new JwtAuthenticationEntryPoint()))
+		;
+
 		return http.build();
 	}
 
@@ -84,6 +84,6 @@ public class SecurityConfig {
 
 	@Bean
 	public WebSecurityCustomizer webSecurityCustomizer() {
-		return (web) -> web.ignoring().requestMatchers(SWAGGER_ENDPOINTS);
+		return web -> web.ignoring().requestMatchers(SWAGGER_ENDPOINTS);
 	}
 }

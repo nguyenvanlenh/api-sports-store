@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.watermelon.event.listener.CustomAuditingEntityListener;
 
 import jakarta.persistence.Column;
@@ -19,6 +20,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @EntityListeners(CustomAuditingEntityListener.class)
+@JsonIgnoreProperties(value = { "createdOn", "createdBy", "lastMofifiedOn", "lastModifiedBy" }, allowGetters = true)
 public class AbstractAuditEntity {
 	@CreationTimestamp
 	@Column(name="created_on")

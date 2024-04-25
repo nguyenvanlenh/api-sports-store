@@ -15,6 +15,6 @@ public interface AuthService {
 	String forgotPassword(ForgotPasswordRequest request);
 	String changePassword(ChangePasswordRequest request);
 	String verifyEmail(String token);
-	TokenResponse getRefreshToken(RefreshRequest request);
+	TokenResponse getAccessTokenFromRefeshToken(RefreshRequest request);
 	
 }
