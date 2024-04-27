@@ -1,6 +1,5 @@
 package com.watermelon.model.entity;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,8 +37,8 @@ public class Order extends AbstractAuditEntity{
 	private Double discount;
 	@Column(name = "total_price")
 	private Double totalPrice;
-	@Column(name="dilivery_fee")
-	private Double diliveryFee;
+	@Column(name="delivery_fee")
+	private Double deliveryFee;
 	
 	@ManyToOne
 	@JoinColumn(name="id_order_status")
@@ -60,6 +59,9 @@ public class Order extends AbstractAuditEntity{
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
 	private Set<OrderDetail> listDetails = new HashSet<>();
 	
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	private User user;
 
 	
 

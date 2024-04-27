@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.watermelon.dto.request.OrderRequest;
+import com.watermelon.dto.response.OrderResponse;
 import com.watermelon.dto.response.ResponseData;
-import com.watermelon.model.entity.Order;
 import com.watermelon.model.entity.OrderStatus;
 import com.watermelon.service.OrderService;
 
@@ -31,18 +31,20 @@ public class OrderController {
 	OrderService orderService;
 	
 	@GetMapping()
-	public ResponseData<List<Order>> getAllOrder(){
+	public ResponseData<List<OrderResponse>> getOrders(){
 		return new ResponseData<>(HttpStatus.OK.value(),"Data orders",orderService.getAllOrder());
 	}
 	@GetMapping("/{id}")
-	public ResponseData<Order> getOneOrderById(@PathVariable(name = "id") Long id) {
+	public ResponseData<OrderResponse> getOrderById(@PathVariable(name = "id") Long id) {
 		return  new ResponseData<>(HttpStatus.OK.value(),"Data order",orderService.getOrderById(id));
 	}
 	@PostMapping()
 	@ResponseStatus(HttpStatus.CREATED)
-	public ResponseData<Void> saveOrder(@RequestBody OrderRequest request){
-		orderService.createOrder(request);
-		return new ResponseData<>(HttpStatus.CREATED.value(),"Order added successfully");
+	public ResponseData<Long> saveOrder(@RequestBody OrderRequest request){
+		return new ResponseData<>(
+				HttpStatus.CREATED.value(),
+				"Order added successfully",
+				orderService.createOrder(request));
 	}
 	
 	@PatchMapping("/{id}")

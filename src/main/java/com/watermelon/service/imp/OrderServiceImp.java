@@ -3,13 +3,17 @@ package com.watermelon.service.imp;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.watermelon.dto.request.OrderAddressRequest;
 import com.watermelon.dto.request.OrderDetailRequest;
 import com.watermelon.dto.request.OrderRequest;
+import com.watermelon.dto.response.OrderResponse;
 import com.watermelon.exception.ForbiddenException;
+import com.watermelon.mapper.imp.OrderMapper;
 import com.watermelon.model.entity.Brand;
 import com.watermelon.model.entity.Category;
 import com.watermelon.model.entity.DeliveryMethod;
@@ -46,33 +50,32 @@ public class OrderServiceImp implements OrderService {
 	SizeRepository sizeRepository;
 	CommonService commonService;
 	
+	@PreAuthorize("hasRole('ADMIN')")
 	@Transactional(readOnly = true)
 	@Override
-	public List<Order> getAllOrder() {
-		return orderRepository.findAll();
+	public List<OrderResponse> getAllOrder() {
+		return  new OrderMapper().toDTO(orderRepository.findAll());
 	}
 
-	@Transactional(readOnly = true)
+    @PostAuthorize("hasRole('ADMIN') || authentication.name == returnObject.user.username")
+    @Transactional(readOnly = true)
 	@Override
-	public Order getOrderById(Long id) {
-		return commonService.findOrderById(id);
+	public OrderResponse getOrderById(Long id) {
+		return new OrderMapper().toDTO(commonService.findOrderById(id));
 	}
 
 	@Transactional
 	@Override
-	public Order createOrder(OrderRequest orderRequest) {
-		// initial order temp
+	public Long createOrder(OrderRequest orderRequest) {
 		Order order = mapRequestToOrder(orderRequest);
-		// save order address
 		OrderAddress orderAddress = mapRequestToOrderAddress(orderRequest.address());
 		OrderAddress orderAddressSaved = orderAddressRepository.save(orderAddress);
 
 		order.setOrderAddress(orderAddressSaved);
-		// save order
 		Order orderSaved = orderRepository.save(order);
 
 		saveOrderDetails(orderRequest.listOrderDetails(), orderSaved);
-		return orderSaved;
+		return orderSaved.getId();
 	}
 
 	@Transactional
@@ -82,7 +85,6 @@ public class OrderServiceImp implements OrderService {
 		if (order.getOrderStatus().equals(EOrderStatus.CANCELLED)) {
 			throw new ForbiddenException("Cannot update order status as this order has been cancelled!");
 		}
-		// when user cancelled this order , system will plus product quantity on order to warehouse
 		if (orderStatus.getName().equals(EOrderStatus.CANCELLED)) {
 			order.getListDetails().forEach(orderDetail -> {
 				List<Size> sizes = sizeRepository.findByName(orderDetail.getSize());
@@ -151,7 +153,7 @@ public class OrderServiceImp implements OrderService {
 		order.setTax(request.tax());
 		order.setDiscount(request.discount());
 		order.setTotalPrice(request.totalPrice());
-		order.setDiliveryFee(request.deliveryFee());
+		order.setDeliveryFee(request.deliveryFee());
 		order.setCouponCode(request.coupondCode());
 		order.setRejectReason(request.rejectReason());
 
@@ -168,13 +170,11 @@ public class OrderServiceImp implements OrderService {
 	}
 
 	private void updateQuantityProduct(OrderDetail orderDetail, OrderDetailRequest orderDetailRequest) {
-		// update quantity product by size
 		productService.updateProductQuantityForSize(orderDetail.getQuantity(), orderDetail.getProduct().getId(),
 				orderDetailRequest.size());
 	}
 
 	private void saveOrderDetails(Set<OrderDetailRequest> listOrderDetails, Order orderSaved) {
-		// save list orderDetail
 		listOrderDetails.forEach(orderDetailRq -> {
 			OrderDetail orderDetail = mapRequestToOrderDetail(orderDetailRq);
 

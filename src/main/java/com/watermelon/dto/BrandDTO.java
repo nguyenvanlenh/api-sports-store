@@ -1,22 +1,10 @@
 package com.watermelon.dto;
 
-import com.watermelon.mapper.EntityMapper;
-import com.watermelon.model.entity.Brand;
+import java.io.Serializable;
 
 import lombok.Builder;
 
-import java.io.Serializable;
-
 @Builder
-public record BrandDTO(int id, String name) implements EntityMapper<BrandDTO, Brand>, Serializable {
+public record BrandDTO(int id, String name) implements Serializable {
 
-	@Override
-	public BrandDTO toDTO(Brand entity) {
-		if(entity == null) {
-			return null;
-		}
-		return new BrandDTO(entity.getId(), entity.getName());
-	}
-
-	
 }

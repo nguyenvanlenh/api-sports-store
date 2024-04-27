@@ -63,20 +63,6 @@ public class RestExceptionHandler {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
 	}
 
-	@ExceptionHandler(AuthenticationException.class)
-	ResponseEntity<ErrorResponse> handlingAuthenticationException(AuthenticationException e,WebRequest request) {
-		ErrorResponse error = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(),
-				"Authentication failure",
-				getServletPath(request));
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
-	}
-	@ExceptionHandler(BadCredentialsException.class)
-	ResponseEntity<ErrorResponse> handlingBadCredentialsException(BadCredentialsException e,WebRequest request) {
-		ErrorResponse error = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(),
-				"The username or password is incorrect",
-				getServletPath(request));
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
-	}
 	@ExceptionHandler(UserNotActivatedException.class)
 	ResponseEntity<ErrorResponse> handlingUserNotActivatedException(UserNotActivatedException e,WebRequest request) {
 		ErrorResponse error = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(),
@@ -85,6 +71,21 @@ public class RestExceptionHandler {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
 	}
 
+//	@ExceptionHandler(AuthenticationException.class)
+//	ResponseEntity<ErrorResponse> handlingAuthenticationException(AuthenticationException e,WebRequest request) {
+//		ErrorResponse error = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(),
+//				"Authentication failure",
+//				getServletPath(request));
+//		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+//	}
+	@ExceptionHandler(BadCredentialsException.class)
+	ResponseEntity<ErrorResponse> handlingBadCredentialsException(BadCredentialsException e,WebRequest request) {
+		ErrorResponse error = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(),
+				"The username or password is incorrect",
+				getServletPath(request));
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+	}
+	
 	@ExceptionHandler(ResourceExistedException.class)
 	ResponseEntity<ErrorResponse> handlingResourceExistedException(ResourceExistedException e,WebRequest request) {
 		ErrorResponse error = new ErrorResponse(HttpStatus.CONFLICT.value(),
