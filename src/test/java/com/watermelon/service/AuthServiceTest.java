@@ -16,11 +16,14 @@ import java.util.List;
 
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Description;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -75,6 +78,12 @@ class AuthServiceTest {
 	private RefreshRequest refreshRequest;
 	private LoginRequest loginRequest;
 	private TokenResponse tokenResponse;
+	
+	@Value("${test.auth.accessToken}")
+	private String accessToken;
+	@Value("${test.auth.refreshToken}")
+	private String refreshToken;
+	
 
 	private User user;
 
@@ -85,14 +94,10 @@ class AuthServiceTest {
 		tokenResponse = TokenResponse.builder()
 				.authenticated(true)
 				.userId(1L)
-				.accessToken(
-				"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJqdGkiOiJhZmMwNzVkNi0yNGVjLTQ1MjItOTMzOC0xNmRmZGEwMGNhOTciLCJzdWIiOiJuZ3V5ZW52YW5sZW5oMSIsImlzcyI6IndhdGVybWVsb24iLCJpYXQiOjE3MTM4NTA2OTQsImV4cCI6MTcxMzg1MTU5NCwicm9sZXMiOiIifQ.OYC7TrsQJFIvXxQeA5ciGms6fvXns1Y7607i3-sBxt5mUSmwf7hqQE5W8rKUux9u5JC3-7S2GJm_F4-KrraErA")
-				.refreshToken(
-						"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIyZjZlYzIyOC1iMDMwLTRjNGQtYmY4Yy1lZGYyMDcwNWFiOGYiLCJzdWIiOiJuZ3V5ZW52YW5sZW5oMSIsImlzcyI6IndhdGVybWVsb24iLCJpYXQiOjE3MTM4NTA2OTQsImV4cCI6MTcxNTMyMTkyMywicm9sZXMiOiIifQ.Ndr6jMS9Hq1fp766yVuNZC_zQwt4ktqL2I_WsmoMn0uY3NjazyaxWSa6lCHbdWbBmJlkP1j6LUxKmkB5t3FnFA")
-				.listRoles(new HashSet<>(List.of("ROLE_USER","READ")))
+				.accessToken(accessToken)
+				.refreshToken(refreshToken)
 				.build();
-		refreshRequest = new RefreshRequest(
-				"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIyZjZlYzIyOC1iMDMwLTRjNGQtYmY4Yy1lZGYyMDcwNWFiOGYiLCJzdWIiOiJuZ3V5ZW52YW5sZW5oMSIsImlzcyI6IndhdGVybWVsb24iLCJpYXQiOjE3MTM4NTA2OTQsImV4cCI6MTcxNTMyMTkyMywicm9sZXMiOiIifQ.Ndr6jMS9Hq1fp766yVuNZC_zQwt4ktqL2I_WsmoMn0uY3NjazyaxWSa6lCHbdWbBmJlkP1j6LUxKmkB5t3FnFA");
+		refreshRequest = new RefreshRequest(refreshToken);
 		user = User.builder().id(1L).username("nguyenvanlenh").password(passwordEncoder.encode("12345678"))
 				.email("vanlenh2k@gmail.com").build();
 	}
@@ -110,9 +115,9 @@ class AuthServiceTest {
 				.username("nguyenvanlenh")
 				.password("12345678")
 				.authorities(Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")))
+				.isActive(true)
 				.build();
 		when(userDetailsService.loadUserByUsername("nguyenvanlenh")).thenReturn(userDetails);
-		
 		
 		when(jwtTokenProvider.generateToken(Constants.ACCESS_TOKEN, userDetails))
 		.thenReturn(tokenResponse.getAccessToken());
@@ -129,6 +134,7 @@ class AuthServiceTest {
 	}
 	
 	@Test
+	@DisplayName("Throw BadcredentialsException when username or password invalid")
 	void login_UsernameOrPasswordInvalid_ThrowBadcredentialsException() {
 		UsernamePasswordAuthenticationToken token =
 				new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password());
@@ -138,17 +144,19 @@ class AuthServiceTest {
 		assertThrows(BadCredentialsException.class, () -> authenticationManager.authenticate(token));
 	}
 	@Test
-	void login_UsernameI_ThrowUserNotActivatedException() {
+	@DisplayName("Throw UserNotActivatedException when non active account")
+	void login_NonActiveAccount_ThrowUserNotActivatedException() {
 		UsernamePasswordAuthenticationToken token =
 				new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password());
 		Authentication authentication = mock(Authentication.class);
 		when(authenticationManager.authenticate(token))
 		.thenReturn(authentication);
-		
+		CustomUserDetails userDetails = mock(CustomUserDetails.class);
 		when(userDetailsService.loadUserByUsername("nguyenvanlenh"))
-		.thenThrow(UserNotActivatedException.class);
-
-		assertThrows(UserNotActivatedException.class, () -> userDetailsService.loadUserByUsername("nguyenvanlenh"));
+		.thenReturn(userDetails);
+		when(userDetails.isActive()).thenReturn(false);
+		
+		assertThrows(UserNotActivatedException.class, () -> authService.login(loginRequest));
 	}
 
 	@Test
@@ -197,12 +205,14 @@ class AuthServiceTest {
 		when(request.token()).thenReturn(tokenResponse.getRefreshToken());
 		
 		when(jwtTokenProvider.validateToken(tokenResponse.getRefreshToken())).thenReturn(true);
-		when(jwtTokenProvider.getUsernameFromToken(tokenResponse.getRefreshToken())).thenReturn("nguyenvanlenh");
+		when(jwtTokenProvider.getUsernameFromToken(tokenResponse.getRefreshToken()))
+		.thenReturn("nguyenvanlenh");
 
 		UserDetails userDetails = mock(UserDetails.class);
 		when(userDetailsService.loadUserByUsername("nguyenvanlenh")).thenReturn(userDetails);
 		
-		when(jwtTokenProvider.generateToken(Constants.ACCESS_TOKEN, userDetails)).thenReturn(tokenResponse.getAccessToken());
+		when(jwtTokenProvider.generateToken(Constants.ACCESS_TOKEN, userDetails))
+		.thenReturn(tokenResponse.getAccessToken());
 		
 		
 		var response = authService.getAccessTokenFromRefeshToken(request);

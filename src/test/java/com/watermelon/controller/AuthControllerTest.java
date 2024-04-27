@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -51,6 +52,13 @@ class AuthControllerTest {
 	private RefreshRequest refreshRequest;
 	private LoginRequest loginRequest;
 	private TokenResponse tokenResponse;
+	
+	@Value("${test.auth.accessToken}")
+	private String accessToken;
+	@Value("${test.auth.refreshToken}")
+	private String refreshToken;
+	@Value("${test.auth.accessTokenExpect}")
+	private String tokenExpect;
 
 	@BeforeEach
 	public void initData() {
@@ -58,13 +66,10 @@ class AuthControllerTest {
 		loginRequest = new LoginRequest("nguyenlenh", "12345678");
 		tokenResponse = TokenResponse.builder()
 				.authenticated(true).userId(1L)
-				.accessToken(
-				"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJqdGkiOiJhZmMwNzVkNi0yNGVjLTQ1MjItOTMzOC0xNmRmZGEwMGNhOTciLCJzdWIiOiJuZ3V5ZW52YW5sZW5oMSIsImlzcyI6IndhdGVybWVsb24iLCJpYXQiOjE3MTM4NTA2OTQsImV4cCI6MTcxMzg1MTU5NCwicm9sZXMiOiIifQ.OYC7TrsQJFIvXxQeA5ciGms6fvXns1Y7607i3-sBxt5mUSmwf7hqQE5W8rKUux9u5JC3-7S2GJm_F4-KrraErA")
-				.refreshToken(
-						"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIyZjZlYzIyOC1iMDMwLTRjNGQtYmY4Yy1lZGYyMDcwNWFiOGYiLCJzdWIiOiJuZ3V5ZW52YW5sZW5oMSIsImlzcyI6IndhdGVybWVsb24iLCJpYXQiOjE3MTM4NTA2OTQsImV4cCI6MTcxNTMyMTkyMywicm9sZXMiOiIifQ.Ndr6jMS9Hq1fp766yVuNZC_zQwt4ktqL2I_WsmoMn0uY3NjazyaxWSa6lCHbdWbBmJlkP1j6LUxKmkB5t3FnFA")
+				.accessToken(accessToken)
+				.refreshToken(refreshToken)
 				.build();
-		refreshRequest = new RefreshRequest(
-				"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIyZjZlYzIyOC1iMDMwLTRjNGQtYmY4Yy1lZGYyMDcwNWFiOGYiLCJzdWIiOiJuZ3V5ZW52YW5sZW5oMSIsImlzcyI6IndhdGVybWVsb24iLCJpYXQiOjE3MTM4NTA2OTQsImV4cCI6MTcxNTMyMTkyMywicm9sZXMiOiIifQ.Ndr6jMS9Hq1fp766yVuNZC_zQwt4ktqL2I_WsmoMn0uY3NjazyaxWSa6lCHbdWbBmJlkP1j6LUxKmkB5t3FnFA");
+		refreshRequest = new RefreshRequest(refreshToken);
 
 	}
 
@@ -128,8 +133,7 @@ class AuthControllerTest {
 	@WithMockUser(username = "admin", roles = { "ADMIN", "USER" })
 	@Test
 	void getAccessTokenFromRefeshToken_ValidRequest_Success() throws JsonProcessingException, Exception {
-		TokenResponse expect = TokenResponse.builder().accessToken(
-				"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIyZjZlYzIyOC1iMDMwLTRjNGQtYmY4Yy1lZGYyMDcwNWFiOGYiLCJzdWIiOiJuZ3V5ZW52YW5sZW5oMSIsImlzcyI6IndhdGVybWVsb24iLCJpYXQiOjE3MTM4NTA2OTQsImV4cCI6MTcxNTMyMTkyMywicm9sZXMiOiIifQ.Ndr6jMS9Hq1fp766yVuNZC_zQwt4ktqL2I_WsmoMn0uY3NjazyaxWSa6lCHbdWbBmJlkP1j6LUxKmkB5t3FnFA")
+		TokenResponse expect = TokenResponse.builder().accessToken(tokenExpect)
 				.authenticated(true).build();
 		Mockito.when(authService.getAccessTokenFromRefeshToken(ArgumentMatchers.any(RefreshRequest.class)))
 				.thenReturn(expect);
@@ -140,7 +144,7 @@ class AuthControllerTest {
 				.andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
 				.andExpect(MockMvcResultMatchers.jsonPath("status").value(200))
 				.andExpect(MockMvcResultMatchers.jsonPath("message").value("Refresh token"))
-				.andExpect(MockMvcResultMatchers.jsonPath("data.accessToken").value(tokenResponse.getRefreshToken()))
+				.andExpect(MockMvcResultMatchers.jsonPath("data.accessToken").value(tokenExpect))
 				.andExpect(MockMvcResultMatchers.jsonPath("data.authenticated").value(true)).andReturn();
 	}
 }

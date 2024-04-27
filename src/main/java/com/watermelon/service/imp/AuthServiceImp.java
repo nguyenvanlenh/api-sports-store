@@ -32,6 +32,7 @@ import com.watermelon.dto.request.RegisterRequest;
 import com.watermelon.dto.response.TokenResponse;
 import com.watermelon.exception.ResourceExistedException;
 import com.watermelon.exception.ResourceNotFoundException;
+import com.watermelon.exception.UserNotActivatedException;
 import com.watermelon.model.entity.Role;
 import com.watermelon.model.entity.User;
 import com.watermelon.model.entity.VerificationToken;
@@ -73,6 +74,8 @@ public class AuthServiceImp implements AuthService {
 			Authentication authentication = authenticationManager.authenticate(token);
 			CustomUserDetails customUserDetails = (CustomUserDetails) userDetailsService
 					.loadUserByUsername(request.username());
+			if(!customUserDetails.isActive())
+				throw new UserNotActivatedException("User not active");
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			String accessToken = jwtTokenProvider.generateToken(Constants.ACCESS_TOKEN, customUserDetails);
 			String refreshToken = jwtTokenProvider.generateToken(Constants.REFRESH_TOKEN, customUserDetails);

@@ -1,5 +1,6 @@
 package com.watermelon.service.imp;
 
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,8 @@ public class UserServiceImp implements UserService{
 	UserRepository userRepository;
 	
 	VerificationTokenRepository tokenRepository;
+	
+	@PostAuthorize("hasRole('ADMIN') || authentication.name == returnObject.username")
 	@Override
 	public User findByUsername(String username) {
 		return userRepository.findByUsername(username)

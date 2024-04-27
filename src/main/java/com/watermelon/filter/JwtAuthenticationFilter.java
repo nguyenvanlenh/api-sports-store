@@ -72,11 +72,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 				UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-				if (userDetails == null) {
-					response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized: User details not found");
-					return;
-				}
-
 				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
 						userDetails, null, userDetails.getAuthorities());
 
