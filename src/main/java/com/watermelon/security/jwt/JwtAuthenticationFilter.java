@@ -1,4 +1,4 @@
-package com.watermelon.filter;
+package com.watermelon.security.jwt;
 
 import java.io.IOException;
 
@@ -14,8 +14,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.NoHandlerFoundException;
-
-import com.watermelon.security.jwt.JwtTokenProvider;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;

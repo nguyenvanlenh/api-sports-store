@@ -1,5 +1,6 @@
 package com.watermelon.service;
 
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.watermelon.exception.ResourceNotFoundException;
@@ -86,11 +87,17 @@ public class CommonService {
 	public User findUserById(long id) {
 		return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND", id));
 	}
+
+	public User findByUsername(String username) {
+		return userRepository.findByUsername(username)
+				.orElseThrow(() -> new UsernameNotFoundException(String.format("Username %s not found", username)));
+	}
+
 	public Role findRoleByName(String name) {
 		return roleRepository.findByName(ERole.USER.toString())
 				.orElseThrow(() -> new ResourceNotFoundException("ROLE_NOT_FOUND", name));
 	}
-	
+
 	public Rating findRatingById(long id) {
 		return ratingRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("RATING_NOT_FOUND", id));
 	}

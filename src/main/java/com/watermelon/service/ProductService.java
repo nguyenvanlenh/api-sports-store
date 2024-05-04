@@ -17,9 +17,9 @@ public interface ProductService {
 	PageResponse<List<ProductDTO>> getProductByUrlKeyCategory(String urlKey, Pageable pageable);
 	
 	boolean deleteProduct(Long id);
-	ProductDTO updateProduct(ProductDTO productDTO,List<MultipartFile> files);
+	boolean updateProduct(ProductDTO productDTO,List<MultipartFile> files);
 	ProductDTO updateProduct(ProductDTO productDTO);
-	ProductDTO addProduct(ProductRequest productRequest,List<MultipartFile> files);
+	Long addProduct(ProductRequest productRequest,List<MultipartFile> files);
 	
 	void updateProductQuantityForSize(int quantitySubtract, Long idProduct, Integer idSize);
 

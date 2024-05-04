@@ -67,9 +67,9 @@ public class ProductController {
 	}
 
 	@PostMapping
-	public ResponseData<ProductDTO> addProduct(@RequestPart("product") ProductRequest productRequest,
+	public ResponseData<Long> addProduct(@RequestPart("product") ProductRequest productRequest,
 			@RequestPart("file") List<MultipartFile> files) {
-		ProductDTO data = productService.addProduct(productRequest, files);
+		Long data = productService.addProduct(productRequest, files);
 		return new ResponseData<>(HttpStatus.CREATED.value(), "Product added successfully",data);
 	}
 

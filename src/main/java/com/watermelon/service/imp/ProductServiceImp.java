@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.watermelon.dto.ImageDTO;
@@ -135,7 +136,8 @@ public class ProductServiceImp implements ProductService {
      */
 	@Transactional
 	@Override
-	public ProductDTO updateProduct(ProductDTO productDTO, List<MultipartFile> files) {
+	public boolean updateProduct(ProductDTO productDTO, List<MultipartFile> files) {
+		boolean result = false;
 		Product product = commonService.findProductById(productDTO.id());
 		BeanUtils.copyProperties(productDTO, product, "id");
 
@@ -147,8 +149,11 @@ public class ProductServiceImp implements ProductService {
 		}
 
 		Product productUpdated = productRepository.save(product);
-
-		return new ProductMapper().toDTO(productUpdated);
+		if(!ObjectUtils.isEmpty(productUpdated)) {
+			result = true;
+		}
+		
+		return result;
 	}
 	
 	@Transactional
@@ -174,7 +179,7 @@ public class ProductServiceImp implements ProductService {
      */
 	@Transactional
 	@Override
-	public ProductDTO addProduct(ProductRequest productRequest, List<MultipartFile> files) {
+	public Long addProduct(ProductRequest productRequest, List<MultipartFile> files) {
 		if (productRequest == null) {
 			return null;
 		}
@@ -189,25 +194,25 @@ public class ProductServiceImp implements ProductService {
 		product.setBrand(brand);
 		product.setCategory(category);
 
-		Product mainProduct = productRepository.save(product);
+		Product productSaved = productRepository.save(product);
 		// save product quantity
 		List<ProductQuantity> savedQuantities = productRequest.listSize().stream().map(sizeItem -> {
 			ProductQuantity productQuantityWithSize = new ProductQuantity();
 			Size size = commonService.findSizeProductById(sizeItem.id());
 			productQuantityWithSize.setQuantity(sizeItem.quantity());
 			productQuantityWithSize.setSize(size);
-			productQuantityWithSize.setProduct(mainProduct);
+			productQuantityWithSize.setProduct(productSaved);
 			return productQuantityWithSize;
 		}).toList();
 
 		productQuantityRepository.saveAll(savedQuantities);
 
 		// save images
-		List<Image> savedImages = helperSaveImage(files, mainProduct);
+		List<Image> savedImages = helperSaveImage(files, productSaved);
 
-		mainProduct.setListImages(savedImages.stream().collect(Collectors.toSet()));
-		mainProduct.setQuantityOfSizes(savedQuantities.stream().collect(Collectors.toSet()));
-		return new ProductMapper().toDTO(mainProduct);
+		productSaved.setListImages(savedImages.stream().collect(Collectors.toSet()));
+		productSaved.setQuantityOfSizes(savedQuantities.stream().collect(Collectors.toSet()));
+		return productSaved.getId();
 	}
 	/**
 	 * Saves uploaded images for a product during update.
