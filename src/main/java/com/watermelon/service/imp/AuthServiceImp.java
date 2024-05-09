@@ -24,8 +24,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.watermelon.dto.request.ChangePasswordRequest;
-import com.watermelon.dto.request.ForgotPasswordRequest;
 import com.watermelon.dto.request.LoginRequest;
 import com.watermelon.dto.request.RefreshRequest;
 import com.watermelon.dto.request.RegisterRequest;
@@ -118,16 +116,6 @@ public class AuthServiceImp implements AuthService {
 		return userRepository.save(user);
 	}
 
-	@Override
-	public String forgotPassword(ForgotPasswordRequest request) {
-
-		return "";
-	}
-
-	@Override
-	public String changePassword(ChangePasswordRequest request) {
-		return null;
-	}
 
 	@Transactional
 	@Override

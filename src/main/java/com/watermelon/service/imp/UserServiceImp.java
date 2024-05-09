@@ -65,7 +65,7 @@ public class UserServiceImp implements UserService {
 	public PageResponse<List<UserDTO>> getAllUsers(Pageable pageable) {
 		Page<User> pageUser = userRepository.findAll(pageable);
 		List<UserDTO> lisUserDTOs = new UserMapper().toDTO(pageUser.getContent()); 
-		return new PageResponse<List<UserDTO>>(
+		return new PageResponse<>(
 				pageUser.getPageable().getPageNumber(),
 				pageUser.getSize(),
 				pageUser.getTotalPages(),
