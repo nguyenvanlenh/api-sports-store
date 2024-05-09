@@ -24,7 +24,7 @@ public class JwtAuthenticationEntryPoint extends BasicAuthenticationEntryPoint {
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		ErrorResponse errorResponse = ErrorResponse.builder()
 				.status(HttpServletResponse.SC_FORBIDDEN)
-				.message(authException.getMessage())
+				.message("Access denied")
 				.path(request.getRequestURI())
 				.timestamp(new Timestamp(System.currentTimeMillis()).toString())
 				.build();

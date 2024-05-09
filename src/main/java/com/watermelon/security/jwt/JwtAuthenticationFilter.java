@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -15,7 +15,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import com.watermelon.exception.UserNotActivatedException;
+import com.watermelon.security.CustomUserDetails;
+
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,8 +27,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	JwtTokenProvider jwtTokenProvider;
@@ -68,7 +74,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			if (validateJwt(jwt)) {
 				String username = jwtTokenProvider.getUsernameFromToken(jwt);
 
-				UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+				CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(username);
+				
+				if(!userDetails.isActive())
+					throw new UserNotActivatedException("User not active");
 
 				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
 						userDetails, null, userDetails.getAuthorities());
@@ -79,8 +88,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			}
 
 			filterChain.doFilter(request, response);
-		} catch (ExpiredJwtException | SignatureException | NoHandlerFoundException ex) {
+		} catch (
+				ExpiredJwtException | 
+				SignatureException |
+				MalformedJwtException | 
+				NoHandlerFoundException |
+				UserNotActivatedException |
+				UsernameNotFoundException ex) {
 			exceptionResolver.resolveException(request, response, null, ex);
+			log.error(ex.getMessage());
 		}
 
 	}
