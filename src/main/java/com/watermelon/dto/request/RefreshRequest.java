@@ -1,7 +1,7 @@
 package com.watermelon.dto.request;
 
-import java.io.Serializable;
+import jakarta.validation.constraints.NotBlank;
 
-public record RefreshRequest(String token) implements Serializable {
+public record RefreshRequest(@NotBlank(message = "Token must not be blank") String token){
 
 }

@@ -1,7 +1,8 @@
 package com.watermelon.dto.response;
 
-import java.io.Serializable;
 import java.util.List;
+
+import com.watermelon.dto.response.OrderResponse.UserResponse;
 
 public record OrderResponse(
 		UserResponse user,
@@ -17,7 +18,7 @@ public record OrderResponse(
 		String coupondCode,
 		String rejectReason,
 		List<OrderDetailResponse> listOrderDetails
-		) implements Serializable {
+		){
 	public record UserResponse(
 			Long id,
 			String username) {

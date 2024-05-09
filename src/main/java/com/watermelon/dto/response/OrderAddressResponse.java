@@ -1,7 +1,5 @@
 package com.watermelon.dto.response;
 
-import java.io.Serializable;
-
 public record OrderAddressResponse(
 		String addressLine1,
 		String addressLine2,
@@ -9,6 +7,6 @@ public record OrderAddressResponse(
 		String district,
 		String province,
 		String country
-		) implements Serializable {
+		){
 
 }
