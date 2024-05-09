@@ -12,7 +12,7 @@ public interface OrderService {
 	List<OrderResponse> getAllOrder();
 	OrderResponse getOrderById(Long id);
 	Long createOrder(OrderRequest orderRequest);
-	void updateOrderStatus(OrderStatus orderStatus, Long idOrder);
+	void updateOrderStatus(String status, Long idOrder);
 	void updateDeliveryStatus(DeliveryStatus deliveryStatus, Long idOrder);
 	
 }

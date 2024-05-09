@@ -73,6 +73,10 @@ public class CommonService {
 		return orderStatusRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("ORDER_STATUS_NOT_FOUND", id));
 	}
+	public OrderStatus findOrderStatusByName(String nameStatus) {
+		return orderStatusRepository.findByName(nameStatus)
+				.orElseThrow(() -> new ResourceNotFoundException("ORDER_STATUS_NOT_FOUND", nameStatus));
+	}
 
 	public DeliveryMethod findDeliveryMethodById(int id) {
 		return deliveryMethodRepository.findById(id)

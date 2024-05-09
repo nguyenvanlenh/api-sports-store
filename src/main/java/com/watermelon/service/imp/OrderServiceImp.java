@@ -80,19 +80,19 @@ public class OrderServiceImp implements OrderService {
 
 	@Transactional
 	@Override
-	public void updateOrderStatus(OrderStatus orderStatus, Long idOrder) {
+	public void updateOrderStatus(String orderStatus, Long idOrder) {
 		Order order = commonService.findOrderById(idOrder);
-		if (order.getOrderStatus().equals(EOrderStatus.CANCELLED)) {
+		if (EOrderStatus.CANCELLED.toString().equals(order.getOrderStatus().getName())) {
 			throw new ForbiddenException("Cannot update order status as this order has been cancelled!");
 		}
-		if (orderStatus.getName().equals(EOrderStatus.CANCELLED)) {
+		if (EOrderStatus.CANCELLED.toString().equals(orderStatus)) {
 			order.getListDetails().forEach(orderDetail -> {
 				List<Size> sizes = sizeRepository.findByName(orderDetail.getSize());
 				productService.updateProductQuantityForSize(-orderDetail.getQuantity(), idOrder, sizes.get(0).getId());
 			});
 		}
-
-		order.setOrderStatus(orderStatus);
+		OrderStatus orderStatusUpdated = commonService.findOrderStatusByName(orderStatus);
+		order.setOrderStatus(orderStatusUpdated);
 		orderRepository.save(order);
 	}
 
@@ -100,10 +100,10 @@ public class OrderServiceImp implements OrderService {
 	@Override
 	public void updateDeliveryStatus(DeliveryStatus deliveryStatus, Long idOrder) {
 		Order order = commonService.findOrderById(idOrder);
-		if (order.getOrderStatus().equals(EOrderStatus.CANCELLED)) {
+		if (EOrderStatus.CANCELLED.toString().equals(order.getOrderStatus().getName())) {
 			throw new ForbiddenException("Cannot update delivery status as this order has been cancelled!");
 		}
-		if (order.getDeliveryStatus().equals(EDeliveryStatus.DELIVERED)) {
+		if (EDeliveryStatus.DELIVERED.toString().equals(order.getDeliveryStatus().getName())) {
 			throw new ForbiddenException("Cannot update delivery status as this order has been delivered!");
 		}
 		order.setDeliveryStatus(deliveryStatus);
@@ -122,7 +122,7 @@ public class OrderServiceImp implements OrderService {
 		Brand brand = commonService.findBrandProductById(request.brand());
 		orderDetail.setBrand(brand.getName());
 
-		Category category = commonService.findCategoryProductById(request.categogy());
+		Category category = commonService.findCategoryProductById(request.category());
 		orderDetail.setCategogy(category.getName());
 
 		Size size = commonService.findSizeProductById(request.size());
