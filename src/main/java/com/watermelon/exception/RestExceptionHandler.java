@@ -2,86 +2,85 @@ package com.watermelon.exception;
 
 import java.util.stream.Collectors;
 
-import org.springframework.beans.ConversionNotSupportedException;
-import org.springframework.beans.TypeMismatchException;
+import javax.naming.AuthenticationException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
-import org.springframework.web.HttpMediaTypeNotAcceptableException;
-import org.springframework.web.HttpMediaTypeNotSupportedException;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 public class RestExceptionHandler {
 
-	@ExceptionHandler(ResourceNotFoundException.class)
-	public ResponseEntity<ErrorResponse> handleNotFoundException(ResourceNotFoundException e,WebRequest request) {
+	@ExceptionHandler({
+			ResourceNotFoundException.class,
+			NoHandlerFoundException.class
+	})
+	public ResponseEntity<ErrorResponse> handleNotFoundException(Exception e,WebRequest request) {
+		String message = e.getMessage();
+		if(e instanceof NoHandlerFoundException){
+			message = "Not found";
+		}
 		ErrorResponse error = new ErrorResponse(HttpStatus.NOT_FOUND.value(),
-				e.getMessage(),
+				message,
 				getServletPath(request));
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
 	}
-
-	@ExceptionHandler(ForbiddenException.class)
-	public ResponseEntity<ErrorResponse> handleForbiddenException(ForbiddenException e,WebRequest request) {
+	@ExceptionHandler({
+			ForbiddenException.class,
+			AccessDeniedException.class
+	})
+	public ResponseEntity<ErrorResponse> handleForbiddenException(Exception e,WebRequest request) {
+		String message = e.getMessage();
+		if(e instanceof AccessDeniedException){
+			message = "Access denied";
+		}
 		ErrorResponse error = new ErrorResponse(HttpStatus.FORBIDDEN.value(),
-				e.getMessage(),
+				message,
 				getServletPath(request));
 		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
 	}
 
-	@ExceptionHandler(UsernameNotFoundException.class)
-	ResponseEntity<ErrorResponse> handlingUsernameNotFoundException(UsernameNotFoundException e,WebRequest request) {
-		ErrorResponse error = new ErrorResponse(HttpStatus.NOT_FOUND.value(),
-				e.getMessage(),
-				getServletPath(request));
-		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-	}
-
-	@ExceptionHandler(UserNotActivatedException.class)
-	ResponseEntity<ErrorResponse> handlingUserNotActivatedException(UserNotActivatedException e,WebRequest request) {
+	@ExceptionHandler({
+		AuthenticationException.class,
+		UserNotActivatedException.class,
+		BadCredentialsException.class,
+		UsernameNotFoundException.class
+		})
+	ResponseEntity<ErrorResponse> handlingAuthenticationException(Exception e,WebRequest request) {
+		String message = e.getMessage();
+		
+		if(e instanceof UserNotActivatedException ex) {
+			message = ex.getMessage();
+		}
+		if(e instanceof UsernameNotFoundException) {
+			message = "Username not found";
+		}
+		if(e instanceof BadCredentialsException) {
+			message = "The username or password is incorrect";
+		}
+		if (e instanceof AuthenticationException) {
+			message = "Authentication failure";
+		}
+		
 		ErrorResponse error = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(),
-				e.getMessage(),
-				getServletPath(request));
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
-	}
-
-//	@ExceptionHandler(AuthenticationException.class)
-//	ResponseEntity<ErrorResponse> handlingAuthenticationException(AuthenticationException e,WebRequest request) {
-//		ErrorResponse error = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(),
-//				"Authentication failure",
-//				getServletPath(request));
-//		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
-//	}
-	@ExceptionHandler(BadCredentialsException.class)
-	ResponseEntity<ErrorResponse> handlingBadCredentialsException(BadCredentialsException e,WebRequest request) {
-		ErrorResponse error = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(),
-				"The username or password is incorrect",
+				message,
 				getServletPath(request));
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
 	}
@@ -93,15 +92,45 @@ public class RestExceptionHandler {
 				getServletPath(request));
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
 	}
+	@ExceptionHandler(EmailMessagingException.class)
+	ResponseEntity<ErrorResponse> handlingEmailMessagingExceptionException(EmailMessagingException e,WebRequest request) {
+		ErrorResponse error = new ErrorResponse(HttpStatus.NOT_ACCEPTABLE.value(),
+				e.getLocalizedMessage(),
+				getServletPath(request));
+		return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(error);
+	}
 
-	@ExceptionHandler(MethodArgumentNotValidException.class)
-	ResponseEntity<ErrorResponse> handlingMethodArgumentNotValidException(MethodArgumentNotValidException e,
+	@ExceptionHandler({
+		MethodArgumentNotValidException.class,
+		ConstraintViolationException.class,
+		MissingServletRequestParameterException.class,
+		MethodArgumentTypeMismatchException.class,
+		MissingPathVariableException.class,
+		})
+	ResponseEntity<ErrorResponse> handlingBadRequestException(Exception e,
 			WebRequest request) {
-
-		String errors = e.getBindingResult().getFieldErrors()
-				.stream().map(
-				FieldError::getDefaultMessage)
-				.collect(Collectors.joining(", "));
+		String errors = e.getMessage();
+		if(e instanceof MethodArgumentNotValidException ex) {
+			errors = ex.getBindingResult().getFieldErrors()
+					.stream().map(
+							FieldError::getDefaultMessage)
+					.collect(Collectors.joining(", "));
+		}
+		if(e instanceof ConstraintViolationException) {
+			//validaiton on controller
+			errors = errors.substring(errors.indexOf(":")+1).trim();
+		}
+		if(e instanceof MissingServletRequestParameterException ex) {
+			//requestparam is null
+			errors = ex.getMessage();
+		}
+		if(e instanceof MissingPathVariableException ex) {
+			// pathvariable is null
+			errors = ex.getMessage();
+		}
+		if(e instanceof MethodArgumentTypeMismatchException) {
+			errors = "PathVariable invalid";
+		}
 
 		ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), errors,
 				getServletPath(request));
@@ -109,53 +138,18 @@ public class RestExceptionHandler {
 
 	}
 
-	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException e,WebRequest request) {
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-				.body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(),
-						"Param invalid",
+	@ExceptionHandler({Exception.class, RuntimeException.class})
+	public ResponseEntity<ErrorResponse> handleInternalServerException(Exception e,WebRequest request) {
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+				.body(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+						e.getMessage(),
 						getServletPath(request)));
 	}
 
-	@ExceptionHandler({ 
-		HttpRequestMethodNotSupportedException.class,
-		HttpMediaTypeNotSupportedException.class,
-		HttpMediaTypeNotAcceptableException.class,
-		MissingPathVariableException.class,
-		ConversionNotSupportedException.class,
-		HttpMessageNotWritableException.class,
-		MissingServletRequestParameterException.class,
-		ServletRequestBindingException.class,
-		TypeMismatchException.class,
-		HttpMessageNotReadableException.class,
-		MissingServletRequestPartException.class,
-		BindException.class, NoHandlerFoundException.class,
-		AsyncRequestTimeoutException.class })
-	public ResponseEntity<ErrorResponse> handleException(Exception e,HttpServletRequest request) {
-		HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-		if (e instanceof HttpRequestMethodNotSupportedException) {
-			httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
-		} else if (e instanceof HttpMediaTypeNotSupportedException) {
-			httpStatus = HttpStatus.UNSUPPORTED_MEDIA_TYPE;
-		} else if (e instanceof HttpMediaTypeNotAcceptableException) {
-			httpStatus = HttpStatus.NOT_ACCEPTABLE;
-		} else if (e instanceof MissingPathVariableException 
-				|| e instanceof ConversionNotSupportedException
-				|| e instanceof HttpMessageNotWritableException) {
-			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-		} else if (e instanceof NoHandlerFoundException 
-				|| e instanceof AsyncRequestTimeoutException) {
-			httpStatus = HttpStatus.NOT_FOUND;
-		}
-		return ResponseEntity.status(httpStatus).body(new ErrorResponse(httpStatus.value(),
-				e.getMessage(),
-				request.getRequestURI()));
-	}
-	@ExceptionHandler({ SignatureException.class, ExpiredJwtException.class, AccessDeniedException.class,MalformedJwtException.class })
-	public ResponseEntity<ErrorResponse> handleSecurityException(Exception e, WebRequest request) {
-		return ResponseEntity.status(HttpStatus.FORBIDDEN)
-				.body(new ErrorResponse(HttpStatus.FORBIDDEN.value(),
+	@ExceptionHandler({ SignatureException.class, ExpiredJwtException.class,MalformedJwtException.class })
+	public ResponseEntity<ErrorResponse> handleJWTException(Exception e, WebRequest request) {
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+				.body(new ErrorResponse(HttpStatus.UNAUTHORIZED.value(),
 						e.getMessage(),
 						getServletPath(request)));
 	}
