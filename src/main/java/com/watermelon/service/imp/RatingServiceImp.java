@@ -21,10 +21,12 @@ import com.watermelon.service.RatingService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class RatingServiceImp implements RatingService {
 
 	RatingRepository ratingRepository;
@@ -51,17 +53,18 @@ public class RatingServiceImp implements RatingService {
 		rating.setUser(user);
 
 		ratingRepository.save(rating);
-
+		log.info("Add new rating for product with ID: {}", request.productId());
 	}
 
 	@Override
 	public void deleteRating(Long id) {
 		ratingRepository.deleteById(id);
-
+		log.info("Delete rating with ID: {}", id);
 	}
 
 	@Override
 	public Double caculatorAverageStar(Long id) {
+		log.info("Calculating average star for product with ID: {}", id);
 		List<Object[]> totalStarAndRatings = ratingRepository.getTotalStarAndTotalRating(id);
 		if (ObjectUtils.isEmpty(totalStarAndRatings.get(0)[0]))
 			return 0.0;

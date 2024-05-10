@@ -2,6 +2,7 @@ package com.watermelon.controller;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -24,16 +25,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @RestController
-@RequestMapping("/api/rating")
+@RequestMapping("/api/ratings")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class RatingController {
 
 	
- RatingService ratingService;
+ 	RatingService ratingService;
 	
-	@GetMapping("/{productId}/average-star")
-	public ResponseData<Double> getTotal(@PathVariable Long productId){
+	@GetMapping("/product/{productId}/average-star")
+	public ResponseData<Double> getTotal(
+			@PathVariable Long productId){
 		return new ResponseData<>(HttpStatus.OK.value(),"Average star of product "+productId,ratingService.caculatorAverageStar(productId));
 	}
 	
@@ -46,7 +48,7 @@ public class RatingController {
 	}
 	
 	@PostMapping
-	public ResponseData<Void> addRating(@RequestBody RatingRequest requestRating){
+	public ResponseData<Void> addRating(@Valid @RequestBody RatingRequest requestRating){
 		ratingService.addRating(requestRating);
 		return new ResponseData<>(HttpStatus.CREATED.value(), "Rating added successfully");
 	}
