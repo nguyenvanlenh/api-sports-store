@@ -1,4 +1,4 @@
 package com.watermelon.dto.request;
 
-public record ProductImageRequest(String path){
+public record ProductImageRequest(Long id,String path){
 }

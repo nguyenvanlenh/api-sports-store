@@ -8,8 +8,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
 import org.springframework.data.web.SortDefault.SortDefaults;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -26,6 +28,7 @@ import com.watermelon.dto.response.ResponseData;
 import com.watermelon.service.ImageService;
 import com.watermelon.service.ProductService;
 
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -67,8 +70,8 @@ public class ProductController {
 	}
 
 	@PostMapping
-	public ResponseData<Long> addProduct(@RequestPart("product") ProductRequest productRequest,
-			@RequestPart("file") List<MultipartFile> files) {
+	public ResponseData<Long> addProduct(@Valid @RequestPart("product") ProductRequest productRequest,
+			@RequestPart("files") List<MultipartFile> files) {
 		Long data = productService.addProduct(productRequest, files);
 		return new ResponseData<>(HttpStatus.CREATED.value(), "Product added successfully",data);
 	}
@@ -80,11 +83,12 @@ public class ProductController {
 		return new ResponseData<>(HttpStatus.CREATED.value(), "Images upload successfully" ,data);
 	}
 
-	@PutMapping
-	public ResponseData<Void> updateProduct(@RequestPart("product") ProductDTO productDTO,
+	@PutMapping("/{idProduct}" )
+	public ResponseData<Void> updateProduct(
+			@PathVariable Long idProduct,
+			@Valid @RequestPart("product") ProductRequest request,
 	        @RequestPart(name = "files", required = false) List<MultipartFile> files) {
-	    
-	    productService.updateProduct(productDTO, files);
+	    productService.updateProduct(idProduct, request, files);
 	    return new ResponseData<>(HttpStatus.ACCEPTED.value(), "Product updated successfully");
 
 	}
@@ -93,6 +97,16 @@ public class ProductController {
 	public ResponseData<Void> deleteProductById(@PathVariable (name = "id") Long id){
 		productService.deleteProduct(id);
 		return new ResponseData<>(HttpStatus.NO_CONTENT.value(), "User delete successfully");
+	}
+	
+	@PatchMapping("/{idProduct}/size/{isSize}/quantity")
+	public ResponseData<Void> updateProductQuantity(
+			@PathVariable Long idProduct,
+			@PathVariable Integer idSize,
+			@RequestParam Integer quantitySubtract){
+		productService.updateProductQuantityForSize(quantitySubtract, idProduct, idSize);
+		return new ResponseData<>(HttpStatus.ACCEPTED.value(), "Product quantity updated successfully");
+		
 	}
 	
 

@@ -32,10 +32,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Product extends AbstractAuditEntity{
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;

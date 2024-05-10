@@ -9,7 +9,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 @Builder
 public record ProductRequest(
-		 	@NotBlank(message = "Name must not be blank") String name,
+		 	@NotBlank(message = "Name must not be blank")
+		 	String name,
 	        String shortDescription,
 	        @NotBlank(message = "Description must not be blank")
 		 	String description,
@@ -21,6 +22,7 @@ public record ProductRequest(
 		 	Integer idBrand,
 	        @NotNull(message = "Category ID must not be null")
 		 	Integer idCategory,
+		 	List<ProductImageRequest> listImages,
 	        List<@Valid ProductSizeRequest> listSize
         ) {
 }

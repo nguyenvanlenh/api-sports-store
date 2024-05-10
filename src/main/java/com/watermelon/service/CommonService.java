@@ -53,7 +53,7 @@ public class CommonService {
 	}
 
 	public Product findProductById(Long id) {
-		return productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("PRODUCT_NOT_FOUND", id));
+		return productRepository.findByIdAndIsActiveTrue(id).orElseThrow(() -> new ResourceNotFoundException("PRODUCT_NOT_FOUND", id));
 	}
 
 	public Size findSizeProductById(Integer id) {

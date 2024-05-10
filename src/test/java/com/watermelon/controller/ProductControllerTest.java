@@ -286,9 +286,9 @@ class ProductControllerTest {
 						null,
 						MediaType.APPLICATION_JSON_VALUE,
 						objectMapper.writeValueAsBytes(productDTO));
-		when(productService.updateProduct(any(ProductDTO.class),anyList()))
+		when(productService.updateProduct(anyLong(),any(ProductRequest.class),anyList()))
 		.thenReturn(true);
-		mockMvc.perform(multipart("/api/products")
+		mockMvc.perform(multipart("/api/products/1")
 				.file(productRequestJson)
 				.with(request -> {
 					request.setMethod("PUT");

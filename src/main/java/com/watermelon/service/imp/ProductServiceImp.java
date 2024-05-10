@@ -4,18 +4,19 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.watermelon.dto.ImageDTO;
 import com.watermelon.dto.ProductDTO;
-import com.watermelon.dto.SizeDTO;
+import com.watermelon.dto.request.ProductImageRequest;
 import com.watermelon.dto.request.ProductRequest;
+import com.watermelon.dto.request.ProductSizeRequest;
 import com.watermelon.dto.response.PageResponse;
 import com.watermelon.exception.InvalidQuantityException;
 import com.watermelon.exception.ResourceNotFoundException;
@@ -39,10 +40,12 @@ import com.watermelon.utils.Constants;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class ProductServiceImp implements ProductService {
 
 	ProductRepository productRepository;
@@ -78,7 +81,7 @@ public class ProductServiceImp implements ProductService {
 	@Transactional(readOnly = true)
 	@Override
 	public PageResponse<List<ProductDTO>> getAllProduct(Pageable pageable) {
-		Page<Product> pageProduct = productRepository.findAll(pageable);
+		Page<Product> pageProduct = productRepository.findByIsActiveTrue(pageable);
 		List<ProductDTO> listProductDTO = new ProductMapper().toDTO(pageProduct.getContent());
 
 		return new PageResponse<>(
@@ -99,7 +102,7 @@ public class ProductServiceImp implements ProductService {
 	@Transactional(readOnly = true)
 	@Override
 	public PageResponse<List<ProductDTO>> getProductContainName(String keyword, Pageable pageable) {
-		Page<Product> pageProduct = productRepository.findByNameContainingIgnoreCase(keyword, pageable);
+		Page<Product> pageProduct = productRepository.findByNameContainingIgnoreCaseAndIsActiveTrue(keyword, pageable);
 		List<ProductDTO> listProductDTO = new ProductMapper().toDTO(pageProduct.getContent());
 		return new PageResponse<>(
 				pageProduct.getPageable().getPageNumber(),
@@ -120,8 +123,10 @@ public class ProductServiceImp implements ProductService {
 	public boolean deleteProduct(Long id) {
 		if (id != null && productRepository.existsById(id)) {
 			productRepository.deleteById(id);
+			log.info("delete product ID {} success", id);
 		    return true;
 		}
+		log.error("delete product ID {} failed", id);
 		return false;
 	}
 
@@ -129,46 +134,33 @@ public class ProductServiceImp implements ProductService {
 	 /**
      * Updates a product with new details and optional images.
      * 
-     * @param productDTO The updated product details.
+     * @param request The updated product details.
      * @param files The list of image files to associate with the product.
      * @return The ProductDTO representing the updated product.
      * @throws ResourceNotFoundException if the product to update is not found.
      */
+	@PreAuthorize("hasRole('ADMIN')")
 	@Transactional
 	@Override
-	public boolean updateProduct(ProductDTO productDTO, List<MultipartFile> files) {
+	public boolean updateProduct(Long idProduct, ProductRequest request, List<MultipartFile> files) {
 		boolean result = false;
-		Product product = commonService.findProductById(productDTO.id());
-		BeanUtils.copyProperties(productDTO, product, "id");
+		Product product = commonService.findProductById(idProduct);
+		updateChangedFields(product, request);
 
-		updateChangedFields(product, productDTO);
-
-		if (files != null && !files.isEmpty()) {
+		if (!CollectionUtils.isEmpty(files)) {
 			List<Image> savedImages = helperSaveImage(files, product);
 			product.getListImages().addAll(savedImages);
 		}
 
 		Product productUpdated = productRepository.save(product);
 		if(!ObjectUtils.isEmpty(productUpdated)) {
+			log.info("update product ID {} success", idProduct);
 			result = true;
 		}
 		
 		return result;
 	}
 	
-	@Transactional
-	@Override	
-	public ProductDTO updateProduct(ProductDTO productDTO) {
-		Product product = commonService.findProductById(productDTO.id());
-
-		BeanUtils.copyProperties(productDTO, product, "id");
-
-		updateChangedFields(product, productDTO);
-
-		Product productUpdated = productRepository.save(product);
-
-		return new ProductMapper().toDTO(productUpdated);
-	}
 
 	 /**
      * Adds a new product with specified details and associated images.
@@ -177,6 +169,7 @@ public class ProductServiceImp implements ProductService {
      * @param files The list of image files to associate with the product.
      * @return The ProductDTO representing the added product.
      */
+	@PreAuthorize("hasRole('ADMIN')")
 	@Transactional
 	@Override
 	public Long addProduct(ProductRequest productRequest, List<MultipartFile> files) {
@@ -193,6 +186,7 @@ public class ProductServiceImp implements ProductService {
 		product.setTax(productRequest.tax());
 		product.setBrand(brand);
 		product.setCategory(category);
+		product.setActive(true);
 
 		Product productSaved = productRepository.save(product);
 		// save product quantity
@@ -212,134 +206,10 @@ public class ProductServiceImp implements ProductService {
 
 		productSaved.setListImages(savedImages.stream().collect(Collectors.toSet()));
 		productSaved.setQuantityOfSizes(savedQuantities.stream().collect(Collectors.toSet()));
+		log.info("add product ID {} success", productSaved.getId());
 		return productSaved.getId();
 	}
-	/**
-	 * Saves uploaded images for a product during update.
-	 *
-	 * @param files   The list of image files to upload.
-	 * @param product The product entity to associate the uploaded images with.
-	 * @return The list of Image entities representing the saved images.
-	 */
-	private List<Image> helperSaveImage(List<MultipartFile> files, Product product) {
-		List<String> listPath = cloudinaryServiceImp.upload(files);
-		List<Image> savedImages = listPath.stream().map(path -> {
-			Image image = new Image();
-			image.setPath(path);
-			image.setProduct(product);
-			return image;
-		}).toList();
-
-		imageRepository.saveAll(savedImages);
-		return savedImages;
-	}
-
-	/**
-	 * Updates the specified fields of a product based on changes in the corresponding ProductDTO.
-	 * This method is invoked during product update.
-	 *
-	 * @param product    The product entity to update.
-	 * @param productDTO The ProductDTO containing updated field values.
-	 */
-	private void updateChangedFields(Product product, ProductDTO productDTO) {
-		if (product == null || productDTO == null) {
-			return;
-		}
-		if (!isEqual(product.getName(), productDTO.name()))
-			product.setName(productDTO.name());
-
-		if (!isEqual(product.getShortDescription(), productDTO.shortDescription()))
-			product.setShortDescription(productDTO.shortDescription());
-
-		if (!isEqual(product.getDescription(), productDTO.description()))
-			product.setDescription(productDTO.description());
-
-		if (!isEqual(product.getPrice(), productDTO.price()))
-			product.setPrice(productDTO.price());
-
-		if (!isEqual(product.getTax(), productDTO.tax()))
-			product.setTax(productDTO.tax());
-
-		if (productDTO.brand() != null && productDTO.brand().id() != product.getBrand().getId()) {
-			product.setBrand(brandRepository.findById(productDTO.brand().id()).orElse(null));
-		}
-
-		if (productDTO.category() != null && productDTO.category().id() != product.getCategory().getId()) {
-			product.setCategory(categoryRepository.findById(productDTO.category().id()).orElse(null));
-		}
-
-		helperUpdateQuantityOfProductSize(product, productDTO.listSize());
-
-		helperUpdateProductImages(product, productDTO.listImages());
-	}
-
-	/**
-	 * Updates the product quantity based on the provided list of size changes.
-	 * This method is invoked during product update.
-	 *
-	 * @param product    The product entity to update quantity for.
-	 * @param newSizeList The list of SizeDTO objects representing the updated sizes.
-	 */
-	private void helperUpdateQuantityOfProductSize(Product product, List<SizeDTO> newSizeList) {
-		List<ProductQuantity> existingQuantities = productQuantityRepository.findByProduct_Id(product.getId());
-		// list product quantity will be deleted
-		Set<ProductQuantity> quantitiesToRemove = existingQuantities.stream().filter(
-				quantity -> newSizeList.stream().noneMatch(sizeDTO -> sizeDTO.id() == quantity.getSize().getId()))
-				.collect(Collectors.toSet());
-
-		// delete quantity when no longer in list
-		productQuantityRepository.deleteAll(quantitiesToRemove);
-
-		// update or add quantity of size
-		newSizeList.forEach(sizeDTO -> {
-			ProductQuantity existingQuantity = existingQuantities.stream()
-					.filter(quantity -> quantity.getSize().getId() == sizeDTO.id()).findFirst().orElse(null);
-
-			if (existingQuantity != null) {
-				// update
-				existingQuantity.setQuantity(sizeDTO.quantity());
-			} else {
-				// add
-				ProductQuantity newQuantity = new ProductQuantity();
-				Size size = sizeRepository.findById(sizeDTO.id()).orElse(null);
-				if (size != null) {
-					newQuantity.setSize(size);
-					newQuantity.setQuantity(sizeDTO.quantity());
-					newQuantity.setProduct(product);
-					existingQuantities.add(productQuantityRepository.save(newQuantity));
-				}
-			}
-		});
-	}
-
-	/**
-	 * Updates the product images based on the provided list of updated images.
-	 * This method is invoked during product update.
-	 *
-	 * @param product     The product entity to update images for.
-	 * @param newImageList The list of ImageDTO objects representing the updated images.
-	 */
-	private void helperUpdateProductImages(Product product, List<ImageDTO> newImageList) {
-		List<Image> existingImages = imageRepository.findByProduct_Id(product.getId());
-		// Xác định các Images cần xóa
-		Set<Image> imagesToRemove = existingImages.stream()
-				.filter(image -> newImageList.stream().noneMatch(imageDTO -> imageDTO.id() == image.getId()))
-				.collect(Collectors.toSet());
-
-		if (newImageList.size() == existingImages.size()) {
-			// phuong thuc phuc vu cho muc dich xoa hinh anh
-			// neu so luong hinh anh nhu cu thi khong lam gi ca
-			return;
-		}
-
-		// Xóa các Images không còn trong danh sách mới
-		imageRepository.deleteAll(imagesToRemove);
-	}
-
-	// method supports null-safe comparison
-	private boolean isEqual(Object obj1, Object obj2) {
-		return (obj1 == null && obj2 == null) || (obj1 != null && obj1.equals(obj2));
-	}
+	
 
 	/**
 	 * Retrieves a list of products based on the URL key of a category with pagination.
@@ -351,7 +221,7 @@ public class ProductServiceImp implements ProductService {
 	 */
 	@Override
 	public PageResponse<List<ProductDTO>> getProductByUrlKeyCategory(String urlKey, Pageable pageable) {
-		Page<Product> pageProduct = productRepository.findByCategory_UrlKey(urlKey, pageable);
+		Page<Product> pageProduct = productRepository.findByCategory_UrlKeyAndIsActiveTrue(urlKey, pageable);
 		if (pageProduct.isEmpty()) {
 			throw new ResourceNotFoundException("URL_KEY_CATEGORY_NOT_FOUND", urlKey);
 		}
@@ -383,14 +253,152 @@ public class ProductServiceImp implements ProductService {
 		int quantityOld = productQuantity.getQuantity();
 
 		if (quantitySubtract > quantityOld) {
+			log.error("Quantity to subtract exceeds available quantity!");
 			throw new InvalidQuantityException("Quantity to subtract exceeds available quantity!");
 		}
 		if (quantitySubtract > Constants.QUANTITY_PRODUCT_MAX_BUY) {
+			log.error("Quantity to subtract must be less than or equal to "+ Constants.QUANTITY_PRODUCT_MAX_BUY);
 			throw new InvalidQuantityException("Quantity to subtract must be less than or equal to "+ Constants.QUANTITY_PRODUCT_MAX_BUY);
 		}
 		productQuantity.setQuantity(quantityOld - quantitySubtract);
 		productQuantity.setProduct(product);
 		productQuantity.setSize(size);
+		productQuantityRepository.save(productQuantity);
+		log.info("Updated quantity of product ID {} with size ID {} successfully", idProduct, idSize);
 
 	}
+	
+	@Override
+	public void updateStatusProduct(Long idProduct, Boolean isActive) {
+		Product product = commonService.findProductById(idProduct);
+		product.setActive(isActive);
+		productRepository.save(product);
+		log.info("Updated status of product ID {}successfully", idProduct);
+		
+	}
+	
+	/**
+	 * Saves uploaded images for a product during update.
+	 *
+	 * @param files   The list of image files to upload.
+	 * @param product The product entity to associate the uploaded images with.
+	 * @return The list of Image entities representing the saved images.
+	 */
+	private List<Image> helperSaveImage(List<MultipartFile> files, Product product) {
+		List<String> listPath = cloudinaryServiceImp.upload(files);
+		List<Image> savedImages = listPath.stream().map(path -> {
+			Image image = new Image();
+			image.setPath(path);
+			image.setProduct(product);
+			return image;
+		}).toList();
+
+		imageRepository.saveAll(savedImages);
+		return savedImages;
+	}
+
+	/**
+	 * Updates the specified fields of a product based on changes in the corresponding ProductDTO.
+	 * This method is invoked during product update.
+	 *
+	 * @param product    The product entity to update.
+	 * @param request The ProductDTO containing updated field values.
+	 */
+	private void updateChangedFields(Product product, ProductRequest request) {
+		if (product == null || request == null) {
+			return;
+		}
+		if (!isEqual(product.getName(), request.name()))
+			product.setName(request.name());
+
+		if (!isEqual(product.getShortDescription(), request.shortDescription()))
+			product.setShortDescription(request.shortDescription());
+
+		if (!isEqual(product.getDescription(), request.description()))
+			product.setDescription(request.description());
+
+		if (!isEqual(product.getPrice(), request.price()))
+			product.setPrice(request.price());
+
+		if (!isEqual(product.getTax(), request.tax()))
+			product.setTax(request.tax());
+
+		if (request.idBrand() != product.getBrand().getId()) {
+			product.setBrand(brandRepository.findById(request.idBrand()).orElse(null));
+		}
+
+		if (request.idCategory() != product.getCategory().getId()) {
+			product.setCategory(categoryRepository.findById(request.idCategory()).orElse(null));
+		}
+
+		helperUpdateQuantityOfProductSize(product, request.listSize());
+
+		helperUpdateProductImages(product, request.listImages());
+	}
+
+	/**
+	 * Updates the product quantity based on the provided list of size changes.
+	 * This method is invoked during product update.
+	 *
+	 * @param product    The product entity to update quantity for.
+	 * @param newSizeList The list of SizeDTO objects representing the updated sizes.
+	 */
+	private void helperUpdateQuantityOfProductSize(Product product, List<ProductSizeRequest> newSizeList) {
+		List<ProductQuantity> existingQuantities = productQuantityRepository.findByProduct_Id(product.getId());
+		// list product quantity will be deleted
+		Set<ProductQuantity> quantitiesToRemove = existingQuantities.stream().filter(
+				quantity -> newSizeList.stream().noneMatch(s -> s.id() == quantity.getSize().getId()))
+				.collect(Collectors.toSet());
+
+		// delete quantity when no longer in list
+		productQuantityRepository.deleteAll(quantitiesToRemove);
+
+		// update or add quantity of size
+		newSizeList.forEach(s -> {
+			ProductQuantity existingQuantity = existingQuantities.stream()
+					.filter(quantity -> quantity.getSize().getId() == s.id()).findFirst().orElse(null);
+
+			if (existingQuantity != null) {
+				// update
+				existingQuantity.setQuantity(s.quantity());
+			} else {
+				// add
+				ProductQuantity newQuantity = new ProductQuantity();
+				Size size = sizeRepository.findById(s.id()).orElse(null);
+				if (size != null) {
+					newQuantity.setSize(size);
+					newQuantity.setQuantity(s.quantity());
+					newQuantity.setProduct(product);
+					existingQuantities.add(productQuantityRepository.save(newQuantity));
+				}
+			}
+		});
+	}
+
+	/**
+	 * Updates the product images based on the provided list of updated images.
+	 * This method is invoked during product update.
+	 *
+	 * @param product     The product entity to update images for.
+	 * @param newImageList The list of ImageDTO objects representing the updated images.
+	 */
+	private void helperUpdateProductImages(Product product, List<ProductImageRequest> newImageList) {
+		List<Image> existingImages = imageRepository.findByProduct_Id(product.getId());
+		Set<Image> imagesToRemove = existingImages.stream()
+				.filter(image -> newImageList.stream().noneMatch(i -> i.id() == image.getId()))
+				.collect(Collectors.toSet());
+
+		if (newImageList.size() == existingImages.size()) {
+			return;
+		}
+
+		imageRepository.deleteAll(imagesToRemove);
+	}
+
+	// method supports null-safe comparison
+	private boolean isEqual(Object obj1, Object obj2) {
+		return (obj1 == null && obj2 == null) || (obj1 != null && obj1.equals(obj2));
+	}
+
+	
 }
