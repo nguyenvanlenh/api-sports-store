@@ -2,6 +2,11 @@ package com.watermelon.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
+import org.springframework.data.web.SortDefault.SortDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,8 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.watermelon.dto.request.OrderRequest;
 import com.watermelon.dto.response.OrderResponse;
+import com.watermelon.dto.response.PageResponse;
 import com.watermelon.dto.response.ResponseData;
-import com.watermelon.model.entity.OrderStatus;
 import com.watermelon.service.OrderService;
 
 import jakarta.validation.Valid;
@@ -36,8 +41,13 @@ public class OrderController {
 	OrderService orderService;
 	
 	@GetMapping()
-	public ResponseData<List<OrderResponse>> getOrders(){
-		return new ResponseData<>(HttpStatus.OK.value(),"Data orders",orderService.getAllOrder());
+	public ResponseData<PageResponse<List<OrderResponse>>> getOrders(
+			@PageableDefault(page = 0, size = 20) 
+			@SortDefaults(
+					@SortDefault(direction = Sort.Direction.DESC, sort = {"createdOn" })
+					) Pageable pageable
+			){
+		return new ResponseData<>(HttpStatus.OK.value(),"Data orders",orderService.getAllOrder(pageable));
 	}
 	@GetMapping("/{id}")
 	public ResponseData<OrderResponse> getOrderById(
@@ -61,6 +71,17 @@ public class OrderController {
 			,@NotBlank(message = "Status is required") @RequestParam String status) {
 		orderService.updateOrderStatus(status, id);
 		return new ResponseData<>(HttpStatus.ACCEPTED.value(),"Order updated successfully");
+	}
+	
+	@GetMapping("/user/{idUser}")
+	public ResponseData<PageResponse<List<OrderResponse>>> getOrdersOfUserId(
+			@PathVariable Long idUser,
+			@PageableDefault(page = 0, size = 20) 
+			@SortDefaults(
+					@SortDefault(direction = Sort.Direction.DESC, sort = {"createdOn" })
+					) Pageable pageable
+			){
+		return  new ResponseData<>(HttpStatus.OK.value(),"Data order",orderService.getOrderByUserId(idUser,pageable));
 	}
 
 }

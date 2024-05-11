@@ -3,6 +3,8 @@ package com.watermelon.service.imp;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,7 @@ import com.watermelon.dto.request.OrderAddressRequest;
 import com.watermelon.dto.request.OrderDetailRequest;
 import com.watermelon.dto.request.OrderRequest;
 import com.watermelon.dto.response.OrderResponse;
+import com.watermelon.dto.response.PageResponse;
 import com.watermelon.exception.ForbiddenException;
 import com.watermelon.mapper.imp.OrderMapper;
 import com.watermelon.model.entity.Brand;
@@ -24,6 +27,7 @@ import com.watermelon.model.entity.OrderDetail;
 import com.watermelon.model.entity.OrderStatus;
 import com.watermelon.model.entity.Product;
 import com.watermelon.model.entity.Size;
+import com.watermelon.model.entity.User;
 import com.watermelon.model.enumeration.EDeliveryStatus;
 import com.watermelon.model.enumeration.EOrderStatus;
 import com.watermelon.repository.OrderAddressRepository;
@@ -33,14 +37,17 @@ import com.watermelon.repository.SizeRepository;
 import com.watermelon.service.CommonService;
 import com.watermelon.service.OrderService;
 import com.watermelon.service.ProductService;
+import com.watermelon.utils.AuthenticationUtils;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class OrderServiceImp implements OrderService {
 
 	ProductService productService;
@@ -53,8 +60,16 @@ public class OrderServiceImp implements OrderService {
 	@PreAuthorize("hasRole('ADMIN')")
 	@Transactional(readOnly = true)
 	@Override
-	public List<OrderResponse> getAllOrder() {
-		return  new OrderMapper().toDTO(orderRepository.findAll());
+	public PageResponse<List<OrderResponse>> getAllOrder(Pageable pageable) {
+		Page<Order> page = orderRepository.findAll(pageable);
+		List<OrderResponse> orderResponses = new OrderMapper().toDTO(page.getContent());
+		return  new PageResponse<>(
+				page.getPageable().getPageNumber(),
+				page.getSize(),
+				page.getTotalPages(),
+				page.getTotalElements(),
+				orderResponses
+				);
 	}
 
     @PostAuthorize("hasRole('ADMIN') || authentication.name == returnObject.user.username")
@@ -72,9 +87,14 @@ public class OrderServiceImp implements OrderService {
 		OrderAddress orderAddressSaved = orderAddressRepository.save(orderAddress);
 
 		order.setOrderAddress(orderAddressSaved);
+		
+		User user = commonService.findUserById(AuthenticationUtils.extractUserId());
+		order.setUser(user);
+		
 		Order orderSaved = orderRepository.save(order);
 
 		saveOrderDetails(orderRequest.listOrderDetails(), orderSaved);
+		log.info("Order ID {} added successfully",orderSaved.getId());
 		return orderSaved.getId();
 	}
 
@@ -83,6 +103,7 @@ public class OrderServiceImp implements OrderService {
 	public void updateOrderStatus(String orderStatus, Long idOrder) {
 		Order order = commonService.findOrderById(idOrder);
 		if (EOrderStatus.CANCELLED.toString().equals(order.getOrderStatus().getName())) {
+			log.error("Cannot update order status as this order has been cancelled!");
 			throw new ForbiddenException("Cannot update order status as this order has been cancelled!");
 		}
 		if (EOrderStatus.CANCELLED.toString().equals(orderStatus)) {
@@ -101,13 +122,31 @@ public class OrderServiceImp implements OrderService {
 	public void updateDeliveryStatus(DeliveryStatus deliveryStatus, Long idOrder) {
 		Order order = commonService.findOrderById(idOrder);
 		if (EOrderStatus.CANCELLED.toString().equals(order.getOrderStatus().getName())) {
+			log.error("Cannot update delivery status as this order has been cancelled!");
 			throw new ForbiddenException("Cannot update delivery status as this order has been cancelled!");
 		}
 		if (EDeliveryStatus.DELIVERED.toString().equals(order.getDeliveryStatus().getName())) {
+			log.error("Cannot update delivery status as this order has been delivered!");
 			throw new ForbiddenException("Cannot update delivery status as this order has been delivered!");
 		}
 		order.setDeliveryStatus(deliveryStatus);
 		orderRepository.save(order);
+		log.info("updated delivery status successfully to {} ", deliveryStatus.getName());
+	}
+	
+	@PreAuthorize("hasRole('ADMIN') || #idUser == authentication.principal.id")
+	@Override
+	public PageResponse<List<OrderResponse>> getOrderByUserId(Long idUser, Pageable pageable) {
+		
+		Page<Order> page = orderRepository.findByUser_Id(idUser, pageable);
+		List<OrderResponse> orderResponses = new OrderMapper().toDTO(page.getContent());
+		return  new PageResponse<>(
+				page.getPageable().getPageNumber(),
+				page.getSize(),
+				page.getTotalPages(),
+				page.getTotalElements(),
+				orderResponses
+				);
 	}
 
 	private OrderDetail mapRequestToOrderDetail(OrderDetailRequest request) {
