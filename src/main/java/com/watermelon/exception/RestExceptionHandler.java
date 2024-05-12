@@ -106,6 +106,7 @@ public class RestExceptionHandler {
 		MissingServletRequestParameterException.class,
 		MethodArgumentTypeMismatchException.class,
 		MissingPathVariableException.class,
+		RefreshTokenException.class
 		})
 	ResponseEntity<ErrorResponse> handlingBadRequestException(Exception e,
 			WebRequest request) {
@@ -120,16 +121,19 @@ public class RestExceptionHandler {
 			//validaiton on controller
 			errors = errors.substring(errors.indexOf(":")+1).trim();
 		}
-		if(e instanceof MissingServletRequestParameterException ex) {
+		if(e instanceof MissingServletRequestParameterException) {
 			//requestparam is null
-			errors = ex.getMessage();
+			errors = e.getMessage();
 		}
-		if(e instanceof MissingPathVariableException ex) {
+		if(e instanceof MissingPathVariableException) {
 			// pathvariable is null
-			errors = ex.getMessage();
+			errors = e.getMessage();
 		}
 		if(e instanceof MethodArgumentTypeMismatchException) {
 			errors = "PathVariable invalid";
+		}
+		if(e instanceof RefreshTokenException ex) {
+			errors = e.getMessage();
 		}
 
 		ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), errors,

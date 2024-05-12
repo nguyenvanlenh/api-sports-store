@@ -12,5 +12,5 @@ public interface AuthService {
 	User register(RegisterRequest request);
 	String verifyEmail(String token);
 	TokenResponse getAccessTokenFromRefeshToken(RefreshRequest request);
-	
+	boolean revokeRefreshToken(RefreshRequest request);
 }

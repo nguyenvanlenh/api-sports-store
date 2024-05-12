@@ -1,11 +1,6 @@
 package com.watermelon.service.imp;
 
-import static com.watermelon.utils.Constants.EmailVerificationMessage.EMAIL_NOTIFY_ACCOUNT_ALREADY_VERIFIED;
-import static com.watermelon.utils.Constants.EmailVerificationMessage.EMAIL_NOTIFY_INVALID_TOKEN;
-import static com.watermelon.utils.Constants.EmailVerificationMessage.EMAIL_NOTIFY_SUCCESSFULLY_VERIFIED;
-import static com.watermelon.utils.Constants.EmailVerificationMessage.EMAIL_NOTIFY_TOKEN_EXPIRED;
-import static com.watermelon.utils.Constants.EmailVerificationMessage.EMAIL_NOTIFY_TOKEN_NOT_FOUND;
-import static com.watermelon.utils.Constants.EmailVerificationMessage.EMAIL_NOTIFY_VALID_TOKEN;
+import static com.watermelon.utils.Constants.EmailVerificationMessage.*;
 
 import java.util.Calendar;
 import java.util.HashSet;
@@ -13,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,18 +19,23 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import com.watermelon.dto.request.LoginRequest;
 import com.watermelon.dto.request.RefreshRequest;
 import com.watermelon.dto.request.RegisterRequest;
 import com.watermelon.dto.response.TokenResponse;
+import com.watermelon.exception.RefreshTokenException;
 import com.watermelon.exception.ResourceExistedException;
 import com.watermelon.exception.ResourceNotFoundException;
 import com.watermelon.exception.UserNotActivatedException;
+import com.watermelon.model.entity.AuthToken;
 import com.watermelon.model.entity.Role;
 import com.watermelon.model.entity.User;
 import com.watermelon.model.entity.VerificationToken;
 import com.watermelon.model.enumeration.ERole;
+import com.watermelon.repository.AuthTokenRepository;
 import com.watermelon.repository.UserRepository;
 import com.watermelon.repository.UserRolesRepository;
 import com.watermelon.repository.VerificationTokenRepository;
@@ -47,10 +48,12 @@ import com.watermelon.utils.Constants;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
+@Slf4j
 public class AuthServiceImp implements AuthService {
 
 	UserRepository userRepository;
@@ -61,6 +64,7 @@ public class AuthServiceImp implements AuthService {
 	VerificationTokenRepository tokenRepository;
 	UserRolesRepository userRolesRepository;
 	CommonService commonService;
+	AuthTokenRepository authTokenRepository;
 	
 
 	@Transactional
@@ -79,6 +83,11 @@ public class AuthServiceImp implements AuthService {
 			String refreshToken = jwtTokenProvider.generateToken(Constants.REFRESH_TOKEN, customUserDetails);
 			Set<String> listRoles = customUserDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
 					.collect(Collectors.toSet());
+			
+			saveAuthToken(customUserDetails, refreshToken);
+			log.info("User {} login success", request.username());
+			
+			
 			return TokenResponse.builder()
 					.accessToken(accessToken)
 					.refreshToken(refreshToken)
@@ -161,17 +170,51 @@ public class AuthServiceImp implements AuthService {
 	public TokenResponse getAccessTokenFromRefeshToken(RefreshRequest request) {
 		String token = request.token();
 		String accessToken = null;
-		boolean authenticated = false;
-		if(jwtTokenProvider.validateToken(token)) {
+		boolean isRevoked = 
+				ObjectUtils.isEmpty(authTokenRepository.findByRefreshTokenAndRevokedTrue(token)) 
+				? false 
+				: true;
+		if(jwtTokenProvider.validateToken(token) 
+				&& !isRevoked 
+				&& Constants.REFRESH_TOKEN.equals(jwtTokenProvider.getTypeToken(token))) {
+			
 			String username = jwtTokenProvider.getUsernameFromToken(token);
 			UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 			accessToken = jwtTokenProvider.generateToken(Constants.ACCESS_TOKEN, userDetails);
-			authenticated = true;
+			return TokenResponse.builder()
+					.accessToken(accessToken)
+					.build();
+		}else {
+			throw new RefreshTokenException("Get access token fail");
 		}
-		return TokenResponse.builder()
-				.accessToken(accessToken)
-				.authenticated(authenticated)
+	}
+	@PreAuthorize("hasRole('ADMIN')")
+	@Override
+	public boolean revokeRefreshToken(RefreshRequest request) {
+		AuthToken authToken =  authTokenRepository.findByRefreshToken(request.token());
+		if(jwtTokenProvider.validateToken(request.token()) && !ObjectUtils.isEmpty(authToken)) {
+			authToken.setRevoked(true);
+			authTokenRepository.save(authToken);
+			return true;
+		}else
+			throw new RefreshTokenException("Revoked refresh token fail");
+	}
+	
+	private void saveAuthToken(CustomUserDetails userDetails, String refreshToken) {
+		
+		List<AuthToken> listAuthTokens = authTokenRepository.findByUser_Id(userDetails.getId());
+		
+		if(!CollectionUtils.isEmpty(listAuthTokens))
+			authTokenRepository.deleteAll(listAuthTokens);
+		User user = commonService.findUserById(userDetails.getId());
+		AuthToken authToken = AuthToken.builder()
+				.refreshToken(refreshToken)
+				.revoked(false)
+				.user(user)
 				.build();
+		authTokenRepository.save(authToken);
+		log.info("Add refresh token success");
+		
 	}
 	
 

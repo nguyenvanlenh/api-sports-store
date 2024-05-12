@@ -46,14 +46,15 @@ public class JwtTokenProvider {
 			timeExpiration = new Date(now.getTime() + jwtRefreshExpiration * 60 * 60 * 24 * 1000);
 
 		return Jwts.builder()
-				.setId(UUID.randomUUID().toString())
+//				.setId(UUID.randomUUID().toString())
 				.setSubject(userDetails.getUsername())
 				.setIssuer("watermelon")
 				.setIssuedAt(now)
 				.setExpiration(timeExpiration)
 				.claim("roles", buildClaimRoles(userDetails))
+				.claim("typeToken", tokenType)
 				.signWith(getSecretKey(), SignatureAlgorithm.HS512)
-				.setHeaderParam("typ", "JWT")
+//				.setHeaderParam("typ", "JWT")
 				.compact();
 	}
 	
@@ -87,6 +88,9 @@ public class JwtTokenProvider {
 	// retrieve username from jwt token
 	public String getUsernameFromToken(String token) {
 		return getClaimFromToken(token, Claims::getSubject);
+	}
+	public String getTypeToken(String token) {
+		return getClaimFromToken(token, claims -> claims.get("typeToken", String.class));
 	}
 
 	// retrieve expiration date from jwt token

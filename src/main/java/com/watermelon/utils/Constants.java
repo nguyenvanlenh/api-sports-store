@@ -19,4 +19,20 @@ public class Constants {
 		public static final String EMAIL_NOTIFY_SUCCESSFULLY_VERIFIED = "Email verified successfully. Now you can login to your account";
 	}
 	
+	public static class EndPoint{
+		private EndPoint() {}
+		public static final String[] PUBLIC_ENDPOINTS = {
+				"/api/auth/login",
+				"/api/auth/register",
+				"/api/auth/verifyEmail",
+				"/api/auth/refreshToken"
+				};
+
+		public static final String[] SWAGGER_ENDPOINTS = {
+				"swagger-ui.html",
+				"/swagger-ui/**",
+				"/v3/api-docs/**",
+				"/javainuse-openapi/**" };
+	}
+	
 }

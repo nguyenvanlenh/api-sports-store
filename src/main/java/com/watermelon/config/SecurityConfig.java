@@ -17,31 +17,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static com.watermelon.utils.Constants.EndPoint.*;
+
 import com.watermelon.security.jwt.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-	private static final String[] PUBLIC_ENDPOINTS = {
-			"/api/auth/login",
-			"/api/auth/register",
-			"/api/auth/verifyEmail",
-//			"/api/auth/refreshToken"
-			};
-
-	private static final String[] SWAGGER_ENDPOINTS = {
-			"swagger-ui.html",
-			"/swagger-ui/**",
-			"/v3/api-docs/**",
-			"/javainuse-openapi/**" };
 	
-	private final JwtAuthenticationFilter jwtAuthenticationFilter;
-	
-	public SecurityConfig(final JwtAuthenticationFilter jwtAuthenticationFilter) {
-		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-	}
-
 
 	@Bean
 	public DaoAuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
@@ -52,7 +36,7 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	public SecurityFilterChain securityFilterChain(HttpSecurity http,JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
 		http
 				.csrf(csrf -> csrf.disable())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -62,7 +46,6 @@ public class SecurityConfig {
 								.anyRequest().authenticated())
 
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-//				.addFilterBefore(exceptionHandlerFilter, JwtAuthenticationFilter.class)
 
 				.httpBasic(Customizer.withDefaults())
 				.exceptionHandling(handling ->

@@ -1,6 +1,7 @@
 package com.watermelon.security.jwt;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +18,9 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.watermelon.exception.UserNotActivatedException;
 import com.watermelon.security.CustomUserDetails;
+import com.watermelon.utils.Constants;
+
+import static com.watermelon.utils.Constants.EndPoint.PUBLIC_ENDPOINTS;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -40,6 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	HandlerExceptionResolver exceptionResolver;
 
 	static final String TYPE_AUTHORIZATION = "Bearer ";
+	
 
 	public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider,
 			UserDetailsService userDetailsService,
@@ -49,7 +54,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		this.exceptionResolver = exceptionResolver;
 	}
 
-
+	private boolean isPublicEndpoint(HttpServletRequest request) {
+		return Arrays.stream(PUBLIC_ENDPOINTS).anyMatch(e -> request.getRequestURI().matches(e));
+	}
+	
 	private String getJwtFromRequest(HttpServletRequest request) {
 		String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
 		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(TYPE_AUTHORIZATION)) {
@@ -59,19 +67,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	private boolean validateJwt(String jwt) {
-		boolean result = false;
-		if (StringUtils.hasText(jwt) && jwtTokenProvider.validateToken(jwt)) {
-			result = true;
-		}
-		return result;
+		 return StringUtils.hasText(jwt) 
+		           && jwtTokenProvider.validateToken(jwt) 
+		           && Constants.ACCESS_TOKEN.equals(jwtTokenProvider.getTypeToken(jwt));
 	}
+	
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		try {
 			String jwt = getJwtFromRequest(request);
-			if (validateJwt(jwt)) {
+			if (!isPublicEndpoint(request) && validateJwt(jwt)) {
 				String username = jwtTokenProvider.getUsernameFromToken(jwt);
 
 				CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(username);

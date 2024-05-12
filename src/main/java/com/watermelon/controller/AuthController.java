@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -68,6 +69,13 @@ public class AuthController {
 			headers.setBearerAuth(data.getAccessToken());
 			return ResponseEntity.ok().headers(headers)
 					.body(new ResponseData<>(HttpStatus.OK.value(), "Refresh token", data));
+		
+	}
+	@PatchMapping("/refreshToken/revocation")
+	public ResponseEntity<ResponseData<Void>> revokeRefreshToken(@RequestBody RefreshRequest request) {
+		authService.revokeRefreshToken(request);
+		return ResponseEntity.ok()
+				.body(new ResponseData<>(HttpStatus.OK.value(), "Refresh token revoked successfully"));
 		
 	}
 
