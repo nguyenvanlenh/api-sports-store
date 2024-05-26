@@ -20,11 +20,11 @@ public class JwtAuthenticationEntryPoint extends BasicAuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
             throws IOException {
     	
-    	response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+    	response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		ErrorResponse errorResponse = ErrorResponse.builder()
-				.status(HttpServletResponse.SC_FORBIDDEN)
-				.message("Access denied")
+				.status(HttpServletResponse.SC_UNAUTHORIZED)
+				.message("Unauthorized")
 				.path(request.getRequestURI())
 				.timestamp(new Timestamp(System.currentTimeMillis()).toString())
 				.build();
