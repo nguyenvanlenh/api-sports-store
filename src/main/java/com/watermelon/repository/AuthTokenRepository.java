@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface AuthTokenRepository extends JpaRepository<AuthToken, String>{
 	
-	AuthToken findByRefreshTokenAndRevokedTrue(String refreshToken); 
+	AuthToken findByRefreshTokenAndRevokedFalse(String refreshToken); 
 	AuthToken findByRefreshToken(String refreshToken);
 	List<AuthToken> findByUser_Id(Long user_Id);
 	

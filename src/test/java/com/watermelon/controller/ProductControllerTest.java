@@ -46,7 +46,7 @@ import com.watermelon.service.ProductService;
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestPropertySource("/test.properties")
-@WithMockUser(username = "admin", roles = "ADMIN")
+@WithMockUser(username = "admin", roles = {"ADMIN","USER"})
 class ProductControllerTest {
 
 	@MockBean
@@ -166,7 +166,7 @@ class ProductControllerTest {
 				.andExpect(MockMvcResultMatchers.status().isBadRequest())
 				.andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
 				.andExpect(MockMvcResultMatchers.jsonPath("status").value(400))
-				.andExpect(MockMvcResultMatchers.jsonPath("message").value("Param invalid")).andReturn();
+				.andExpect(MockMvcResultMatchers.jsonPath("message").value("PathVariable invalid")).andReturn();
 	}
 	
 	@Test
@@ -250,8 +250,8 @@ class ProductControllerTest {
 	
 	@Test
 	void addProduct_ValidRequest_Success() throws JsonProcessingException, Exception {
-	    MockMultipartFile file1 = new MockMultipartFile("file", "file1.jpg", "image/jpeg", "file1contents".getBytes());
-	    MockMultipartFile file2 = new MockMultipartFile("file", "file2.jpg", "image/jpeg", "file2contents".getBytes());
+	    MockMultipartFile file1 = new MockMultipartFile("files", "file1.jpg", "image/jpeg", "file1contents".getBytes());
+	    MockMultipartFile file2 = new MockMultipartFile("files", "file2.jpg", "image/jpeg", "file2contents".getBytes());
 	    MockMultipartFile productRequestJson = 
 	    		new MockMultipartFile(
 	    				"product", 
@@ -270,7 +270,7 @@ class ProductControllerTest {
 	            	return request;
 	            })
 	            .contentType(MediaType.MULTIPART_FORM_DATA))
-	            .andExpect(status().isOk())
+	            .andExpect(status().is(200))
 	            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
 	            .andExpect(jsonPath("$.status").value(201))
 	            .andExpect(jsonPath("$.message").value("Product added successfully"))
@@ -285,7 +285,7 @@ class ProductControllerTest {
 						"product", 
 						null,
 						MediaType.APPLICATION_JSON_VALUE,
-						objectMapper.writeValueAsBytes(productDTO));
+						objectMapper.writeValueAsBytes(productRequest));
 		when(productService.updateProduct(anyLong(),any(ProductRequest.class),anyList()))
 		.thenReturn(true);
 		mockMvc.perform(multipart("/api/products/1")

@@ -105,6 +105,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>api-shop-sport</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

@@ -171,9 +171,7 @@ public class AuthServiceImp implements AuthService {
 		String token = request.token();
 		String accessToken = null;
 		boolean isRevoked = 
-				ObjectUtils.isEmpty(authTokenRepository.findByRefreshTokenAndRevokedTrue(token)) 
-				? false 
-				: true;
+				ObjectUtils.isEmpty(authTokenRepository.findByRefreshTokenAndRevokedFalse(token));
 		if(jwtTokenProvider.validateToken(token) 
 				&& !isRevoked 
 				&& Constants.REFRESH_TOKEN.equals(jwtTokenProvider.getTypeToken(token))) {
