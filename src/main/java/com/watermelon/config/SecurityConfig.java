@@ -2,6 +2,7 @@ package com.watermelon.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -19,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import static com.watermelon.utils.Constants.EndPoint.*;
 
+import com.watermelon.model.enumeration.ERole;
 import com.watermelon.security.jwt.JwtAuthenticationFilter;
 
 @Configuration
@@ -41,9 +43,22 @@ public class SecurityConfig {
 				.csrf(csrf -> csrf.disable())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-				.authorizeHttpRequests(authorize ->
-						authorize.requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-								.anyRequest().authenticated())
+				.authorizeHttpRequests(authorize -> authorize
+					    .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+					    .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+					    .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole(ERole.USER.toString())
+					    .requestMatchers(HttpMethod.PATCH, "/api/products/**").hasRole(ERole.USER.toString())
+					    .requestMatchers(HttpMethod.GET, "/api/orders/**").hasRole(ERole.USER.toString())
+					    .requestMatchers(HttpMethod.POST, "/api/orders/**").hasRole(ERole.USER.toString())
+					    .requestMatchers(HttpMethod.PATCH, "/api/orders/**").hasRole(ERole.USER.toString())
+					    .requestMatchers(HttpMethod.POST, "/api/ratings/**").hasRole(ERole.USER.toString())
+					    .requestMatchers(HttpMethod.DELETE, "/api/ratings/**").hasRole(ERole.USER.toString())
+					    
+					    .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole(ERole.ADMIN.toString())
+					    .requestMatchers(HttpMethod.DELETE, "/api/orders/**").hasRole(ERole.ADMIN.toString())
+					    
+					    .anyRequest().authenticated()
+					)
 
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
