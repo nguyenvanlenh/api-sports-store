@@ -144,7 +144,7 @@ class ProductControllerTest {
 	}
 
 	@Test
-	void getProductById_ValidRequest_Success() throws JsonProcessingException, Exception {
+	void getProductById_ValidRequest_Success() throws Exception {
 		
 		when(productService.getProductById(1L)).thenReturn(productDTO);
 		
@@ -161,7 +161,7 @@ class ProductControllerTest {
 	}
 
 	@Test
-	void getProductById_IdInvalid_Fail() throws JsonProcessingException, Exception {
+	void getProductById_IdInvalid_Fail() throws Exception {
 		mockMvc.perform(MockMvcRequestBuilders.get("/api/products/111AS").contentType(MediaType.APPLICATION_JSON))
 				.andExpect(MockMvcResultMatchers.status().isBadRequest())
 				.andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
@@ -190,7 +190,7 @@ class ProductControllerTest {
 	            .andReturn();
 	}
 	@Test
-	void getProducts_SearchParam_Success() throws JsonProcessingException, Exception {
+	void getProducts_SearchParam_Success() throws  Exception {
 		Pageable pageable = PageRequest
 				.of(0, 20, Sort.by(Sort.Direction.DESC, "price"));
 		String content = "Áo thun";
@@ -212,7 +212,7 @@ class ProductControllerTest {
 				.andReturn();
 	}
 	@Test
-	void getProducts_UrlKeyCategoryParam_Success() throws JsonProcessingException, Exception {
+	void getProducts_UrlKeyCategoryParam_Success() throws  Exception {
 		Pageable pageable = PageRequest
 				.of(0, 20, Sort.by(Sort.Direction.DESC, "price"));
 		String urlKey = "nam";
@@ -249,7 +249,7 @@ class ProductControllerTest {
 	}
 	
 	@Test
-	void addProduct_ValidRequest_Success() throws JsonProcessingException, Exception {
+	void addProduct_ValidRequest_Success() throws Exception {
 	    MockMultipartFile file1 = new MockMultipartFile("files", "file1.jpg", "image/jpeg", "file1contents".getBytes());
 	    MockMultipartFile file2 = new MockMultipartFile("files", "file2.jpg", "image/jpeg", "file2contents".getBytes());
 	    MockMultipartFile productRequestJson = 
@@ -279,7 +279,7 @@ class ProductControllerTest {
 	}
 	
 	@Test
-	void updateProduct_ValidRequest_Success() throws JsonProcessingException, Exception {
+	void updateProduct_ValidRequest_Success() throws Exception {
 		MockMultipartFile productRequestJson = 
 				new MockMultipartFile(
 						"product", 

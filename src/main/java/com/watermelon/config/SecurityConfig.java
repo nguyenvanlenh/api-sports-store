@@ -29,6 +29,11 @@ import com.watermelon.security.jwt.JwtAuthenticationFilter;
 public class SecurityConfig {
 	
 
+	private static final String PRODUCTS_ENDPOINT = "/api/products/**";
+	private static final String ORDERS_ENDPOINT = "/api/orders/**";
+	private static final String RATINGS_ENDPOINT = "/api/ratings/**";
+	
+
 	@Bean
 	public DaoAuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
 		DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -45,17 +50,17 @@ public class SecurityConfig {
 
 				.authorizeHttpRequests(authorize -> authorize
 					    .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-					    .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
-					    .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole(ERole.USER.toString())
-					    .requestMatchers(HttpMethod.PATCH, "/api/products/**").hasRole(ERole.USER.toString())
-					    .requestMatchers(HttpMethod.GET, "/api/orders/**").hasRole(ERole.USER.toString())
-					    .requestMatchers(HttpMethod.POST, "/api/orders/**").hasRole(ERole.USER.toString())
-					    .requestMatchers(HttpMethod.PATCH, "/api/orders/**").hasRole(ERole.USER.toString())
-					    .requestMatchers(HttpMethod.POST, "/api/ratings/**").hasRole(ERole.USER.toString())
-					    .requestMatchers(HttpMethod.DELETE, "/api/ratings/**").hasRole(ERole.USER.toString())
+					    .requestMatchers(HttpMethod.GET, PRODUCTS_ENDPOINT).permitAll()
+					    .requestMatchers(HttpMethod.PUT, PRODUCTS_ENDPOINT).hasRole(ERole.USER.toString())
+					    .requestMatchers(HttpMethod.PATCH, PRODUCTS_ENDPOINT).hasRole(ERole.USER.toString())
+					    .requestMatchers(HttpMethod.GET, ORDERS_ENDPOINT).hasRole(ERole.USER.toString())
+					    .requestMatchers(HttpMethod.POST, ORDERS_ENDPOINT).hasRole(ERole.USER.toString())
+					    .requestMatchers(HttpMethod.PATCH, ORDERS_ENDPOINT).hasRole(ERole.USER.toString())
+					    .requestMatchers(HttpMethod.POST, RATINGS_ENDPOINT).hasRole(ERole.USER.toString())
+					    .requestMatchers(HttpMethod.DELETE, RATINGS_ENDPOINT).hasRole(ERole.USER.toString())
 					    
-					    .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole(ERole.ADMIN.toString())
-					    .requestMatchers(HttpMethod.DELETE, "/api/orders/**").hasRole(ERole.ADMIN.toString())
+					    .requestMatchers(HttpMethod.DELETE, PRODUCTS_ENDPOINT).hasRole(ERole.ADMIN.toString())
+					    .requestMatchers(HttpMethod.DELETE, ORDERS_ENDPOINT).hasRole(ERole.ADMIN.toString())
 					    
 					    .anyRequest().authenticated()
 					)

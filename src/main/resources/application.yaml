@@ -16,12 +16,12 @@ spring:
     show-sql: 'true'
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    password: '${MYSQL_PASSWORD: }'
-    username: ${MYSQL_USERNAME:root}
+    password: '${MYSQL_PASSWORD:ENC(tXMrQPnpw+VI2iwJYFjgXQhjITihGC1U)}'
+    username: ${MYSQL_USERNAME:ENC(QuiELERPbZ6vQ37PY3xXOYMDZhJuAuTA)}
     url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${DATABASE_NAME:freetime}?createDatabaseIfNotExist=true
   
   mail:
-    username: 20130303@st.hcmuaf.edu.vn
+    username: ENC(FdkeJINr3PW2D9Uj0xGRdzqyogdsSsNfadumomRgqWW9JGnQXs4Itaytz4907Oji)
     port: '587'
     properties:
       mail:
@@ -30,17 +30,17 @@ spring:
             enable: 'true'
           auth: 'true'
     host: smtp.gmail.com
-    password: optc fztr oofr meql
+    password: ENC(LwpL6+52LRHP+oRU8f/12XqtisySJ4+U0Gra2RvfJHWgSfE6NiZ7dg==)
   
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+      max-file-size: 5MB
+      max-request-size: 5MB
 
 cloudinary:
   cloud-name: drygpquvb
   api-secret: gWhaKF8-JV2Tm9weD0DH5F88kzg
-  api-key: '159643128387577'
+  api-key: ENC(DsF6a+CnMnZeWOBktEUwvFg5QvDkXx2H6Bh48DKmwTU=)
 
 jwt:
   refresh:
@@ -73,3 +73,7 @@ openapi:
     server: http://localhost:${server.port}
     api-docs: sports-shopping-api
     version: '1.0.0 '
+jasypt:
+  encryptor:
+    password: watermelon
+    algorithm: PBEWithMD5AndDES

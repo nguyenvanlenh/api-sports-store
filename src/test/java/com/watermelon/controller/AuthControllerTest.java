@@ -74,7 +74,7 @@ class AuthControllerTest {
 	}
 
 	@Test
-	void login_ValidRequest_Success() throws JsonProcessingException, Exception {
+	void login_ValidRequest_Success() throws Exception {
 		TokenResponse expect = tokenResponse;
 
 		Mockito.when(authService.login(ArgumentMatchers.any(LoginRequest.class)))
@@ -96,7 +96,7 @@ class AuthControllerTest {
 
 	@Transactional
 	@Test
-	void register_ValidRequest_Success() throws JsonProcessingException, Exception {
+	void register_ValidRequest_Success() throws Exception {
 		User expect = User.builder()
 				.id(1L)
 				.username("nguyenvanlenh")
@@ -118,7 +118,7 @@ class AuthControllerTest {
 	}
 
 	@Test
-	void login_InvalidRequestWithBlankPassword_Fail() throws JsonProcessingException, Exception {
+	void login_InvalidRequestWithBlankPassword_Fail() throws Exception {
 		LoginRequest loginRequest = new LoginRequest("nguyenlenh", "");
 		mockMvc.perform(MockMvcRequestBuilders
 				.post("/api/auth/login")
@@ -132,7 +132,7 @@ class AuthControllerTest {
 
 	@WithMockUser(username = "admin", roles = { "ADMIN", "USER" })
 	@Test
-	void getAccessTokenFromRefeshToken_ValidRequest_Success() throws JsonProcessingException, Exception {
+	void getAccessTokenFromRefeshToken_ValidRequest_Success() throws Exception {
 		TokenResponse expect = TokenResponse.builder().accessToken(tokenExpect)
 				.authenticated(true).build();
 		Mockito.when(authService.getAccessTokenFromRefeshToken(ArgumentMatchers.any(RefreshRequest.class)))
