@@ -1,0 +1,75 @@
+server:
+  error:
+    whitelabel:
+      enabled: 'false'
+  port: ${SERVER_PORT:8081}
+spring:
+  application:
+    name: sportshop
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format-sql: 'true'
+        dialect: org.hibernate.dialect.MySQLDialect
+    show-sql: 'true'
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: '${MYSQL_PASSWORD: }'
+    username: ${MYSQL_USERNAME:root}
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${DATABASE_NAME:freetime}?createDatabaseIfNotExist=true
+  
+  mail:
+    username: 20130303@st.hcmuaf.edu.vn
+    port: '587'
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: 'true'
+          auth: 'true'
+    host: smtp.gmail.com
+    password: optc fztr oofr meql
+  
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+cloudinary:
+  cloud-name: drygpquvb
+  api-secret: gWhaKF8-JV2Tm9weD0DH5F88kzg
+  api-key: '159643128387577'
+
+jwt:
+  refresh:
+    expiration: '365'
+  access:
+    expiration: '15'
+  token:
+    secretKey: xIozWdD9r3RiqzaaRxJTYMvVvoKVk4G9Iq4kZ7ZEXXpePPxgtRQKj/O43HYbWhKy
+logging:
+  level:
+    ROOT: INFO
+    org:
+      springframework:
+        transaction: DEBUG
+        orm:
+          jpa: DEBUG
+      hibernate:
+        engine:
+          transaction:
+            internal:
+              TransactionImpl: DEBUG
+spring-doc:
+  swagger-ui:
+    enable: 'true'
+  api-doc:
+    enable: 'true'
+openapi:
+  service:
+    title: API document
+    server: http://localhost:${server.port}
+    api-docs: sports-shopping-api
+    version: '1.0.0 '
