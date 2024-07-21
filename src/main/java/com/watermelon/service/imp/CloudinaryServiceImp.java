@@ -14,27 +14,19 @@ import com.cloudinary.utils.ObjectUtils;
 import com.watermelon.service.ImageService;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @Primary
+@RequiredArgsConstructor
 public class CloudinaryServiceImp implements ImageService {
 
-	@Value("${cloudinary.cloud-name}")
-	private String cloudName;
-
-	@Value("${cloudinary.api-key}")
-	private String apiKey;
-
-	@Value("${cloudinary.api-secret}")
-	private String apiSecret;
+	private final Cloudinary cloudinary;
 
 	@Transactional
 	@Override
 	public List<String> upload(List<MultipartFile> imageFiles) {
-		Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
-				"cloud_name", cloudName,
-				"api_key", apiKey,
-				"api_secret", apiSecret));
+		
 
 		return imageFiles.stream().map(file -> {
 			try {

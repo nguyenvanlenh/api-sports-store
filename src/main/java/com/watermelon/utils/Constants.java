@@ -25,7 +25,10 @@ public class Constants {
 				"/api/auth/login",
 				"/api/auth/register",
 				"/api/auth/verifyEmail",
-				"/api/auth/refreshToken"
+				"/api/auth/refreshToken",
+				"/api/sizes",
+				"/api/brands",
+				"/api/categories",
 				};
 
 		public static final String[] SWAGGER_ENDPOINTS = {

@@ -33,7 +33,7 @@ public class Size extends AbstractAuditEntity{
 	private String name;
 	@Column(name ="is_active")
 	private boolean isActive;
-	
-	@OneToMany(mappedBy = "size")
-	private Set<ProductQuantity> listProductQuantities = new HashSet<>();
+//	
+//	@OneToMany(mappedBy = "size")
+//	private Set<ProductQuantity> listProductQuantities = new HashSet<>();
 }
