@@ -29,6 +29,7 @@ public class Constants {
 				"/api/sizes",
 				"/api/brands",
 				"/api/categories",
+				"/api/search",
 				};
 
 		public static final String[] SWAGGER_ENDPOINTS = {
