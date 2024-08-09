@@ -8,6 +8,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
 import org.springframework.data.web.SortDefault.SortDefaults;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,23 +19,27 @@ import com.watermelon.dto.response.PageResponse;
 import com.watermelon.dto.response.ResponseData;
 import com.watermelon.service.SearchService;
 
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @RestController
 @RequestMapping("/api/search")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Validated
 public class SearchController {
 
 	SearchService searchService;
 	
 	@GetMapping
     public ResponseData<PageResponse<List<ProductDTO>>> searchProducts(
-            @RequestParam(required = false) String name,
+            @RequestParam(required = false)
+            @Size(max = 100, message = "Name must be less than or equal to 100 characters")
+            @Pattern(regexp = "^[a-zA-Z0-9\\s]*$", message = "Name must not contain special characters")
+            String name,
             @RequestParam(required = false) Integer[] brands,
             @RequestParam(required = false) Integer[] categories,
             @RequestParam(required = false) Integer[] sizes,
@@ -52,7 +57,6 @@ public class SearchController {
         				pageable.getPageNumber(),
         				pageable.getPageSize(),
         				pageable.getSort());
-		log.info(pageable.toString());
 		
         return new ResponseData<>(HttpStatus.OK.value(), "Data products" ,data);
     }
