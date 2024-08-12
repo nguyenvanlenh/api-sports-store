@@ -46,7 +46,7 @@ jwt:
   refresh:
     expiration: '365'
   access:
-    expiration: '15'
+    expiration: '5'
   token:
     secretKey: xIozWdD9r3RiqzaaRxJTYMvVvoKVk4G9Iq4kZ7ZEXXpePPxgtRQKj/O43HYbWhKy
 logging:

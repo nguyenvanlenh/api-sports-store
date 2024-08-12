@@ -24,8 +24,8 @@ public class Constants {
 		public static final String[] PUBLIC_ENDPOINTS = {
 				"/api/auth/login",
 				"/api/auth/register",
-				"/api/auth/verifyEmail",
-				"/api/auth/refreshToken",
+				"/api/auth/verify-email",
+				"/api/auth/refresh-token",
 				"/api/sizes",
 				"/api/brands",
 				"/api/categories",

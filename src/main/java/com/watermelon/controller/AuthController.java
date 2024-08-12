@@ -57,12 +57,12 @@ public class AuthController {
 		return ResponseEntity.ok().headers(headers).body(response);
 	}
 
-	@GetMapping("/verifyEmail")
+	@GetMapping("/verify-email")
 	public String verifyEmail(@RequestParam("token") String token) {
 		return authService.verifyEmail(token);
 	}
 
-	@PostMapping("/refreshToken")
+	@PostMapping("/refresh-token")
 	public ResponseEntity<ResponseData<TokenResponse>> getRefreshToken(@RequestBody RefreshRequest request) {
 			TokenResponse data = authService.getAccessTokenFromRefeshToken(request);
 			HttpHeaders headers = new HttpHeaders();
@@ -71,7 +71,7 @@ public class AuthController {
 					.body(new ResponseData<>(HttpStatus.OK.value(), "Refresh token", data));
 		
 	}
-	@PatchMapping("/refreshToken/revocation")
+	@PatchMapping("/refresh-token/revocation")
 	public ResponseEntity<ResponseData<Void>> revokeRefreshToken(@RequestBody RefreshRequest request) {
 		authService.revokeRefreshToken(request);
 		return ResponseEntity.ok()
