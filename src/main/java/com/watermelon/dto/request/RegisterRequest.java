@@ -17,7 +17,6 @@ public record RegisterRequest (
 		@Email(regexp = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$", message = "invalid email format")
 		@NotBlank(message = "email cannot be blank")
 		String email,
-		@JsonProperty("list_roles")
 		java.util.List<String> listRoles
 		){
 

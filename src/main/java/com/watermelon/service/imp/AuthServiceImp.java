@@ -1,6 +1,6 @@
 package com.watermelon.service.imp;
 
-import static com.watermelon.utils.Constants.EmailVerificationMessage.*;
+import static com.watermelon.utils.Constants.EmailVerificationMessage;
 
 import java.util.Calendar;
 import java.util.HashSet;
@@ -44,6 +44,7 @@ import com.watermelon.security.jwt.JwtTokenProvider;
 import com.watermelon.service.AuthService;
 import com.watermelon.service.CommonService;
 import com.watermelon.utils.Constants;
+import com.watermelon.utils.Constants.EmailVerificationMessage;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -70,7 +71,6 @@ public class AuthServiceImp implements AuthService {
 	@Transactional
 	@Override
 	public TokenResponse login(LoginRequest request) {
-		// Thực hiện xác thực người dùng
 			UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(request.username(),
 					request.password());
 			Authentication authentication = authenticationManager.authenticate(token);
@@ -127,44 +127,51 @@ public class AuthServiceImp implements AuthService {
 
 
 	@Transactional
-	@Override
-	public String verifyEmail(String token) {
-		VerificationToken theToken = tokenRepository.findByToken(token)
-				.orElseThrow(() -> new ResourceNotFoundException(EMAIL_NOTIFY_TOKEN_NOT_FOUND));
+    public String verifyEmail(String token) {
+        VerificationToken theToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException(EmailVerificationMessage.EMAIL_NOTIFY_TOKEN_NOT_FOUND));
 
-		if (theToken.getUser().isActive()) {
-			return EMAIL_NOTIFY_ACCOUNT_ALREADY_VERIFIED;
-		}
+        if (theToken.getUser().isActive()) {
+            return EmailVerificationMessage.EMAIL_NOTIFY_ACCOUNT_ALREADY_VERIFIED;
+        }
 
-		String validationMessage = validateVerificationToken(theToken);
-		if (validationMessage.equalsIgnoreCase(EMAIL_NOTIFY_VALID_TOKEN)) {
-			theToken.getUser().setActive(true);
-			// update active user
-			userRepository.save(theToken.getUser());
-			// delete token valid
-			tokenRepository.delete(theToken);
-			return EMAIL_NOTIFY_SUCCESSFULLY_VERIFIED;
-		}
-		return validationMessage;
-	}
+        String validationMessage = validateVerificationToken(theToken);
+        switch (validationMessage) {
+            case EmailVerificationMessage.EMAIL_NOTIFY_VALID_TOKEN:
+                activateUser(theToken);
+                return EmailVerificationMessage.EMAIL_NOTIFY_SUCCESSFULLY_VERIFIED;
+            case EmailVerificationMessage.EMAIL_NOTIFY_TOKEN_EXPIRED:
+                handleExpiredToken(theToken);
+                return EmailVerificationMessage.EMAIL_NOTIFY_TOKEN_EXPIRED;
+            default:
+                return EmailVerificationMessage.EMAIL_NOTIFY_INVALID_TOKEN;
+        }
+    }
 
-	public String validateVerificationToken(VerificationToken token) {
-		if (token == null) {
-			return EMAIL_NOTIFY_INVALID_TOKEN;
-		}
+    private void activateUser(VerificationToken token) {
+        token.getUser().setActive(true);
+        userRepository.save(token.getUser());
+        tokenRepository.delete(token);
+    }
 
-		Calendar calendar = Calendar.getInstance();
-		if ((token.getExpirationTime().getTime() - calendar.getTime().getTime()) <= 0) {
-			// delete role default
-			userRolesRepository.deleteUserRoleByUserId(token.getUser().getId());
-			// delete token expired
-			tokenRepository.delete(token);
-			// delete user
-			userRepository.deleteById(token.getUser().getId());
-			return EMAIL_NOTIFY_TOKEN_EXPIRED;
-		}
-		return EMAIL_NOTIFY_VALID_TOKEN;
-	}
+    private void handleExpiredToken(VerificationToken token) {
+        userRolesRepository.deleteUserRoleByUserId(token.getUser().getId());
+        tokenRepository.delete(token);
+        userRepository.deleteById(token.getUser().getId());
+    }
+
+    private String validateVerificationToken(VerificationToken token) {
+        if (token == null) {
+            return EmailVerificationMessage.EMAIL_NOTIFY_INVALID_TOKEN;
+        }
+
+        long currentTime = Calendar.getInstance().getTimeInMillis();
+        if (token.getExpirationTime().getTime() <= currentTime) {
+            return EmailVerificationMessage.EMAIL_NOTIFY_TOKEN_EXPIRED;
+        }
+        return EmailVerificationMessage.EMAIL_NOTIFY_VALID_TOKEN;
+    }
+
 
 	@Override
 	public TokenResponse getAccessTokenFromRefeshToken(RefreshRequest request) {
