@@ -22,6 +22,7 @@ import com.watermelon.dto.request.OrderRequest;
 import com.watermelon.dto.response.OrderResponse;
 import com.watermelon.dto.response.PageResponse;
 import com.watermelon.dto.response.ResponseData;
+import com.watermelon.model.enumeration.EOrderStatus;
 import com.watermelon.service.OrderService;
 
 import jakarta.validation.Valid;
@@ -68,7 +69,7 @@ public class OrderController {
 			@Min(value = 1, message = "Order ID must be greater than or equal to 1")
 			@NotBlank(message = "PathVariable Order ID is required")
 			@PathVariable(name = "id") Long id
-			,@NotBlank(message = "Status is required") @RequestParam String status) {
+			,@NotBlank(message = "Status is required") @RequestParam EOrderStatus status) {
 		orderService.updateOrderStatus(status, id);
 		return new ResponseData<>(HttpStatus.ACCEPTED.value(),"Order updated successfully");
 	}

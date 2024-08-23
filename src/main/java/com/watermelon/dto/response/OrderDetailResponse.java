@@ -1,13 +1,14 @@
 package com.watermelon.dto.response;
 
+import java.math.BigDecimal;
+
 public record OrderDetailResponse(
 		Long idProduct,
 		Integer quantity,
-		Double price,
+		BigDecimal price,
 		Double discountAmount,
 		String size,
 		String categogy,
-		String brand,
-		String taxPercent){
+		String brand){
 
 }

@@ -1,6 +1,8 @@
 package com.watermelon.model.entity;
 
 
+import java.math.BigDecimal;
+
 import com.watermelon.model.AbstractAuditEntity;
 
 import jakarta.persistence.Column;
@@ -38,13 +40,10 @@ public class OrderDetail extends AbstractAuditEntity{
 	private String note;
 	@Column(name="discount_amount")
 	private Double discountAmount;
-	private Double price;
+	private BigDecimal price;
 	private String size;
 	private String categogy;
 	private String brand;
-	
-	@Column(name = "tax_percent")
-	private String taxPercent;
 	
 
 }

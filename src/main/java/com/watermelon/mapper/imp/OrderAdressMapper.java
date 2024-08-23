@@ -12,9 +12,8 @@ public class OrderAdressMapper implements EntityMapper<OrderAddressResponse, Ord
 	public OrderAddressResponse toDTO(OrderAddress entity) {
 		if(ObjectUtils.isEmpty(entity)) return null;
 		return new OrderAddressResponse(
-				entity.getAddressLine1(),
-				entity.getAddressLine2(),
-				entity.getCity(),
+				entity.getAddressLine(),
+				entity.getCommune(),
 				entity.getDistrict(),
 				entity.getProvince(),
 				entity.getCountry());

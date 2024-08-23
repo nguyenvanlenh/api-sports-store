@@ -18,8 +18,7 @@ public class OrderDetailMapper implements EntityMapper<OrderDetailResponse, Orde
 				entity.getDiscountAmount(),
 				entity.getSize(),
 				entity.getCategogy(),
-				entity.getBrand(),
-				entity.getTaxPercent());
+				entity.getBrand());
 	}
 
 }

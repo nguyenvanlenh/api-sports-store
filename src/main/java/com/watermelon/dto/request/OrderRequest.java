@@ -1,34 +1,48 @@
 package com.watermelon.dto.request;
 
+import java.math.BigDecimal;
 import java.util.Set;
 
+import com.watermelon.model.enumeration.EDeliveryMethod;
+import com.watermelon.model.enumeration.EDeliveryStatus;
+import com.watermelon.model.enumeration.EOrderStatus;
+
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 
 public record OrderRequest(
 		OrderAddressRequest address,
-		String note,
-		@Positive(message = "Tax must be a positive number")
-		Double tax,
-	    @Positive(message = "Discount must be a positive number") 
-		Double discount,
+		
+		@NotBlank(message = "Name Customer must not be blank")
+		String nameCustomer,
+		
+		@NotBlank(message = "Email Customer must not be blank")
+		@Email(regexp = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$", message = "invalid email format")
+		String emailCustomer,
+		
+		@NotBlank(message = "PhoneNumber Customer must not be blank")
+		@Pattern(regexp = "^0[0-9]{9,10}$", message = "Invalid phone number format. Must start with 0 and be 10 or 11 digits long")
+		String phoneNumberCustomer,
+		
 	    @Positive(message = "Total price must be a positive number")
-		Double totalPrice,
-	    @Positive(message = "Delivery fee must be a positive number")
-		Double deliveryFee,
+		BigDecimal totalPrice,
+		
+	    @PositiveOrZero(message = "Delivery fee must be a positive number")
+		BigDecimal deliveryFee,
+		
 		@NotNull(message = "Order status cannot be null")
-        @Min(value = 1, message = "Order status must be at least 1")
-        Integer orderStatus,
+        EOrderStatus orderStatus,
 
         @NotNull(message = "Delivery status cannot be null")
-        @Min(value = 1, message = "Delivery status must be at least 1")
-        Integer deliveryStatus,
+        EDeliveryStatus deliveryStatus,
 
         @NotNull(message = "Delivery method cannot be null")
-        @Min(value = 1, message = "Delivery method must be at least 1")
-        Integer deliveryMethod,
+        EDeliveryMethod deliveryMethod,
 		String coupondCode,
 		String rejectReason,
 		@NotNull(message = "List of order details cannot be null")

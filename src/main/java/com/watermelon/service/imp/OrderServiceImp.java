@@ -19,12 +19,9 @@ import com.watermelon.exception.ForbiddenException;
 import com.watermelon.mapper.imp.OrderMapper;
 import com.watermelon.model.entity.Brand;
 import com.watermelon.model.entity.Category;
-import com.watermelon.model.entity.DeliveryMethod;
-import com.watermelon.model.entity.DeliveryStatus;
 import com.watermelon.model.entity.Order;
 import com.watermelon.model.entity.OrderAddress;
 import com.watermelon.model.entity.OrderDetail;
-import com.watermelon.model.entity.OrderStatus;
 import com.watermelon.model.entity.Product;
 import com.watermelon.model.entity.Size;
 import com.watermelon.model.entity.User;
@@ -100,9 +97,9 @@ public class OrderServiceImp implements OrderService {
 
 	@Transactional
 	@Override
-	public void updateOrderStatus(String orderStatus, Long idOrder) {
+	public void updateOrderStatus(EOrderStatus orderStatus, Long idOrder) {
 		Order order = commonService.findOrderById(idOrder);
-		if (EOrderStatus.CANCELLED.toString().equals(order.getOrderStatus().getName())) {
+		if (EOrderStatus.CANCELLED.equals(order.getOrderStatus())) {
 			log.error("Cannot update order status as this order has been cancelled!");
 			throw new ForbiddenException("Cannot update order status as this order has been cancelled!");
 		}
@@ -112,26 +109,25 @@ public class OrderServiceImp implements OrderService {
 				productService.updateProductQuantityForSize(-orderDetail.getQuantity(), idOrder, sizes.get(0).getId());
 			});
 		}
-		OrderStatus orderStatusUpdated = commonService.findOrderStatusByName(orderStatus);
-		order.setOrderStatus(orderStatusUpdated);
+		order.setOrderStatus(orderStatus);
 		orderRepository.save(order);
 	}
 
 	@Transactional
 	@Override
-	public void updateDeliveryStatus(DeliveryStatus deliveryStatus, Long idOrder) {
+	public void updateDeliveryStatus(EDeliveryStatus deliveryStatus, Long idOrder) {
 		Order order = commonService.findOrderById(idOrder);
-		if (EOrderStatus.CANCELLED.toString().equals(order.getOrderStatus().getName())) {
+		if (EOrderStatus.CANCELLED.equals(order.getOrderStatus())) {
 			log.error("Cannot update delivery status as this order has been cancelled!");
 			throw new ForbiddenException("Cannot update delivery status as this order has been cancelled!");
 		}
-		if (EDeliveryStatus.DELIVERED.toString().equals(order.getDeliveryStatus().getName())) {
+		if (EDeliveryStatus.DELIVERED.equals(order.getDeliveryStatus())) {
 			log.error("Cannot update delivery status as this order has been delivered!");
 			throw new ForbiddenException("Cannot update delivery status as this order has been delivered!");
 		}
 		order.setDeliveryStatus(deliveryStatus);
 		orderRepository.save(order);
-		log.info("updated delivery status successfully to {} ", deliveryStatus.getName());
+		log.info("updated delivery status successfully to {} ", deliveryStatus);
 	}
 	
 	@PreAuthorize("hasRole('ADMIN') || #idUser == authentication.principal.id")
@@ -168,7 +164,6 @@ public class OrderServiceImp implements OrderService {
 
 		orderDetail.setSize(size.getName());
 
-		orderDetail.setTaxPercent(request.taxPercent());
 		orderDetail.setDiscountAmount(request.discountAmount());
 
 		return orderDetail;
@@ -177,9 +172,8 @@ public class OrderServiceImp implements OrderService {
 	private OrderAddress mapRequestToOrderAddress(OrderAddressRequest request) {
 
 		OrderAddress orderAddress = new OrderAddress();
-		orderAddress.setAddressLine1(request.addressLine1());
-		orderAddress.setAddressLine2(request.addressLine2());
-		orderAddress.setCity(request.city());
+		orderAddress.setAddressLine(request.addressLine());
+		orderAddress.setCommune(request.commune());
 		orderAddress.setDistrict(request.district());
 		orderAddress.setProvince(request.province());
 		orderAddress.setCountry(request.country());
@@ -188,22 +182,19 @@ public class OrderServiceImp implements OrderService {
 
 	private Order mapRequestToOrder(OrderRequest request) {
 		Order order = new Order();
-		order.setNote(request.note());
-		order.setTax(request.tax());
-		order.setDiscount(request.discount());
+		order.setNameCustomer(request.nameCustomer());
+		order.setEmailCustomer(request.emailCustomer());
+		order.setPhoneNumberCustomer(request.phoneNumberCustomer());
 		order.setTotalPrice(request.totalPrice());
 		order.setDeliveryFee(request.deliveryFee());
 		order.setCouponCode(request.coupondCode());
 		order.setRejectReason(request.rejectReason());
 
-		OrderStatus orderStatus = commonService.findOrderStatusById(request.orderStatus());
-		order.setOrderStatus(orderStatus);
+		order.setOrderStatus(request.orderStatus());
 
-		DeliveryMethod deliveryMethod = commonService.findDeliveryMethodById(request.deliveryMethod());
-		order.setDeliveryMethod(deliveryMethod);
+		order.setDeliveryMethod(request.deliveryMethod());
 
-		DeliveryStatus deliveryStatus = commonService.findDeliveryStatusById(request.deliveryStatus());
-		order.setDeliveryStatus(deliveryStatus);
+		order.setDeliveryStatus(request.deliveryStatus());
 
 		return order;
 	}

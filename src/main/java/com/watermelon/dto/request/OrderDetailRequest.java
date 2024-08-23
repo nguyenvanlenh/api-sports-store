@@ -1,5 +1,7 @@
 package com.watermelon.dto.request;
 
+import java.math.BigDecimal;
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -14,7 +16,7 @@ public record OrderDetailRequest(
 		 	Integer quantity,
 	        @NotNull(message = "Price cannot be null") 
 		 	@PositiveOrZero(message = "Price must be greater than or equal to 0")
-		 	Double price,
+		 	BigDecimal price,
 	        @NotNull(message = "Discount amount cannot be null")
 		 	@PositiveOrZero(message = "Discount amount must be greater than or equal to 0")
 		 	Double discountAmount,
@@ -23,7 +25,6 @@ public record OrderDetailRequest(
 	        @NotNull(message = "Category ID cannot be null") 
 		 	Integer category,
 	        @NotNull(message = "Brand ID cannot be null") 
-		 	Integer brand,
-	        String taxPercent) {
+		 	Integer brand) {
 
 }
