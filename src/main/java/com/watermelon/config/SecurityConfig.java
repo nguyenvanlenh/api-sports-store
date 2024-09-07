@@ -36,6 +36,7 @@ public class SecurityConfig {
 	private static final String PRODUCTS_ENDPOINT = "/api/products/**";
 	private static final String ORDERS_ENDPOINT = "/api/orders/**";
 	private static final String RATINGS_ENDPOINT = "/api/ratings/**";
+	private static final String PAYMENTS_ENDPOINT = "/api/payments/**";
 	
 
 	@Bean
@@ -61,18 +62,23 @@ public class SecurityConfig {
 
 				.authorizeHttpRequests(authorize -> authorize
 					    .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+					    
 					    .requestMatchers(HttpMethod.GET, PRODUCTS_ENDPOINT).permitAll()
 					    .requestMatchers(HttpMethod.PUT, PRODUCTS_ENDPOINT).hasRole(ERole.USER.toString())
 					    .requestMatchers(HttpMethod.PATCH, PRODUCTS_ENDPOINT).hasRole(ERole.USER.toString())
+					    .requestMatchers(HttpMethod.DELETE, PRODUCTS_ENDPOINT).hasRole(ERole.ADMIN.toString())
+					    
 					    .requestMatchers(HttpMethod.GET, ORDERS_ENDPOINT).hasRole(ERole.USER.toString())
 					    .requestMatchers(HttpMethod.POST, ORDERS_ENDPOINT).hasRole(ERole.USER.toString())
 					    .requestMatchers(HttpMethod.PATCH, ORDERS_ENDPOINT).hasRole(ERole.USER.toString())
+					    .requestMatchers(HttpMethod.DELETE, ORDERS_ENDPOINT).hasRole(ERole.ADMIN.toString())
+					    
 					    .requestMatchers(HttpMethod.POST, RATINGS_ENDPOINT).hasRole(ERole.USER.toString())
 					    .requestMatchers(HttpMethod.DELETE, RATINGS_ENDPOINT).hasRole(ERole.USER.toString())
 					    
-					    .requestMatchers(HttpMethod.DELETE, PRODUCTS_ENDPOINT).hasRole(ERole.ADMIN.toString())
-					    .requestMatchers(HttpMethod.DELETE, ORDERS_ENDPOINT).hasRole(ERole.ADMIN.toString())
 					    
+					    .requestMatchers(PAYMENTS_ENDPOINT).hasAnyRole(ERole.ADMIN.toString(),ERole.USER.toString())
+					    	
 					    .anyRequest().authenticated()
 					)
 

@@ -59,7 +59,7 @@ public class OrderServiceImp implements OrderService {
 	@Override
 	public PageResponse<List<OrderResponse>> getAllOrder(Pageable pageable) {
 		Page<Order> page = orderRepository.findAll(pageable);
-		List<OrderResponse> orderResponses = new OrderMapper().toDTO(page.getContent());
+		List<OrderResponse> orderResponses = OrderMapper.getInstance().toDTO(page.getContent());
 		return  new PageResponse<>(
 				page.getPageable().getPageNumber(),
 				page.getSize(),
@@ -73,12 +73,12 @@ public class OrderServiceImp implements OrderService {
     @Transactional(readOnly = true)
 	@Override
 	public OrderResponse getOrderById(Long id) {
-		return new OrderMapper().toDTO(commonService.findOrderById(id));
+		return OrderMapper.getInstance().toDTO(commonService.findOrderById(id));
 	}
 
 	@Transactional
 	@Override
-	public Long createOrder(OrderRequest orderRequest) {
+	public OrderResponse createOrder(OrderRequest orderRequest) {
 		Order order = mapRequestToOrder(orderRequest);
 		OrderAddress orderAddress = mapRequestToOrderAddress(orderRequest.address());
 		OrderAddress orderAddressSaved = orderAddressRepository.save(orderAddress);
@@ -92,7 +92,7 @@ public class OrderServiceImp implements OrderService {
 
 		saveOrderDetails(orderRequest.listOrderDetails(), orderSaved);
 		log.info("Order ID {} added successfully",orderSaved.getId());
-		return orderSaved.getId();
+		return  OrderMapper.getInstance().toDTO(orderSaved);
 	}
 
 	@Transactional
@@ -130,12 +130,12 @@ public class OrderServiceImp implements OrderService {
 		log.info("updated delivery status successfully to {} ", deliveryStatus);
 	}
 	
-	@PreAuthorize("hasRole('ADMIN') || #idUser == authentication.principal.id")
+	@PreAuthorize("hasRole('ADMIN') || #userId == authentication.principal.id")
 	@Override
-	public PageResponse<List<OrderResponse>> getOrderByUserId(Long idUser, Pageable pageable) {
+	public PageResponse<List<OrderResponse>> getOrderByUserId(Long userId, Pageable pageable) {
 		
-		Page<Order> page = orderRepository.findByUser_Id(idUser, pageable);
-		List<OrderResponse> orderResponses = new OrderMapper().toDTO(page.getContent());
+		Page<Order> page = orderRepository.findByUser_Id(userId, pageable);
+		List<OrderResponse> orderResponses = OrderMapper.getInstance().toDTO(page.getContent());
 		return  new PageResponse<>(
 				page.getPageable().getPageNumber(),
 				page.getSize(),

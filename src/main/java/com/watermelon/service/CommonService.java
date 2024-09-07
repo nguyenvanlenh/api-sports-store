@@ -7,6 +7,7 @@ import com.watermelon.exception.ResourceNotFoundException;
 import com.watermelon.model.entity.Brand;
 import com.watermelon.model.entity.Category;
 import com.watermelon.model.entity.Order;
+import com.watermelon.model.entity.Payment;
 import com.watermelon.model.entity.Product;
 import com.watermelon.model.entity.Rating;
 import com.watermelon.model.entity.Role;
@@ -16,6 +17,7 @@ import com.watermelon.model.enumeration.ERole;
 import com.watermelon.repository.BrandRepository;
 import com.watermelon.repository.CategoryRepository;
 import com.watermelon.repository.OrderRepository;
+import com.watermelon.repository.PaymentRepository;
 import com.watermelon.repository.ProductRepository;
 import com.watermelon.repository.RatingRepository;
 import com.watermelon.repository.RoleRepository;
@@ -38,6 +40,7 @@ public class CommonService {
 	RatingRepository ratingRepository;
 	UserRepository userRepository;
 	RoleRepository roleRepository;
+	PaymentRepository paymentRepository;
 
 	public Order findOrderById(Long id) {
 		return orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("ORDER_NOT_FOUND", id));
@@ -60,8 +63,8 @@ public class CommonService {
 				.orElseThrow(() -> new ResourceNotFoundException("CATEGORY_NOT_FOUND", id));
 	}
 
-	public User findUserById(long id) {
-		return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND", id));
+	public User findUserById(Long userId) {
+		return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND", userId));
 	}
 
 	public User findByUsername(String username) {
@@ -74,8 +77,14 @@ public class CommonService {
 				.orElseThrow(() -> new ResourceNotFoundException("ROLE_NOT_FOUND", name));
 	}
 
-	public Rating findRatingById(long id) {
-		return ratingRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("RATING_NOT_FOUND", id));
+	public Rating findRatingById(Long ratingId) {
+		return ratingRepository.findById(ratingId)
+				.orElseThrow(() -> new ResourceNotFoundException("RATING_NOT_FOUND", ratingId));
+	}
+	
+	public Payment findPaymentById(Long paymentId) {
+		return paymentRepository.findById(paymentId)
+				.orElseThrow(()-> new ResourceNotFoundException("PAYMENT_NOT_FOUND", paymentId));
 	}
 
 }

@@ -14,7 +14,7 @@ public interface OrderService {
 
 	PageResponse<List<OrderResponse>> getAllOrder(Pageable pageable);
 	OrderResponse getOrderById(Long id);
-	Long createOrder(OrderRequest orderRequest);
+	OrderResponse createOrder(OrderRequest orderRequest);
 	void updateOrderStatus(EOrderStatus orderStatus, Long idOrder);
 	void updateDeliveryStatus(EDeliveryStatus deliveryStatus, Long idOrder);
 	

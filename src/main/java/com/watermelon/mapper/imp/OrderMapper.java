@@ -8,10 +8,24 @@ import com.watermelon.model.entity.Order;
 
 public class OrderMapper implements EntityMapper<OrderResponse, Order>{
 
+private static OrderMapper INSTANCE;
+	
+	private OrderMapper() {}
+	
+	public static OrderMapper getInstance() {
+		if(INSTANCE == null) 
+			synchronized (OrderMapper.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = new OrderMapper();
+                }
+            }
+		return INSTANCE;
+	}
 	@Override
 	public OrderResponse toDTO(Order entity) {
 		if(ObjectUtils.isEmpty(entity)) return null;
 		return new OrderResponse(
+				entity.getId(),
 				new UserMapper().toResponse(entity.getUser()),
 				new OrderAdressMapper().toDTO(entity.getOrderAddress()),
 				entity.getNameCustomer(),

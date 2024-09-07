@@ -6,6 +6,19 @@ import com.watermelon.model.entity.Product;
 
 public class ProductMapper implements EntityMapper<ProductDTO, Product> {
 
+private static ProductMapper INSTANCE;
+	
+//	private PaymentMapper() {}
+	
+	public static ProductMapper getInstance() {
+		if(INSTANCE == null) 
+			synchronized (ProductMapper.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = new ProductMapper();
+                }
+            }
+		return INSTANCE;
+	}
 	@Override
 	public ProductDTO toDTO(Product entity) {
 		if (entity == null) {

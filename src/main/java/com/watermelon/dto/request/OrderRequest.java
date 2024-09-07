@@ -12,7 +12,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 
 public record OrderRequest(
@@ -29,10 +28,10 @@ public record OrderRequest(
 		@Pattern(regexp = "^0[0-9]{9,10}$", message = "Invalid phone number format. Must start with 0 and be 10 or 11 digits long")
 		String phoneNumberCustomer,
 		
-	    @Positive(message = "Total price must be a positive number")
+	    @PositiveOrZero(message = "Total price must be zero or a positive number")
 		BigDecimal totalPrice,
 		
-	    @PositiveOrZero(message = "Delivery fee must be a positive number")
+	    @PositiveOrZero(message = "Delivery fee must be zero or a positive number")
 		BigDecimal deliveryFee,
 		
 		@NotNull(message = "Order status cannot be null")

@@ -12,7 +12,7 @@ public class OrderDetailMapper implements EntityMapper<OrderDetailResponse, Orde
 	public OrderDetailResponse toDTO(OrderDetail entity) {
 		if (ObjectUtils.isEmpty(entity))return null;
 		return new OrderDetailResponse(
-				entity.getId(),
+				ProductMapper.getInstance().toDTO(entity.getProduct()),
 				entity.getQuantity(),
 				entity.getPrice(),
 				entity.getDiscountAmount(),

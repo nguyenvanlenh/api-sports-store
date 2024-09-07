@@ -2,8 +2,10 @@ package com.watermelon.dto.response;
 
 import java.math.BigDecimal;
 
+import com.watermelon.dto.ProductDTO;
+
 public record OrderDetailResponse(
-		Long idProduct,
+		ProductDTO product,
 		Integer quantity,
 		BigDecimal price,
 		Double discountAmount,

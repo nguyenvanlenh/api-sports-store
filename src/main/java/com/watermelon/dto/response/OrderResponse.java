@@ -8,6 +8,7 @@ import com.watermelon.model.enumeration.EDeliveryStatus;
 import com.watermelon.model.enumeration.EOrderStatus;
 
 public record OrderResponse(
+		Long id,
 		UserResponse user,
 		OrderAddressResponse address,
 		String nameCustomer,

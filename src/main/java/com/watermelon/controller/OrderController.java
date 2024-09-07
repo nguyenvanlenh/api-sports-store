@@ -57,11 +57,12 @@ public class OrderController {
 		return  new ResponseData<>(HttpStatus.OK.value(),"Data order",orderService.getOrderById(id));
 	}
 	@PostMapping()
-	public ResponseData<Long> saveOrder(@RequestBody @Valid OrderRequest request){
+	public ResponseData<OrderResponse> saveOrder(@RequestBody @Valid OrderRequest request){
+		OrderResponse data = orderService.createOrder(request);
 		return new ResponseData<>(
 				HttpStatus.CREATED.value(),
 				"Order added successfully",
-				orderService.createOrder(request));
+				data);
 	}
 	
 	@PatchMapping("/{id}")
