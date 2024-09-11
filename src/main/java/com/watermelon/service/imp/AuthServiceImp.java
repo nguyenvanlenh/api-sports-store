@@ -1,10 +1,9 @@
 package com.watermelon.service.imp;
 
-import static com.watermelon.utils.Constants.EmailVerificationMessage;
-
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,11 +20,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import com.watermelon.dto.request.LoginRequest;
 import com.watermelon.dto.request.RefreshRequest;
 import com.watermelon.dto.request.RegisterRequest;
-import com.watermelon.dto.response.TokenResponse;
+import com.watermelon.dto.response.AuthenticationResponse;
 import com.watermelon.exception.RefreshTokenException;
 import com.watermelon.exception.ResourceExistedException;
 import com.watermelon.exception.ResourceNotFoundException;
@@ -43,6 +43,7 @@ import com.watermelon.security.CustomUserDetails;
 import com.watermelon.security.jwt.JwtTokenProvider;
 import com.watermelon.service.AuthService;
 import com.watermelon.service.CommonService;
+import com.watermelon.service.oauth2.OAuthStrategy;
 import com.watermelon.utils.Constants;
 import com.watermelon.utils.Constants.EmailVerificationMessage;
 
@@ -66,11 +67,20 @@ public class AuthServiceImp implements AuthService {
 	UserRolesRepository userRolesRepository;
 	CommonService commonService;
 	AuthTokenRepository authTokenRepository;
-	
+	Map<String, OAuthStrategy> oAuthStrategies;
+
+	@Override
+	public AuthenticationResponse outboundAuthenticate(String code, String type) {
+        OAuthStrategy strategy = oAuthStrategies.get(type.toUpperCase());
+        if (strategy == null) {
+            throw new IllegalArgumentException("Invalid OAuth type");
+        }
+        return strategy.authenticate(code);
+    }
 
 	@Transactional
 	@Override
-	public TokenResponse login(LoginRequest request) {
+	public AuthenticationResponse login(LoginRequest request) {
 			UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(request.username(),
 					request.password());
 			Authentication authentication = authenticationManager.authenticate(token);
@@ -88,11 +98,16 @@ public class AuthServiceImp implements AuthService {
 			log.info("User {} login success", request.username());
 			
 			
-			return TokenResponse.builder()
+			return AuthenticationResponse.builder()
+					.userId(customUserDetails.getId())
+					.firstName(customUserDetails.getFirstName())
+					.lastName(customUserDetails.getLastName())
+					.email(customUserDetails.getEmail())
+					.phone(customUserDetails.getPhone())
+					.avatar(customUserDetails.getAvatar())
 					.accessToken(accessToken)
 					.refreshToken(refreshToken)
-					.authenticated(true)
-					.userId(customUserDetails.getId())
+					.hasPassword(StringUtils.hasLength(customUserDetails.getPassword()))
 					.listRoles(listRoles)
 					.build();
 	}
@@ -174,7 +189,7 @@ public class AuthServiceImp implements AuthService {
 
 
 	@Override
-	public TokenResponse getAccessTokenFromRefeshToken(RefreshRequest request) {
+	public AuthenticationResponse getAccessTokenFromRefeshToken(RefreshRequest request) {
 		String token = request.token();
 		String accessToken = null;
 		boolean isRevoked = 
@@ -186,7 +201,7 @@ public class AuthServiceImp implements AuthService {
 			String username = jwtTokenProvider.getUsernameFromToken(token);
 			UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 			accessToken = jwtTokenProvider.generateToken(Constants.ACCESS_TOKEN, userDetails);
-			return TokenResponse.builder()
+			return AuthenticationResponse.builder()
 					.accessToken(accessToken)
 					.build();
 		}else {

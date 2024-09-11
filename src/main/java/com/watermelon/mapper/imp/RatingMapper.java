@@ -1,22 +1,33 @@
 package com.watermelon.mapper.imp;
 
-import com.watermelon.dto.RatingDTO;
+import org.springframework.util.StringUtils;
+
+import com.watermelon.dto.response.RatingResponse;
 import com.watermelon.mapper.EntityMapper;
 import com.watermelon.model.entity.Rating;
 
 
-public class RatingMapper implements EntityMapper<RatingDTO, Rating>{
+public class RatingMapper implements EntityMapper<RatingResponse, Rating>{
 
+	private static RatingMapper INSTANCE;
+
+	private RatingMapper() {
+	}
+
+	public static RatingMapper getInstance() {
+		if (INSTANCE == null)
+			INSTANCE = new RatingMapper();
+		return INSTANCE;
+	}
 	@Override
-	public RatingDTO toDTO(Rating entity) {
+	public RatingResponse toDTO(Rating entity) {
 		if (entity == null) {
 			return null;
 		}
-		return new RatingDTO(entity.getId(),
+		return new RatingResponse(entity.getId(),
 				entity.getContent(),
 				entity.getStar(), 
-				entity.getProduct().getId(),
-				entity.getUser().getId(),
+				entity.getUser().getEmail(),
 				entity.getCreatedOn()
 				);
 	}

@@ -69,7 +69,7 @@ public class ProductServiceImp implements ProductService {
 	@Override
 	public ProductDTO getProductById(Long id) {
 		Product product = commonService.findProductById(id);
-		return new ProductMapper().toDTO(product);
+		return ProductMapper.getInstance().toDTO(product);
 	}
 
 	 /**
@@ -82,7 +82,7 @@ public class ProductServiceImp implements ProductService {
 	@Override
 	public PageResponse<List<ProductDTO>> getAllProduct(Pageable pageable) {
 		Page<Product> pageProduct = productRepository.findByIsActiveTrue(pageable);
-		List<ProductDTO> listProductDTO = new ProductMapper().toDTO(pageProduct.getContent());
+		List<ProductDTO> listProductDTO = ProductMapper.getInstance().toDTO(pageProduct.getContent());
 
 		return new PageResponse<>(
 				pageProduct.getPageable().getPageNumber(),
@@ -103,7 +103,7 @@ public class ProductServiceImp implements ProductService {
 	@Override
 	public PageResponse<List<ProductDTO>> getProductContainName(String keyword, Pageable pageable) {
 		Page<Product> pageProduct = productRepository.findByNameContainingIgnoreCaseAndIsActiveTrue(keyword, pageable);
-		List<ProductDTO> listProductDTO = new ProductMapper().toDTO(pageProduct.getContent());
+		List<ProductDTO> listProductDTO = ProductMapper.getInstance().toDTO(pageProduct.getContent());
 		return new PageResponse<>(
 				pageProduct.getPageable().getPageNumber(),
 				pageProduct.getSize(),
@@ -225,7 +225,7 @@ public class ProductServiceImp implements ProductService {
 		if (pageProduct.isEmpty()) {
 			throw new ResourceNotFoundException("URL_KEY_CATEGORY_NOT_FOUND", urlKey);
 		}
-		List<ProductDTO> listProductDTO = new ProductMapper().toDTO(pageProduct.getContent());
+		List<ProductDTO> listProductDTO = ProductMapper.getInstance().toDTO(pageProduct.getContent());
 
 		return new PageResponse<>(
 				pageProduct.getPageable().getPageNumber(),

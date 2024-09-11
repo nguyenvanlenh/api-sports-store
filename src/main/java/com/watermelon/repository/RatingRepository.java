@@ -14,7 +14,7 @@ import com.watermelon.model.entity.Rating;
 public interface RatingRepository extends JpaRepository<Rating, Long>{
 
 	
-	Page<Rating> findByProduct_Id(Long product_Id,Pageable pageable);
+	Page<Rating> findByProductId(Long productId,Pageable pageable);
 	
 	@Query(value = "SELECT SUM(r.star), COUNT(r) FROM Rating r WHERE r.product.id = :idProduct")
 	List<Object[]> getTotalStarAndTotalRating(@Param("idProduct") Long idProduct);

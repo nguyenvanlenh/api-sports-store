@@ -2,7 +2,6 @@ package com.watermelon.controller;
 
 import java.util.List;
 
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -14,12 +13,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.watermelon.dto.RatingDTO;
 import com.watermelon.dto.request.RatingRequest;
 import com.watermelon.dto.response.PageResponse;
+import com.watermelon.dto.response.RatingResponse;
 import com.watermelon.dto.response.ResponseData;
 import com.watermelon.service.RatingService;
 
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -33,17 +33,17 @@ public class RatingController {
 	
  	RatingService ratingService;
 	
-	@GetMapping("/product/{productId}/average-star")
-	public ResponseData<Double> getTotal(
+	@GetMapping("/products/{productId}/average-star")
+	public ResponseData<Double> getAverageStar(
 			@PathVariable Long productId){
 		return new ResponseData<>(HttpStatus.OK.value(),"Average star of product "+productId,ratingService.caculatorAverageStar(productId));
 	}
 	
 	@GetMapping("/products/{productId}")
-	public ResponseData<PageResponse<List<RatingDTO>>> getRatingListByProductId(@PathVariable(name = "productId") Long id,
-			@PageableDefault(page = 0, size = 20) Pageable pageable
+	public ResponseData<PageResponse<List<RatingResponse>>> getRatingListByProductId(@PathVariable(name = "productId") Long id,
+			@PageableDefault(page = 0, size = 1) Pageable pageable
 			){
-		PageResponse<List<RatingDTO>> data = ratingService.getRatingListByProductId(id, pageable);
+		PageResponse<List<RatingResponse>> data = ratingService.getRatingListByProductId(id, pageable);
 		return new ResponseData<>(HttpStatus.OK.value(), "List rating of product " + id, data);
 	}
 	

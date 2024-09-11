@@ -22,7 +22,7 @@ public class BrandServiceImp implements BrandService{
 
 	@Override
 	public List<BrandDTO> getAllBrands() {
-		return new BrandMapper().toDTO(brandRepository.findAll());
+		return BrandMapper.getInstance().toDTO(brandRepository.findAll());
 	}
 	
 }

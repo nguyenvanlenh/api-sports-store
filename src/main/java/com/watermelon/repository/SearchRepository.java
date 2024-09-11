@@ -54,7 +54,7 @@ public class SearchRepository {
                 .setFirstResult(pageNo * pageSize);
 
         List<Product> products = query.getResultList();
-        List<ProductDTO> productDTOs = new ProductMapper().toDTO(products);
+        List<ProductDTO> productDTOs = ProductMapper.getInstance().toDTO(products);
 
         int totalPages = (int) Math.ceil((double) totalElements / pageSize);
 

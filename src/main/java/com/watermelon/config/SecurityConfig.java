@@ -73,15 +73,14 @@ public class SecurityConfig {
 					    .requestMatchers(HttpMethod.PATCH, ORDERS_ENDPOINT).hasRole(ERole.USER.toString())
 					    .requestMatchers(HttpMethod.DELETE, ORDERS_ENDPOINT).hasRole(ERole.ADMIN.toString())
 					    
+					    .requestMatchers(HttpMethod.GET, RATINGS_ENDPOINT).permitAll()
 					    .requestMatchers(HttpMethod.POST, RATINGS_ENDPOINT).hasRole(ERole.USER.toString())
 					    .requestMatchers(HttpMethod.DELETE, RATINGS_ENDPOINT).hasRole(ERole.USER.toString())
 					    
 					    
 					    .requestMatchers(PAYMENTS_ENDPOINT).hasAnyRole(ERole.ADMIN.toString(),ERole.USER.toString())
-					    	
 					    .anyRequest().authenticated()
 					)
-
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
 				.httpBasic(Customizer.withDefaults())

@@ -37,6 +37,7 @@ spring:
       max-file-size: 5MB
       max-request-size: 5MB
 
+
 cloudinary:
   cloud-name: drygpquvb
   api-secret: gWhaKF8-JV2Tm9weD0DH5F88kzg
@@ -75,5 +76,15 @@ openapi:
     version: '1.0.0 '
 jasypt:
   encryptor:
-    password: watermelon
+    password: ${PASSWORD_JASYPT}
     algorithm: PBEWithMD5AndDES
+outbound:
+  gg:
+    client-id: ${CLIENT_ID_GOOGLE} 
+    client-secret: ${CLIENT_SECRET_GOOGLE}
+    redirect-uri: "http://localhost:3000/authenticate"
+    grant-type: "authorization_code"
+  gh:
+    client-id: ${CLIENT_ID_GITHUB} 
+    client-secret: ${CLIENT_SECRET_GITHUB}
+    redirect-uri: "http://localhost:3000/authenticate"

@@ -20,7 +20,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -43,8 +42,6 @@ public class User extends AbstractAuditEntity {
 	@NotNull
 	@Column(unique = true)
 	private String username;
-	@Size(max = 100, min = 8)
-	@NotNull
 	private String password;
 
 	@Column(name = "first_name")

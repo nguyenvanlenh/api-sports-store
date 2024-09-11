@@ -35,7 +35,7 @@ public class UserServiceImp implements UserService {
 	@Override
 	public UserDTO findByUsername(String username) {
 		User user = commonService.findByUsername(username);
-		return new UserMapper().toDTO(user);
+		return UserMapper.getInstance().toDTO(user);
 	}
 
 	@Override
@@ -64,7 +64,7 @@ public class UserServiceImp implements UserService {
 	@Override
 	public PageResponse<List<UserDTO>> getAllUsers(Pageable pageable) {
 		Page<User> pageUser = userRepository.findAll(pageable);
-		List<UserDTO> lisUserDTOs = new UserMapper().toDTO(pageUser.getContent()); 
+		List<UserDTO> lisUserDTOs = UserMapper.getInstance().toDTO(pageUser.getContent()); 
 		return new PageResponse<>(
 				pageUser.getPageable().getPageNumber(),
 				pageUser.getSize(),
@@ -76,7 +76,7 @@ public class UserServiceImp implements UserService {
 	@PostAuthorize("hasRole('ADMIN') || authentication.name == returnObject.username")
 	@Override
 	public UserDTO getUserById(Long id) {
-		return  new UserMapper().toDTO(commonService.findUserById(id));
+		return  UserMapper.getInstance().toDTO(commonService.findUserById(id));
 	}
 	
 	@PreAuthorize("hasRole('ADMIN')")

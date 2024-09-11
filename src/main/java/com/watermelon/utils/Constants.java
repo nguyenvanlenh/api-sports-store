@@ -26,6 +26,7 @@ public class Constants {
 				"/api/auth/register",
 				"/api/auth/verify-email",
 				"/api/auth/refresh-token",
+				"/api/auth/outbound/authentication",
 				"/api/sizes",
 				"/api/brands",
 				"/api/categories",

@@ -8,15 +8,11 @@ public class ProductMapper implements EntityMapper<ProductDTO, Product> {
 
 private static ProductMapper INSTANCE;
 	
-//	private PaymentMapper() {}
+	private ProductMapper() {}
 	
 	public static ProductMapper getInstance() {
 		if(INSTANCE == null) 
-			synchronized (ProductMapper.class) {
-                if (INSTANCE == null) {
                     INSTANCE = new ProductMapper();
-                }
-            }
 		return INSTANCE;
 	}
 	@Override
@@ -31,10 +27,10 @@ private static ProductMapper INSTANCE;
 				entity.getDescription(),
 				entity.getPrice(),
 				entity.getTax(),
-				new BrandMapper().toDTO(entity.getBrand()),
-				new CategoryMapper().toDTO(entity.getCategory()),
-				new ImageMapper().toDTO(entity.getListImages().stream().toList()),
-				new SizeMapper().toDTO(entity.getQuantityOfSizes().stream().toList()));
+				BrandMapper.getInstance().toDTO(entity.getBrand()),
+				CategoryMapper.getInstance().toDTO(entity.getCategory()),
+				ImageMapper.getInstance().toDTO(entity.getListImages().stream().toList()),
+				SizeMapper.getInstance().toDTO(entity.getQuantityOfSizes().stream().toList()));
 	}
 
 }

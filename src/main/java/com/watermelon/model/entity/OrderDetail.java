@@ -44,6 +44,8 @@ public class OrderDetail extends AbstractAuditEntity{
 	private String size;
 	private String categogy;
 	private String brand;
+	@Column(columnDefinition = "BOOLEAN DEFAULT false")
+	private Boolean isRating = false;
 	
 
 }

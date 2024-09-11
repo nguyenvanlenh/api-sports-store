@@ -16,6 +16,9 @@ public record RatingRequest(
         @NotNull(message = "Product ID cannot be null")
 		Long productId,
         @NotNull(message = "User ID cannot be null") 
-		Long userId) {
+		Long userId,
+		@NotNull(message = "Order detail ID cannot be null") 
+		Long orderDetailId
+		) {
 
 }

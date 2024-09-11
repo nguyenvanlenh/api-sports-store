@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.watermelon.dto.request.LoginRequest;
 import com.watermelon.dto.request.RefreshRequest;
 import com.watermelon.dto.request.RegisterRequest;
-import com.watermelon.dto.response.TokenResponse;
+import com.watermelon.dto.response.AuthenticationResponse;
 import com.watermelon.model.entity.User;
 import com.watermelon.service.AuthService;
 
@@ -51,7 +51,7 @@ class AuthControllerTest {
 	private RegisterRequest registerRequest;
 	private RefreshRequest refreshRequest;
 	private LoginRequest loginRequest;
-	private TokenResponse tokenResponse;
+	private AuthenticationResponse tokenResponse;
 	
 	@Value("${test.auth.accessToken}")
 	private String accessToken;
@@ -64,8 +64,7 @@ class AuthControllerTest {
 	public void initData() {
 		registerRequest = new RegisterRequest("nguyenvanlenh", "12345678", "vanlenh2k@gmail.com", new ArrayList<>());
 		loginRequest = new LoginRequest("nguyenlenh", "12345678");
-		tokenResponse = TokenResponse.builder()
-				.authenticated(true).userId(1L)
+		tokenResponse = AuthenticationResponse.builder()
 				.accessToken(accessToken)
 				.refreshToken(refreshToken)
 				.build();
@@ -75,7 +74,7 @@ class AuthControllerTest {
 
 	@Test
 	void login_ValidRequest_Success() throws Exception {
-		TokenResponse expect = tokenResponse;
+		AuthenticationResponse expect = tokenResponse;
 
 		Mockito.when(authService.login(ArgumentMatchers.any(LoginRequest.class)))
 		.thenReturn(expect);
@@ -133,8 +132,8 @@ class AuthControllerTest {
 	@WithMockUser(username = "admin", roles = { "ADMIN", "USER" })
 	@Test
 	void getAccessTokenFromRefeshToken_ValidRequest_Success() throws Exception {
-		TokenResponse expect = TokenResponse.builder().accessToken(tokenExpect)
-				.authenticated(true).build();
+		AuthenticationResponse expect = AuthenticationResponse.builder().accessToken(tokenExpect)
+				.build();
 		Mockito.when(authService.getAccessTokenFromRefeshToken(ArgumentMatchers.any(RefreshRequest.class)))
 				.thenReturn(expect);
 

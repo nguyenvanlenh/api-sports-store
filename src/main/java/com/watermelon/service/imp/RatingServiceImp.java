@@ -7,13 +7,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import com.watermelon.dto.RatingDTO;
 import com.watermelon.dto.request.RatingRequest;
 import com.watermelon.dto.response.PageResponse;
+import com.watermelon.dto.response.RatingResponse;
+import com.watermelon.exception.ResourceNotFoundException;
 import com.watermelon.mapper.imp.RatingMapper;
+import com.watermelon.model.entity.OrderDetail;
 import com.watermelon.model.entity.Product;
 import com.watermelon.model.entity.Rating;
 import com.watermelon.model.entity.User;
+import com.watermelon.repository.OrderDetailRepository;
 import com.watermelon.repository.RatingRepository;
 import com.watermelon.service.CommonService;
 import com.watermelon.service.RatingService;
@@ -31,14 +34,15 @@ public class RatingServiceImp implements RatingService {
 
 	RatingRepository ratingRepository;
 	CommonService commonService;
+	OrderDetailRepository orderDetailRepository;
 
 	@Override
-	public PageResponse<List<RatingDTO>> getRatingListByProductId(Long productId, Pageable pageable) {
-		Page<Rating> pageRating = ratingRepository.findByProduct_Id(productId, pageable);
-		List<RatingDTO> listRatingDTO = new RatingMapper().toDTO(pageRating.getContent());
+	public PageResponse<List<RatingResponse>> getRatingListByProductId(Long productId, Pageable pageable) {
+		Page<Rating> pageRating = ratingRepository.findByProductId(productId, pageable);
+		List<RatingResponse> listRatingResponse = RatingMapper.getInstance().toDTO(pageRating.getContent());
 
 		return new PageResponse<>(pageRating.getPageable().getPageNumber(),
-				pageRating.getSize(), pageRating.getTotalPages(), pageRating.getTotalElements(), listRatingDTO);
+				pageRating.getSize(), pageRating.getTotalPages(), pageRating.getTotalElements(), listRatingResponse);
 	}
 
 	@Override
@@ -51,7 +55,11 @@ public class RatingServiceImp implements RatingService {
 		rating.setProduct(product);
 		User user = commonService.findUserById(request.userId());
 		rating.setUser(user);
-
+		
+		OrderDetail orderDetail = findOrderDetailById(request.orderDetailId());
+		orderDetail.setIsRating(true);
+		orderDetailRepository.save(orderDetail);
+		
 		ratingRepository.save(rating);
 		log.info("Add new rating for product with ID: {}", request.productId());
 	}
@@ -74,6 +82,11 @@ public class RatingServiceImp implements RatingService {
 		double averageStar = (totalStars * 1.0) / totalRatings;
 		averageStar = Math.round(averageStar * 10.0) / 10.0;
 		return averageStar;
+	}
+	
+	private OrderDetail findOrderDetailById(Long orderDetailId) {
+		return orderDetailRepository.findById(orderDetailId)
+				.orElseThrow(()-> new ResourceNotFoundException("ORDER_DETAIL_NOT_FOUND", orderDetailId));
 	}
 
 }

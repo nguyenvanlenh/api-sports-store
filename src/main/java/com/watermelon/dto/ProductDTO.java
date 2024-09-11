@@ -1,6 +1,5 @@
 package com.watermelon.dto;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -18,6 +17,6 @@ public record ProductDTO(
 		CategoryDTO category,
 		List<ImageDTO> listImages,
 		List<SizeDTO> listSize) 
-		implements Serializable {
+		{
 
 }

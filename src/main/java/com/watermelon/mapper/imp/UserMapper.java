@@ -9,7 +9,18 @@ import com.watermelon.mapper.EntityMapper;
 import com.watermelon.model.entity.User;
 
 public class UserMapper implements EntityMapper<UserDTO, User> {
+	
+	private static UserMapper INSTANCE;
 
+	private UserMapper() {
+	}
+
+	public static UserMapper getInstance() {
+		if (INSTANCE == null)
+			INSTANCE = new UserMapper();
+		return INSTANCE;
+	}
+	
 	@Override
 	public UserDTO toDTO(User entity) {
 		if (ObjectUtils.isEmpty(entity))return null;

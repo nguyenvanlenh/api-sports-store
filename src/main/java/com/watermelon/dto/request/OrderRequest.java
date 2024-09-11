@@ -25,7 +25,7 @@ public record OrderRequest(
 		String emailCustomer,
 		
 		@NotBlank(message = "PhoneNumber Customer must not be blank")
-		@Pattern(regexp = "^0[0-9]{9,10}$", message = "Invalid phone number format. Must start with 0 and be 10 or 11 digits long")
+		@Pattern(regexp = "^0\\d{9,10}$", message = "Invalid phone number format. Must start with 0 and be 10 or 11 digits long")
 		String phoneNumberCustomer,
 		
 	    @PositiveOrZero(message = "Total price must be zero or a positive number")

@@ -9,13 +9,14 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.watermelon.dto.request.LoginRequest;
 import com.watermelon.dto.request.RefreshRequest;
 import com.watermelon.dto.request.RegisterRequest;
+import com.watermelon.dto.response.AuthenticationResponse;
 import com.watermelon.dto.response.ResponseData;
-import com.watermelon.dto.response.TokenResponse;
 import com.watermelon.event.RegistrationCompleteEvent;
 import com.watermelon.model.entity.User;
 import com.watermelon.service.AuthService;
@@ -46,9 +47,9 @@ public class AuthController {
 
 	@PostMapping("/login")
 
-	public ResponseEntity<ResponseData<TokenResponse>> login(@RequestBody @Valid LoginRequest request) {
-		TokenResponse data = authService.login(request);
-		ResponseData<TokenResponse> response = new ResponseData<>(HttpStatus.ACCEPTED.value(), "Login successful",
+	public ResponseEntity<ResponseData<AuthenticationResponse>> login(@RequestBody @Valid LoginRequest request) {
+		AuthenticationResponse data = authService.login(request);
+		ResponseData<AuthenticationResponse> response = new ResponseData<>(HttpStatus.OK.value(), "Login successful",
 				data);
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(data.getAccessToken());
@@ -56,8 +57,8 @@ public class AuthController {
 	}
 
 	@PostMapping("/refresh-token")
-	public ResponseEntity<ResponseData<TokenResponse>> getRefreshToken(@RequestBody RefreshRequest request) {
-			TokenResponse data = authService.getAccessTokenFromRefeshToken(request);
+	public ResponseEntity<ResponseData<AuthenticationResponse>> getRefreshToken(@RequestBody RefreshRequest request) {
+			AuthenticationResponse data = authService.getAccessTokenFromRefeshToken(request);
 			HttpHeaders headers = new HttpHeaders();
 			headers.setBearerAuth(data.getAccessToken());
 			return ResponseEntity.ok().headers(headers)
@@ -71,6 +72,13 @@ public class AuthController {
 				.body(new ResponseData<>(HttpStatus.OK.value(), "Refresh token revoked successfully"));
 		
 	}
+	@PostMapping("/outbound/authentication")
+    public ResponseData<AuthenticationResponse> outboundAuthenticate(
+            @RequestParam("code") String code,
+            @RequestParam("type") String type) {
+        AuthenticationResponse data = authService.outboundAuthenticate(code, type);
+        return new ResponseData<>(HttpStatus.OK.value(), "Login successful", data);
+    }
 
 	private String applicationUrl(HttpServletRequest request) {
 		return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();

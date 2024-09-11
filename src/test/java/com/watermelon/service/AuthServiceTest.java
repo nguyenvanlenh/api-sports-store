@@ -39,7 +39,7 @@ import org.springframework.util.ObjectUtils;
 import com.watermelon.dto.request.LoginRequest;
 import com.watermelon.dto.request.RefreshRequest;
 import com.watermelon.dto.request.RegisterRequest;
-import com.watermelon.dto.response.TokenResponse;
+import com.watermelon.dto.response.AuthenticationResponse;
 import com.watermelon.exception.ResourceExistedException;
 import com.watermelon.exception.UserNotActivatedException;
 import com.watermelon.model.entity.AuthToken;
@@ -82,7 +82,7 @@ class AuthServiceTest {
 	private RegisterRequest registerRequest;
 	private RefreshRequest refreshRequest;
 	private LoginRequest loginRequest;
-	private TokenResponse tokenResponse;
+	private AuthenticationResponse tokenResponse;
 
 	@Value("${test.auth.accessToken}")
 	private String accessToken;
@@ -95,7 +95,7 @@ class AuthServiceTest {
 	public void initData() {
 		registerRequest = new RegisterRequest("nguyenvanlenh", "12345678", "vanlenh2k@gmail.com", new ArrayList<>());
 		loginRequest = new LoginRequest("nguyenvanlenh", "12345678");
-		tokenResponse = TokenResponse.builder().authenticated(true).userId(1L).accessToken(accessToken)
+		tokenResponse = AuthenticationResponse.builder().accessToken(accessToken)
 				.refreshToken(refreshToken).build();
 		refreshRequest = new RefreshRequest(refreshToken);
 		user = User.builder().id(1L).username("nguyenvanlenh").password(passwordEncoder.encode("12345678"))
@@ -214,7 +214,7 @@ class AuthServiceTest {
 				.thenReturn(tokenResponse.getAccessToken());
 
 		// Call the method under test
-		TokenResponse response = authService.getAccessTokenFromRefeshToken(request);
+		AuthenticationResponse response = authService.getAccessTokenFromRefeshToken(request);
 		assertNotNull(response);
 		assertThat(response.getAccessToken()).isEqualTo(tokenResponse.getAccessToken());
 	}

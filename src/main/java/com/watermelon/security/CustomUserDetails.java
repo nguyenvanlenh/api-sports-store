@@ -70,7 +70,7 @@ public class CustomUserDetails implements UserDetails{
 			return true;
 		}
 		
-		public CustomUserDetails mapUserToCustomUserDetail(User user) {
+		public static CustomUserDetails mapUserToCustomUserDetail(User user) {
 			List<GrantedAuthority> listAuthorities = new ArrayList<>();
 			user.getListRoles().forEach(role -> {
 						listAuthorities.add(new SimpleGrantedAuthority("ROLE_"+ role.getName()));
@@ -85,6 +85,7 @@ public class CustomUserDetails implements UserDetails{
 					.firstName(user.getFirstName())
 					.lastName(user.getLastName())
 					.authorities(listAuthorities)
+					.avatar(user.getAvatar())
 					.isActive(user.isActive())
 					.build();
 		}
