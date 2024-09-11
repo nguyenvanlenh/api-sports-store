@@ -26,4 +26,16 @@ public class OAuthProperties {
 
     @Value("${outbound.gh.redirect-uri}")
     private String githubRedirectUri;
+    
+    @Value("${outbound.fb.client-id}")
+    private String facebookClientId;
+    
+    @Value("${outbound.fb.client-secret}")
+    private String facebookClientSecret;
+    
+    @Value("${outbound.fb.redirect-uri}")
+    private String facebookRedirectUri;
+    
+    @Value("${outbound.fb.fields}")
+    private String facebookFieldsInfo;
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.watermelon.config.OAuthProperties;
-import com.watermelon.dto.request.oauth2.ExchangeTokenGoogleRequest;
+import com.watermelon.dto.request.oauth2.ExchangeTokenRequest;
 import com.watermelon.dto.response.AuthenticationResponse;
 import com.watermelon.dto.response.oauth2.ExchangeTokenGoogleResponse;
 import com.watermelon.dto.response.oauth2.GoogleUserResponse;
@@ -43,13 +43,16 @@ public class GoogleOAuthStrategy implements OAuthStrategy {
 
     @Override
     public AuthenticationResponse authenticate(String code) {
-        ExchangeTokenGoogleRequest request = new ExchangeTokenGoogleRequest(
-                code, 
-                oauthProperties.getGoogleClientId(), 
-                oauthProperties.getGoogleClientSecret(), 
-                oauthProperties.getGoogleRedirectUri(), 
-                oauthProperties.getGoogleGrantType());
-        ExchangeTokenGoogleResponse response = googleClient.exchangeToken(request);
+        
+        ExchangeTokenGoogleResponse response = googleClient.exchangeToken(
+        		ExchangeTokenRequest.builder()
+        		.code(code)
+        		.clientId(oauthProperties.getGoogleClientId())
+        		.clientSecret(oauthProperties.getGoogleClientSecret())
+        		.redirectUri(oauthProperties.getGoogleRedirectUri())
+        		.grantType(oauthProperties.getGoogleGrantType())
+        		.build()
+        		);
         GoogleUserResponse userInfo = googleUserClient.getUserInfo("json", response.accessToken());
 
         Set<Role> setRoles = new HashSet<>();
@@ -70,6 +73,9 @@ public class GoogleOAuthStrategy implements OAuthStrategy {
         CustomUserDetails customUserDetails = CustomUserDetails.mapUserToCustomUserDetail(user);
         String accessToken = jwtTokenProvider.generateToken(Constants.ACCESS_TOKEN, customUserDetails);
         String refreshToken = jwtTokenProvider.generateToken(Constants.REFRESH_TOKEN, customUserDetails);
+        
+        commonService.saveAuthToken(customUserDetails.getId(),refreshToken);
+        
         Set<String> listRoles = customUserDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toSet());
 

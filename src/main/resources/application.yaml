@@ -88,3 +88,8 @@ outbound:
     client-id: ${CLIENT_ID_GITHUB} 
     client-secret: ${CLIENT_SECRET_GITHUB}
     redirect-uri: "http://localhost:3000/authenticate"
+  fb:
+    client-id: ${CLIENT_ID_FACEBOOK} 
+    client-secret: ${CLIENT_SECRET_FACEBOOK}
+    redirect-uri: "http://localhost:3000/authenticate"
+    fields: "id,name,email,gender,first_name,last_name,picture"

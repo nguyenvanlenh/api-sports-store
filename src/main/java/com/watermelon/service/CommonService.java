@@ -1,9 +1,13 @@
 package com.watermelon.service;
 
+import java.util.List;
+
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import com.watermelon.exception.ResourceNotFoundException;
+import com.watermelon.model.entity.AuthToken;
 import com.watermelon.model.entity.Brand;
 import com.watermelon.model.entity.Category;
 import com.watermelon.model.entity.Order;
@@ -14,6 +18,7 @@ import com.watermelon.model.entity.Role;
 import com.watermelon.model.entity.Size;
 import com.watermelon.model.entity.User;
 import com.watermelon.model.enumeration.ERole;
+import com.watermelon.repository.AuthTokenRepository;
 import com.watermelon.repository.BrandRepository;
 import com.watermelon.repository.CategoryRepository;
 import com.watermelon.repository.OrderRepository;
@@ -41,6 +46,7 @@ public class CommonService {
 	UserRepository userRepository;
 	RoleRepository roleRepository;
 	PaymentRepository paymentRepository;
+	AuthTokenRepository authTokenRepository;
 
 	public Order findOrderById(Long id) {
 		return orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("ORDER_NOT_FOUND", id));
@@ -87,5 +93,18 @@ public class CommonService {
 				.orElseThrow(()-> new ResourceNotFoundException("PAYMENT_NOT_FOUND", paymentId));
 	}
 	
+	public void saveAuthToken(Long userId, String refreshToken) {
+		List<AuthToken> listAuthTokens = authTokenRepository.findByUserId(userId);
+		if(!CollectionUtils.isEmpty(listAuthTokens))
+			authTokenRepository.deleteAll(listAuthTokens);
+		User user = findUserById(userId);
+		AuthToken authToken = AuthToken.builder()
+				.refreshToken(refreshToken)
+				.revoked(false)
+				.user(user)
+				.build();
+		authTokenRepository.save(authToken);
+		
+	}
 
 }

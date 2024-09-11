@@ -10,7 +10,7 @@ public interface AuthTokenRepository extends JpaRepository<AuthToken, String>{
 	
 	AuthToken findByRefreshTokenAndRevokedFalse(String refreshToken); 
 	AuthToken findByRefreshToken(String refreshToken);
-	List<AuthToken> findByUser_Id(Long user_Id);
+	List<AuthToken> findByUserId(Long userId);
 	
 
 }

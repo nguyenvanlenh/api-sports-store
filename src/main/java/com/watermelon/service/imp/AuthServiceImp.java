@@ -94,7 +94,7 @@ public class AuthServiceImp implements AuthService {
 			Set<String> listRoles = customUserDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
 					.collect(Collectors.toSet());
 			
-			saveAuthToken(customUserDetails, refreshToken);
+			saveAuthToken(customUserDetails.getId(), refreshToken);
 			log.info("User {} login success", request.username());
 			
 			
@@ -220,13 +220,13 @@ public class AuthServiceImp implements AuthService {
 			throw new RefreshTokenException("Revoked refresh token fail");
 	}
 	
-	private void saveAuthToken(CustomUserDetails userDetails, String refreshToken) {
+	private void saveAuthToken(Long userId, String refreshToken) {
 		
-		List<AuthToken> listAuthTokens = authTokenRepository.findByUser_Id(userDetails.getId());
+		List<AuthToken> listAuthTokens = authTokenRepository.findByUserId(userId);
 		
 		if(!CollectionUtils.isEmpty(listAuthTokens))
 			authTokenRepository.deleteAll(listAuthTokens);
-		User user = commonService.findUserById(userDetails.getId());
+		User user = commonService.findUserById(userId);
 		AuthToken authToken = AuthToken.builder()
 				.refreshToken(refreshToken)
 				.revoked(false)

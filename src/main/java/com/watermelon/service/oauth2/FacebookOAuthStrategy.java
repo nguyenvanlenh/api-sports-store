@@ -11,15 +11,15 @@ import org.springframework.util.StringUtils;
 import com.watermelon.config.OAuthProperties;
 import com.watermelon.dto.request.oauth2.ExchangeTokenRequest;
 import com.watermelon.dto.response.AuthenticationResponse;
-import com.watermelon.dto.response.oauth2.ExchangeTokenGithubResponse;
-import com.watermelon.dto.response.oauth2.GithubUserResponse;
+import com.watermelon.dto.response.oauth2.ExchangeTokenFacebookResponse;
+import com.watermelon.dto.response.oauth2.FacebookUserResponse;
 import com.watermelon.model.entity.Role;
 import com.watermelon.model.entity.User;
 import com.watermelon.model.enumeration.ERole;
 import com.watermelon.model.enumeration.ETypeAccount;
 import com.watermelon.repository.UserRepository;
-import com.watermelon.repository.httpclient.OutboundGithubUserClient;
-import com.watermelon.repository.httpclient.OutboundIdentityGithubClient;
+import com.watermelon.repository.httpclient.OutboundFacebookUserClient;
+import com.watermelon.repository.httpclient.OutboundIdentityFacebookClient;
 import com.watermelon.security.CustomUserDetails;
 import com.watermelon.security.jwt.JwtTokenProvider;
 import com.watermelon.service.CommonService;
@@ -29,42 +29,44 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-@Service("GITHUB")
+@Service("FACEBOOK")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
-public class GithubOAuthStrategy implements OAuthStrategy {
-
-    OutboundIdentityGithubClient githubClient;
-    OutboundGithubUserClient githubUserClient;
-    OAuthProperties oauthProperties;
-    JwtTokenProvider jwtTokenProvider;
-    CommonService commonService;
-    UserRepository userRepository;
-
-    @Override
-    public AuthenticationResponse authenticate(String code) {
-    
-        ExchangeTokenGithubResponse response = githubClient.exchangeToken(
-        		ExchangeTokenRequest.builder()
-        		.clientId(oauthProperties.getGithubClientId())
-        		.clientSecret(oauthProperties.getGithubClientSecret())
-        		.code(code)
-        		.redirectUri(oauthProperties.getGithubRedirectUri())
-        		.build()
-        		);
-        String token = "Bearer " + response.accessToken();
-        GithubUserResponse userInfo = githubUserClient.getUserInfo(token);
-
-        Set<Role> setRoles = new HashSet<>();
+public class FacebookOAuthStrategy implements OAuthStrategy {
+	OAuthProperties oAuthProperties;
+	JwtTokenProvider jwtTokenProvider;
+	CommonService commonService;
+	UserRepository userRepository;
+	OutboundIdentityFacebookClient facebookClient;
+	OutboundFacebookUserClient facebookUserClient;
+	
+	@Override
+	public AuthenticationResponse authenticate(String code) {
+		
+		ExchangeTokenFacebookResponse response = facebookClient.exchangeToken(
+				ExchangeTokenRequest.builder()
+				.clientId(oAuthProperties.getFacebookClientId())
+				.clientSecret(oAuthProperties.getFacebookClientSecret())
+				.redirectUri(oAuthProperties.getFacebookRedirectUri())
+				.code(code)
+				.build()
+				);
+		
+		FacebookUserResponse userInfo = facebookUserClient.userInfo(
+				oAuthProperties.getFacebookFieldsInfo(),
+				response.accessToken());
+		
+		Set<Role> setRoles = new HashSet<>();
         Role role = commonService.findRoleByName(ERole.USER.toString());
         setRoles.add(role);
 
-        User user = userRepository.findByUsername(userInfo.login())
+        User user = userRepository.findByUsername(String.valueOf(userInfo.id()))
                 .orElseGet(() -> userRepository.save(User.builder()
-                        .username(userInfo.login())
+                        .username(String.valueOf(userInfo.id()))
                         .email(userInfo.email())
-                        .firstName(userInfo.name())
-                        .avatar(userInfo.avatarUrl())
+                        .firstName(userInfo.firstName())
+                        .lastName(userInfo.lastName())
+                        .avatar(userInfo.picture().data().url())
                         .listRoles(setRoles)
                         .isActive(true)
                         .build()));
@@ -82,12 +84,13 @@ public class GithubOAuthStrategy implements OAuthStrategy {
                 .userId(customUserDetails.getId())
                 .avatar(customUserDetails.getAvatar())
                 .firstName(customUserDetails.getFirstName())
+                .lastName(customUserDetails.getLastName())
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .hasPassword(StringUtils.hasLength(customUserDetails.getPassword()))
                 .listRoles(listRoles)
-                .typeAccount(ETypeAccount.GITHUB)
+                .typeAccount(ETypeAccount.FACEBOOK)
                 .build();
-    }
-}
+	}
 
+}
