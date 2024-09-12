@@ -8,7 +8,7 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import com.watermelon.dto.PaymentDTO;
+import com.watermelon.dto.PaymentRequest;
 import com.watermelon.dto.response.PageResponse;
 import com.watermelon.dto.response.PaymentResponse;
 import com.watermelon.exception.ForbiddenException;
@@ -52,7 +52,7 @@ public class PaymentServiceImp implements PaymentService{
 	}
 	@PreAuthorize("hasRole('USER')")
 	@Override
-	public Long createPayment(PaymentDTO request) {
+	public Long createPayment(PaymentRequest request) {
 		Order order = commonService.findOrderById(request.orderId());
 		Payment payment = Payment.builder()
 		.order(order)

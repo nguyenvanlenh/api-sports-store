@@ -94,7 +94,7 @@ public class AuthServiceImp implements AuthService {
 			Set<String> listRoles = customUserDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
 					.collect(Collectors.toSet());
 			
-			saveAuthToken(customUserDetails.getId(), refreshToken);
+			commonService.saveAuthToken(customUserDetails.getId(), refreshToken);
 			log.info("User {} login success", request.username());
 			
 			
@@ -144,7 +144,8 @@ public class AuthServiceImp implements AuthService {
 	@Transactional
     public String verifyEmail(String token) {
         VerificationToken theToken = tokenRepository.findByToken(token)
-                .orElseThrow(() -> new ResourceNotFoundException(EmailVerificationMessage.EMAIL_NOTIFY_TOKEN_NOT_FOUND));
+                .orElseThrow(() -> 
+                new ResourceNotFoundException(EmailVerificationMessage.EMAIL_NOTIFY_TOKEN_NOT_FOUND));
 
         if (theToken.getUser().isActive()) {
             return EmailVerificationMessage.EMAIL_NOTIFY_ACCOUNT_ALREADY_VERIFIED;
@@ -220,22 +221,7 @@ public class AuthServiceImp implements AuthService {
 			throw new RefreshTokenException("Revoked refresh token fail");
 	}
 	
-	private void saveAuthToken(Long userId, String refreshToken) {
-		
-		List<AuthToken> listAuthTokens = authTokenRepository.findByUserId(userId);
-		
-		if(!CollectionUtils.isEmpty(listAuthTokens))
-			authTokenRepository.deleteAll(listAuthTokens);
-		User user = commonService.findUserById(userId);
-		AuthToken authToken = AuthToken.builder()
-				.refreshToken(refreshToken)
-				.revoked(false)
-				.user(user)
-				.build();
-		authTokenRepository.save(authToken);
-		log.info("Add refresh token success");
-		
-	}
+	
 	
 
 }

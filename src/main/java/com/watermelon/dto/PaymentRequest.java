@@ -8,7 +8,7 @@ import com.watermelon.model.enumeration.EPaymentStatus;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
-public record PaymentDTO(
+public record PaymentRequest(
 		Long paymentId,
 		Long orderId,
 		@PositiveOrZero(message = "The total amount must be zero or a positive number")

@@ -37,6 +37,7 @@ public class SecurityConfig {
 	private static final String ORDERS_ENDPOINT = "/api/orders/**";
 	private static final String RATINGS_ENDPOINT = "/api/ratings/**";
 	private static final String PAYMENTS_ENDPOINT = "/api/payments/**";
+	private static final String PAYPAL_ENDPOINT = "/api/payments/paypal/**";
 	
 
 	@Bean
@@ -78,6 +79,7 @@ public class SecurityConfig {
 					    .requestMatchers(HttpMethod.DELETE, RATINGS_ENDPOINT).hasRole(ERole.USER.toString())
 					    
 					    
+					    .requestMatchers(HttpMethod.GET, PAYPAL_ENDPOINT).permitAll()
 					    .requestMatchers(PAYMENTS_ENDPOINT).hasAnyRole(ERole.ADMIN.toString(),ERole.USER.toString())
 					    .anyRequest().authenticated()
 					)

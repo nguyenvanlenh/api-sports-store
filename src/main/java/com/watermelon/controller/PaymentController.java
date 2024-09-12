@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.watermelon.dto.PaymentDTO;
+import com.watermelon.dto.PaymentRequest;
 import com.watermelon.dto.response.PageResponse;
 import com.watermelon.dto.response.PaymentResponse;
 import com.watermelon.dto.response.ResponseData;
@@ -78,7 +78,7 @@ public class PaymentController {
 				"Payment updated successfully");
 	}
 	@PostMapping
-	public ResponseData<Long> createPayment(@Valid @RequestBody PaymentDTO request){
+	public ResponseData<Long> createPayment(@Valid @RequestBody PaymentRequest request){
 		
 		Long data = paymentService.createPayment(request);
 		return new ResponseData<Long>(

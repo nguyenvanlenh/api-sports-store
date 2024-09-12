@@ -9,6 +9,17 @@ public class Constants {
 	public static final String ACCESS_TOKEN = "accessToken";
 	public static final String REFRESH_TOKEN = "refreshToken";
 	
+	
+	public static class Paypal {
+		
+		private Paypal() {}
+		
+		public static final double DOLLAR_EXHANGE_RATE = 0.000040816326530612245;
+		public static final String CURRENCY = "USD";
+		public static final String METHOD = "paypal";
+		public static final String INTENT = "SALE";
+	}
+	
 	public static class EmailVerificationMessage{
 		private EmailVerificationMessage(){}
 		public static final String EMAIL_NOTIFY_VALID_TOKEN = "valid";

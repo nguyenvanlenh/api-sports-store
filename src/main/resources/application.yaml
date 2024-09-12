@@ -93,3 +93,9 @@ outbound:
     client-secret: ${CLIENT_SECRET_FACEBOOK}
     redirect-uri: "http://localhost:3000/authenticate"
     fields: "id,name,email,gender,first_name,last_name,picture"
+paypal:
+ client-id: AZGuQXyAY4NsclI3kK8GVF1FKQQ_G_jgESNQDIDed69kB0ESPvJNck8fInAO-prHSeG4ueCCfDZo4qUB
+ client-secret: EPRdArqQPNWvZpYPJ18V_D6ls0rcHo2hJsKkXU-hLSE1cFxaEUuLbEWLfVxeUR-l2LfnGVVF8aSy_bW2
+ mode: sandbox
+ redirect-uri: http://localhost:3000/payment-processing
+ 
