@@ -1,26 +1,17 @@
 package com.watermelon.mapper.imp;
+import org.springframework.stereotype.Component;
 
-import com.watermelon.dto.ImageDTO;
+import com.watermelon.dto.response.ImageResponse;
 import com.watermelon.mapper.EntityMapper;
 import com.watermelon.model.entity.Image;
+@Component
+public class ImageMapper implements EntityMapper<ImageResponse, Image> {
 
-public class ImageMapper implements EntityMapper<ImageDTO, Image> {
-	private static ImageMapper INSTANCE;
-
-	private ImageMapper() {
-	}
-
-	public static ImageMapper getInstance() {
-		if (INSTANCE == null)
-			INSTANCE = new ImageMapper();
-		return INSTANCE;
-	}
-
-	public ImageDTO toDTO(Image img) {
+	public ImageResponse toDTO(Image img) {
 		if (img == null) {
 			return null;
 		}
-		return new ImageDTO(img.getId(), img.getPath());
+		return new ImageResponse(img.getId(), img.getPath());
 	}
 
 }

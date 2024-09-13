@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.paypal.base.rest.PayPalRESTException;
-import com.watermelon.dto.PaymentRequest;
+import com.watermelon.dto.request.PaymentRequest;
 import com.watermelon.dto.response.PaypalResponse;
 import com.watermelon.dto.response.ResponseData;
 import com.watermelon.service.PaypalService;

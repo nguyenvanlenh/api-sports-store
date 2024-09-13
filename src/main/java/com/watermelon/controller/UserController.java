@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.watermelon.dto.UserDTO;
 import com.watermelon.dto.response.PageResponse;
 import com.watermelon.dto.response.ResponseData;
+import com.watermelon.dto.response.UserResponse;
 import com.watermelon.service.UserService;
 
 import lombok.AccessLevel;
@@ -33,19 +33,19 @@ public class UserController {
 	UserService userService;
 	
 	@GetMapping("/{id}")
-	public ResponseData<UserDTO> getUser(@PathVariable(name="id") Long id){
-		UserDTO data = userService.getUserById(id);
+	public ResponseData<UserResponse> getUser(@PathVariable(name="id") Long id){
+		UserResponse data = userService.getUserById(id);
 		return new ResponseData<>(HttpStatus.OK.value(), "Data user",data);
 	}
 	@GetMapping
-	public ResponseData<PageResponse<List<UserDTO>>> getAllUsers(
+	public ResponseData<PageResponse<List<UserResponse>>> getAllUsers(
 			@PageableDefault(page = 0, size = 20)
 			@SortDefaults(@SortDefault(
 							direction = Sort.Direction.DESC,
 							sort = "id")
 			) Pageable pageable
 			){
-		PageResponse<List<UserDTO>> data = userService.getAllUsers(pageable);
+		PageResponse<List<UserResponse>> data = userService.getAllUsers(pageable);
 		return new ResponseData<>(HttpStatus.OK.value(), "Data user",data);
 	}
 	@PatchMapping("/{idUser}")

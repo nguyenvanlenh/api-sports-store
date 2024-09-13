@@ -16,7 +16,7 @@ import com.paypal.api.payments.RedirectUrls;
 import com.paypal.api.payments.Transaction;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
-import com.watermelon.dto.PaymentRequest;
+import com.watermelon.dto.request.PaymentRequest;
 import com.watermelon.dto.response.PaypalResponse;
 import com.watermelon.exception.ResourceNotFoundException;
 import com.watermelon.model.entity.Order;

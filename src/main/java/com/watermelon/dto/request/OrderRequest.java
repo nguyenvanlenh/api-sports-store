@@ -8,7 +8,6 @@ import com.watermelon.model.enumeration.EDeliveryStatus;
 import com.watermelon.model.enumeration.EOrderStatus;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -21,7 +20,8 @@ public record OrderRequest(
 		String nameCustomer,
 		
 		@NotBlank(message = "Email Customer must not be blank")
-		@Email(regexp = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$", message = "invalid email format")
+		@Pattern(regexp = "^[\\w.-]+@[a-zA-Z\\d.-]+\\.[a-zA-Z]{2,}$",
+			    message = "Invalid email format")
 		String emailCustomer,
 		
 		@NotBlank(message = "PhoneNumber Customer must not be blank")

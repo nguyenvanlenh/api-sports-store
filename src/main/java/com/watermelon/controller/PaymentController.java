@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.watermelon.dto.PaymentRequest;
+import com.watermelon.dto.request.PaymentRequest;
 import com.watermelon.dto.response.PageResponse;
 import com.watermelon.dto.response.PaymentResponse;
 import com.watermelon.dto.response.ResponseData;

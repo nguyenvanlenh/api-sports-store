@@ -32,14 +32,14 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.watermelon.dto.BrandDTO;
-import com.watermelon.dto.CategoryDTO;
-import com.watermelon.dto.ImageDTO;
-import com.watermelon.dto.ProductDTO;
-import com.watermelon.dto.SizeDTO;
 import com.watermelon.dto.request.ProductRequest;
 import com.watermelon.dto.request.ProductSizeRequest;
+import com.watermelon.dto.response.BrandResponse;
+import com.watermelon.dto.response.CategoryResponse;
+import com.watermelon.dto.response.ImageResponse;
 import com.watermelon.dto.response.PageResponse;
+import com.watermelon.dto.response.ProductResponse;
+import com.watermelon.dto.response.SizeResponse;
 import com.watermelon.service.ImageService;
 import com.watermelon.service.ProductService;
 
@@ -64,31 +64,31 @@ class ProductControllerTest {
 	@Autowired
 	private ProductController productController;
 
-	private ProductDTO productDTO;
-	private CategoryDTO categoryDTO;
-	private BrandDTO brandDTO;
+	private ProductResponse productDTO;
+	private CategoryResponse categoryDTO;
+	private BrandResponse brandDTO;
 	private ProductRequest productRequest;
 	private List<ProductSizeRequest> listProductSizeRequests;
-	private List<ProductDTO> listProductDTOs;
-	private List<ImageDTO> listImageDTOs;
-	private List<SizeDTO> listSizes;
-	private PageResponse<List<ProductDTO>> pageResponse;
+	private List<ProductResponse> listProductDTOs;
+	private List<ImageResponse> listImageDTOs;
+	private List<SizeResponse> listSizes;
+	private PageResponse<List<ProductResponse>> pageResponse;
 
 	@BeforeEach
 	void initData() {
 
 		listImageDTOs = new ArrayList<>();
-		listImageDTOs.add(ImageDTO.builder().id(1).path("http://image1.png").build());
-		listImageDTOs.add(ImageDTO.builder().id(2).path("http://image2.png").build());
-		listImageDTOs.add(ImageDTO.builder().id(3).path("http://image3.png").build());
+		listImageDTOs.add(ImageResponse.builder().id(1).path("http://image1.png").build());
+		listImageDTOs.add(ImageResponse.builder().id(2).path("http://image2.png").build());
+		listImageDTOs.add(ImageResponse.builder().id(3).path("http://image3.png").build());
 
 		listSizes = new ArrayList<>();
-		listSizes.add(SizeDTO.builder().id(1).name("M").quantity(10).build());
-		listSizes.add(SizeDTO.builder().id(2).name("S").quantity(17).build());
-		listSizes.add(SizeDTO.builder().id(3).name("L").quantity(15).build());
-		categoryDTO = CategoryDTO.builder().id(1).name("Nam").build();
-		brandDTO = BrandDTO.builder().id(1).name("Nike").build();
-		productDTO = ProductDTO.builder()
+		listSizes.add(SizeResponse.builder().id(1).name("M").quantity(10).build());
+		listSizes.add(SizeResponse.builder().id(2).name("S").quantity(17).build());
+		listSizes.add(SizeResponse.builder().id(3).name("L").quantity(15).build());
+		categoryDTO = CategoryResponse.builder().id(1).name("Nam").build();
+		brandDTO = BrandResponse.builder().id(1).name("Nike").build();
+		productDTO = ProductResponse.builder()
 				.id(1L)
 				.name("Áo thun thể thao chính hãng")
 				.shortDescription("Áo thể thao chất liệu vãi mềm mỏng co dãn tốt")
@@ -100,7 +100,7 @@ class ProductControllerTest {
 				.listSize(listSizes).build();
 
 		listProductDTOs = List.of(
-				ProductDTO.builder()
+				ProductResponse.builder()
 						.id(1L)
 						.name("Áo thun thể thao chính hãng")
 						.shortDescription("Áo thể thao chất liệu vãi mềm mỏng co dãn tốt")
@@ -110,7 +110,7 @@ class ProductControllerTest {
 						.category(categoryDTO)
 						.listImages(listImageDTOs)
 						.listSize(listSizes).build(),
-				ProductDTO.builder()
+				ProductResponse.builder()
 						.id(2L)
 						.name("Áo thun thể thao chính hãng")
 						.shortDescription("Áo thể thao chất liệu vãi mềm mỏng co dãn tốt")
@@ -121,7 +121,7 @@ class ProductControllerTest {
 						.listImages(listImageDTOs)
 						.listSize(listSizes)
 						.build());
-		pageResponse = new PageResponse<List<ProductDTO>>
+		pageResponse = new PageResponse<List<ProductResponse>>
 		(0, 20, 1, 2, listProductDTOs);
 
 		listProductSizeRequests = List.of(
@@ -173,7 +173,7 @@ class ProductControllerTest {
 	void getProducts_ValidRequest_Success() throws JsonProcessingException, Exception {
 		Pageable pageable = PageRequest
 				.of(0, 20, Sort.by(Sort.Direction.DESC, "price"));
-	    PageResponse<List<ProductDTO>> pageResponse = new PageResponse<>(
+	    PageResponse<List<ProductResponse>> pageResponse = new PageResponse<>(
 	    		0,20,1,2L,listProductDTOs
 	    );
 	    when(productService.getAllProduct(pageable)).thenReturn(pageResponse);
@@ -194,7 +194,7 @@ class ProductControllerTest {
 		Pageable pageable = PageRequest
 				.of(0, 20, Sort.by(Sort.Direction.DESC, "price"));
 		String content = "Áo thun";
-		PageResponse<List<ProductDTO>> pageResponse = new PageResponse<>(
+		PageResponse<List<ProductResponse>> pageResponse = new PageResponse<>(
 				0,20,1,2L,listProductDTOs 
 		);
 		when(productService.getProductContainName(content,pageable)).thenReturn(pageResponse);
@@ -216,7 +216,7 @@ class ProductControllerTest {
 		Pageable pageable = PageRequest
 				.of(0, 20, Sort.by(Sort.Direction.DESC, "price"));
 		String urlKey = "nam";
-		PageResponse<List<ProductDTO>> pageResponse = new PageResponse<>(
+		PageResponse<List<ProductResponse>> pageResponse = new PageResponse<>(
 				0,20,1,2L,listProductDTOs 
 				);
 		when(productService.getProductByUrlKeyCategory(urlKey,pageable)).thenReturn(pageResponse);

@@ -1,4 +1,4 @@
-package com.watermelon.dto;
+package com.watermelon.dto.response;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -6,17 +6,17 @@ import java.util.List;
 import lombok.Builder;
 
 @Builder
-public record ProductDTO(
+public record ProductResponse(
 		Long id,
 		String name, 
 		String shortDescription,
 		String description,
 		BigDecimal price,
 		Double tax,
-		BrandDTO brand,
-		CategoryDTO category,
-		List<ImageDTO> listImages,
-		List<SizeDTO> listSize) 
+		BrandResponse brand,
+		CategoryResponse category,
+		List<ImageResponse> listImages,
+		List<SizeResponse> listSize) 
 		{
 
 }

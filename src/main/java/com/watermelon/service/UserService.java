@@ -4,14 +4,14 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 
-import com.watermelon.dto.UserDTO;
 import com.watermelon.dto.response.PageResponse;
+import com.watermelon.dto.response.UserResponse;
 import com.watermelon.model.entity.User;
 
 public interface UserService {
-	UserDTO findByUsername(String username);
-	PageResponse<List<UserDTO>> getAllUsers(Pageable pageable);
-	UserDTO getUserById(Long id);
+	UserResponse findByUsername(String username);
+	PageResponse<List<UserResponse>> getAllUsers(Pageable pageable);
+	UserResponse getUserById(Long id);
 	boolean existsByUsername(String username);
 	boolean existsByEmail(String email);
 	Long saveOrUpdate(User user);

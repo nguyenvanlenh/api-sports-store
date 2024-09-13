@@ -53,19 +53,19 @@ public class OrderServiceImp implements OrderService {
 	OrderAddressRepository orderAddressRepository;
 	SizeRepository sizeRepository;
 	CommonService commonService;
+	OrderMapper orderMapper;
 	
 	@PreAuthorize("hasRole('ADMIN')")
 	@Transactional(readOnly = true)
 	@Override
 	public PageResponse<List<OrderResponse>> getAllOrder(Pageable pageable) {
 		Page<Order> page = orderRepository.findAll(pageable);
-		List<OrderResponse> orderResponses = OrderMapper.getInstance().toDTO(page.getContent());
 		return  new PageResponse<>(
 				page.getPageable().getPageNumber(),
 				page.getSize(),
 				page.getTotalPages(),
 				page.getTotalElements(),
-				orderResponses
+				orderMapper.toDTO(page.getContent())
 				);
 	}
 
@@ -73,7 +73,7 @@ public class OrderServiceImp implements OrderService {
     @Transactional(readOnly = true)
 	@Override
 	public OrderResponse getOrderById(Long id) {
-		return OrderMapper.getInstance().toDTO(commonService.findOrderById(id));
+		return orderMapper.toDTO(commonService.findOrderById(id));
 	}
 
 	@Transactional
@@ -92,7 +92,7 @@ public class OrderServiceImp implements OrderService {
 
 		saveOrderDetails(orderRequest.listOrderDetails(), orderSaved);
 		log.info("Order ID {} added successfully",orderSaved.getId());
-		return  OrderMapper.getInstance().toDTO(orderSaved);
+		return orderMapper.toDTO(orderSaved);
 	}
 
 	@Transactional
@@ -135,13 +135,12 @@ public class OrderServiceImp implements OrderService {
 	public PageResponse<List<OrderResponse>> getOrderByUserId(Long userId, Pageable pageable) {
 		
 		Page<Order> page = orderRepository.findByUser_Id(userId, pageable);
-		List<OrderResponse> orderResponses = OrderMapper.getInstance().toDTO(page.getContent());
 		return  new PageResponse<>(
 				page.getPageable().getPageNumber(),
 				page.getSize(),
 				page.getTotalPages(),
 				page.getTotalElements(),
-				orderResponses
+				orderMapper.toDTO(page.getContent())
 				);
 	}
 

@@ -13,11 +13,11 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.watermelon.dto.ProductDTO;
 import com.watermelon.dto.request.ProductImageRequest;
 import com.watermelon.dto.request.ProductRequest;
 import com.watermelon.dto.request.ProductSizeRequest;
 import com.watermelon.dto.response.PageResponse;
+import com.watermelon.dto.response.ProductResponse;
 import com.watermelon.exception.InvalidQuantityException;
 import com.watermelon.exception.ResourceNotFoundException;
 import com.watermelon.mapper.imp.ProductMapper;
@@ -56,7 +56,7 @@ public class ProductServiceImp implements ProductService {
 	CloudinaryServiceImp cloudinaryServiceImp;
 	ImageRepository imageRepository;
 	CommonService commonService;
-
+	ProductMapper productMapper;
 	
 	/**
      * Retrieves a product by its ID.
@@ -67,9 +67,9 @@ public class ProductServiceImp implements ProductService {
      */
 	@Transactional(readOnly = true)
 	@Override
-	public ProductDTO getProductById(Long id) {
+	public ProductResponse getProductById(Long id) {
 		Product product = commonService.findProductById(id);
-		return ProductMapper.getInstance().toDTO(product);
+		return productMapper.toDTO(product);
 	}
 
 	 /**
@@ -80,9 +80,9 @@ public class ProductServiceImp implements ProductService {
      */
 	@Transactional(readOnly = true)
 	@Override
-	public PageResponse<List<ProductDTO>> getAllProduct(Pageable pageable) {
+	public PageResponse<List<ProductResponse>> getAllProduct(Pageable pageable) {
 		Page<Product> pageProduct = productRepository.findByIsActiveTrue(pageable);
-		List<ProductDTO> listProductDTO = ProductMapper.getInstance().toDTO(pageProduct.getContent());
+		List<ProductResponse> listProductDTO = productMapper.toDTO(pageProduct.getContent());
 
 		return new PageResponse<>(
 				pageProduct.getPageable().getPageNumber(),
@@ -101,9 +101,9 @@ public class ProductServiceImp implements ProductService {
      */
 	@Transactional(readOnly = true)
 	@Override
-	public PageResponse<List<ProductDTO>> getProductContainName(String keyword, Pageable pageable) {
+	public PageResponse<List<ProductResponse>> getProductContainName(String keyword, Pageable pageable) {
 		Page<Product> pageProduct = productRepository.findByNameContainingIgnoreCaseAndIsActiveTrue(keyword, pageable);
-		List<ProductDTO> listProductDTO = ProductMapper.getInstance().toDTO(pageProduct.getContent());
+		List<ProductResponse> listProductDTO = productMapper.toDTO(pageProduct.getContent());
 		return new PageResponse<>(
 				pageProduct.getPageable().getPageNumber(),
 				pageProduct.getSize(),
@@ -220,12 +220,12 @@ public class ProductServiceImp implements ProductService {
 	 * @throws ResourceNotFoundException if no products are found with the specified category URL key.
 	 */
 	@Override
-	public PageResponse<List<ProductDTO>> getProductByUrlKeyCategory(String urlKey, Pageable pageable) {
+	public PageResponse<List<ProductResponse>> getProductByUrlKeyCategory(String urlKey, Pageable pageable) {
 		Page<Product> pageProduct = productRepository.findByCategory_UrlKeyAndIsActiveTrue(urlKey, pageable);
 		if (pageProduct.isEmpty()) {
 			throw new ResourceNotFoundException("URL_KEY_CATEGORY_NOT_FOUND", urlKey);
 		}
-		List<ProductDTO> listProductDTO = ProductMapper.getInstance().toDTO(pageProduct.getContent());
+		List<ProductResponse> listProductDTO = productMapper.toDTO(pageProduct.getContent());
 
 		return new PageResponse<>(
 				pageProduct.getPageable().getPageNumber(),

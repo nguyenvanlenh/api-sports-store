@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.watermelon.dto.BrandDTO;
+import com.watermelon.dto.response.BrandResponse;
 import com.watermelon.mapper.imp.BrandMapper;
 import com.watermelon.repository.BrandRepository;
 import com.watermelon.service.BrandService;
@@ -19,10 +19,11 @@ import lombok.experimental.FieldDefaults;
 public class BrandServiceImp implements BrandService{
 
 	BrandRepository brandRepository;
+	BrandMapper brandMapper;
 
 	@Override
-	public List<BrandDTO> getAllBrands() {
-		return BrandMapper.getInstance().toDTO(brandRepository.findAll());
+	public List<BrandResponse> getAllBrands() {
+		return brandMapper.toDTO(brandRepository.findAll());
 	}
 	
 }

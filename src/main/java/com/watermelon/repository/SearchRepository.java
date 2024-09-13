@@ -7,8 +7,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
-import com.watermelon.dto.ProductDTO;
 import com.watermelon.dto.response.PageResponse;
+import com.watermelon.dto.response.ProductResponse;
 import com.watermelon.mapper.imp.ProductMapper;
 import com.watermelon.model.entity.Product;
 import com.watermelon.model.entity.ProductQuantity;
@@ -24,14 +24,20 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 @Repository
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SearchRepository {
 
     @PersistenceContext
     private EntityManager entityManager;
+    ProductMapper productMapper;
 
-    public PageResponse<List<ProductDTO>> findProductsByCriteria(
+    public PageResponse<List<ProductResponse>> findProductsByCriteria(
             String name,
             Integer[] brands,
             Integer[] categories,
@@ -54,7 +60,7 @@ public class SearchRepository {
                 .setFirstResult(pageNo * pageSize);
 
         List<Product> products = query.getResultList();
-        List<ProductDTO> productDTOs = ProductMapper.getInstance().toDTO(products);
+        List<ProductResponse> productDTOs = productMapper.toDTO(products);
 
         int totalPages = (int) Math.ceil((double) totalElements / pageSize);
 

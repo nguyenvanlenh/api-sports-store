@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.watermelon.dto.CategoryDTO;
+import com.watermelon.dto.response.CategoryResponse;
 import com.watermelon.mapper.imp.CategoryMapper;
 import com.watermelon.repository.CategoryRepository;
 import com.watermelon.service.CategoryService;
@@ -19,10 +19,11 @@ import lombok.experimental.FieldDefaults;
 public class CategoryServiceImp implements CategoryService{
 	
 	CategoryRepository categoryRepository;
-
+	CategoryMapper categoryMapper;
+	
 	@Override
-	public List<CategoryDTO> getAllCategories() {
-		return CategoryMapper.getInstance().toDTO(categoryRepository.findAll());
+	public List<CategoryResponse> getAllCategories() {
+		return categoryMapper.toDTO(categoryRepository.findAll());
 	}
 	
 	

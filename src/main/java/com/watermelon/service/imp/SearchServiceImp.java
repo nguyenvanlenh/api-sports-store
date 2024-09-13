@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import com.watermelon.dto.ProductDTO;
 import com.watermelon.dto.response.PageResponse;
+import com.watermelon.dto.response.ProductResponse;
 import com.watermelon.repository.SearchRepository;
 import com.watermelon.service.SearchService;
 
@@ -21,7 +21,7 @@ public class SearchServiceImp implements SearchService{
 	SearchRepository searchRepository;
 	
 	@Override
-	public PageResponse<List<ProductDTO>> findProductsByCriteria(String name, Integer[] brands,
+	public PageResponse<List<ProductResponse>> findProductsByCriteria(String name, Integer[] brands,
 			Integer[] categories, Integer[] sizes, int pageNo, int pageSize, Sort sort) {
 		
 		return searchRepository.findProductsByCriteria(name, brands, categories, sizes, pageNo, pageSize, sort);

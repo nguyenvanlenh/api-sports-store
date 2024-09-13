@@ -1,4 +1,4 @@
-package com.watermelon.dto;
+package com.watermelon.dto.request;
 
 import java.math.BigDecimal;
 

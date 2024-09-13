@@ -1,36 +1,40 @@
 package com.watermelon.mapper.imp;
 
-import com.watermelon.dto.ProductDTO;
+import org.springframework.stereotype.Component;
+
+import com.watermelon.dto.response.ProductResponse;
 import com.watermelon.mapper.EntityMapper;
 import com.watermelon.model.entity.Product;
 
-public class ProductMapper implements EntityMapper<ProductDTO, Product> {
-
-private static ProductMapper INSTANCE;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+@Component
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class ProductMapper implements EntityMapper<ProductResponse, Product> {
 	
-	private ProductMapper() {}
+	BrandMapper brandMapper;
+	CategoryMapper categoryMapper;
+	ImageMapper imageMapper;
+	SizeMapper sizeMapper;
 	
-	public static ProductMapper getInstance() {
-		if(INSTANCE == null) 
-                    INSTANCE = new ProductMapper();
-		return INSTANCE;
-	}
 	@Override
-	public ProductDTO toDTO(Product entity) {
+	public ProductResponse toDTO(Product entity) {
 		if (entity == null) {
 			return null;
 		}
-		return new ProductDTO(
+		return new ProductResponse(
 				entity.getId(),
 				entity.getName(),
 				entity.getShortDescription(),
 				entity.getDescription(),
 				entity.getPrice(),
 				entity.getTax(),
-				BrandMapper.getInstance().toDTO(entity.getBrand()),
-				CategoryMapper.getInstance().toDTO(entity.getCategory()),
-				ImageMapper.getInstance().toDTO(entity.getListImages().stream().toList()),
-				SizeMapper.getInstance().toDTO(entity.getQuantityOfSizes().stream().toList()));
+				brandMapper.toDTO(entity.getBrand()),
+				categoryMapper.toDTO(entity.getCategory()),
+				imageMapper.toDTO(entity.getListImages().stream().toList()),
+				sizeMapper.toDTO(entity.getQuantityOfSizes().stream().toList()));
 	}
 
 }

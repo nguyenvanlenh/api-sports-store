@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 
-import com.watermelon.dto.PaymentRequest;
+import com.watermelon.dto.request.PaymentRequest;
 import com.watermelon.dto.response.PageResponse;
 import com.watermelon.dto.response.PaymentResponse;
 import com.watermelon.model.enumeration.EPaymentStatus;

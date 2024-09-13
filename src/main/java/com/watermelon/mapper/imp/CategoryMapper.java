@@ -1,28 +1,20 @@
 package com.watermelon.mapper.imp;
 
-import com.watermelon.dto.CategoryDTO;
+import org.springframework.stereotype.Component;
+
+import com.watermelon.dto.response.CategoryResponse;
 import com.watermelon.mapper.EntityMapper;
 import com.watermelon.model.entity.Category;
+@Component
+public class CategoryMapper implements EntityMapper<CategoryResponse, Category> {
 
-public class CategoryMapper implements EntityMapper<CategoryDTO, Category> {
-
-	private static CategoryMapper INSTANCE;
-
-	private CategoryMapper() {
-	}
-
-	public static CategoryMapper getInstance() {
-			if (INSTANCE == null)
-				INSTANCE = new CategoryMapper();
-		return INSTANCE;
-	}
 
 	@Override
-	public CategoryDTO toDTO(Category entity) {
+	public CategoryResponse toDTO(Category entity) {
 		if (entity == null) {
 			return null;
 		}
-		return new CategoryDTO(entity.getId(), entity.getName());
+		return new CategoryResponse(entity.getId(), entity.getName());
 	}
 
 }

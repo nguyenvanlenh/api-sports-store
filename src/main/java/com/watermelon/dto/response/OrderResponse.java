@@ -23,9 +23,4 @@ public record OrderResponse(
 		String rejectReason,
 		List<OrderDetailResponse> listOrderDetails
 		){
-	public record UserResponse(
-			Long id,
-			String username) {
-		
-	}
 }

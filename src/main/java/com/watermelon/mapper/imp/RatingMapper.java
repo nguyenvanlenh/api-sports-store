@@ -1,15 +1,14 @@
 package com.watermelon.mapper.imp;
 
-import org.springframework.util.StringUtils;
+import org.springframework.stereotype.Component;
 
 import com.watermelon.dto.response.RatingResponse;
 import com.watermelon.mapper.EntityMapper;
 import com.watermelon.model.entity.Rating;
 
-
-public enum RatingMapper implements EntityMapper<RatingResponse, Rating>{
-
-	INSTANCE;
+@Component
+public class RatingMapper implements EntityMapper<RatingResponse, Rating>{
+	
 	@Override
 	public RatingResponse toDTO(Rating entity) {
 		if (entity == null) {

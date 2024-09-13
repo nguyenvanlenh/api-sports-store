@@ -1,32 +1,34 @@
 package com.watermelon.mapper.imp;
 
+import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
 import com.watermelon.dto.response.OrderResponse;
+import com.watermelon.dto.response.UserResponse;
 import com.watermelon.mapper.EntityMapper;
 import com.watermelon.model.entity.Order;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+@Component
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class OrderMapper implements EntityMapper<OrderResponse, Order> {
-
-	private static OrderMapper INSTANCE;
-
-	private OrderMapper() {
-	}
-
-	public static OrderMapper getInstance() {
-		if (INSTANCE == null)
-			INSTANCE = new OrderMapper();
-		return INSTANCE;
-	}
-
+	OrderAdressMapper orderAdressMapper;
+	OrderDetailMapper orderDetailMapper;
+	
 	@Override
 	public OrderResponse toDTO(Order entity) {
 		if (ObjectUtils.isEmpty(entity))
 			return null;
 		return new OrderResponse(
 				entity.getId(), 
-				UserMapper.getInstance().toResponse(entity.getUser()),
-				OrderAdressMapper.getInstance().toDTO(entity.getOrderAddress()), 
+				UserResponse.builder()
+					.id(entity.getUser().getId())
+					.username(entity.getUser().getUsername())
+					.build(),
+				orderAdressMapper.toDTO(entity.getOrderAddress()), 
 				entity.getNameCustomer(),
 				entity.getEmailCustomer(), 
 				entity.getPhoneNumberCustomer(), 
@@ -37,7 +39,7 @@ public class OrderMapper implements EntityMapper<OrderResponse, Order> {
 				entity.getDeliveryMethod(), 
 				entity.getCouponCode(), 
 				entity.getRejectReason(),
-				OrderDetailMapper.getInstance().toDTO(entity.getListDetails().stream().toList()));
+				orderDetailMapper.toDTO(entity.getListDetails().stream().toList()));
 	}
 
 }

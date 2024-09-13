@@ -8,8 +8,8 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import com.watermelon.dto.UserDTO;
 import com.watermelon.dto.response.PageResponse;
+import com.watermelon.dto.response.UserResponse;
 import com.watermelon.mapper.imp.UserMapper;
 import com.watermelon.model.entity.User;
 import com.watermelon.model.entity.VerificationToken;
@@ -30,12 +30,13 @@ public class UserServiceImp implements UserService {
 	UserRepository userRepository;
 	VerificationTokenRepository tokenRepository;
 	CommonService commonService;
+	UserMapper userMapper;
 	
 	@PreAuthorize("hasRole('ADMIN') || authentication.name == #username")
 	@Override
-	public UserDTO findByUsername(String username) {
+	public UserResponse findByUsername(String username) {
 		User user = commonService.findByUsername(username);
-		return UserMapper.getInstance().toDTO(user);
+		return userMapper.toDTO(user);
 	}
 
 	@Override
@@ -62,9 +63,9 @@ public class UserServiceImp implements UserService {
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@Override
-	public PageResponse<List<UserDTO>> getAllUsers(Pageable pageable) {
+	public PageResponse<List<UserResponse>> getAllUsers(Pageable pageable) {
 		Page<User> pageUser = userRepository.findAll(pageable);
-		List<UserDTO> lisUserDTOs = UserMapper.getInstance().toDTO(pageUser.getContent()); 
+		List<UserResponse> lisUserDTOs = userMapper.toDTO(pageUser.getContent()); 
 		return new PageResponse<>(
 				pageUser.getPageable().getPageNumber(),
 				pageUser.getSize(),
@@ -75,8 +76,8 @@ public class UserServiceImp implements UserService {
 
 	@PostAuthorize("hasRole('ADMIN') || authentication.name == returnObject.username")
 	@Override
-	public UserDTO getUserById(Long id) {
-		return  UserMapper.getInstance().toDTO(commonService.findUserById(id));
+	public UserResponse getUserById(Long id) {
+		return  userMapper.toDTO(commonService.findUserById(id));
 	}
 	
 	@PreAuthorize("hasRole('ADMIN')")

@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.watermelon.dto.ProductDTO;
 import com.watermelon.dto.request.ProductRequest;
 import com.watermelon.dto.response.PageResponse;
+import com.watermelon.dto.response.ProductResponse;
 import com.watermelon.dto.response.ResponseData;
 import com.watermelon.service.ImageService;
 import com.watermelon.service.ProductService;
@@ -42,14 +42,14 @@ public class ProductController {
 	ImageService imageService;
 
 	@GetMapping
-	public ResponseData<PageResponse<List<ProductDTO>>> getProducts(
+	public ResponseData<PageResponse<List<ProductResponse>>> getProducts(
 			@PageableDefault(page = 0, size = 20) 
 			@SortDefaults(
 					@SortDefault(direction = Sort.Direction.DESC, sort = {"price" })
 					) Pageable pageable,
 			@RequestParam(name = "search", required = false) String content,
 			@RequestParam(name = "category", required = false) String urlKey) {
-		PageResponse<List<ProductDTO>> listData = null;
+		PageResponse<List<ProductResponse>> listData = null;
 		if (content != null) {
 			listData = productService.getProductContainName(content, pageable);
 		} else if (urlKey != null) {
@@ -63,8 +63,8 @@ public class ProductController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseData<ProductDTO> getProductById(@PathVariable(name = "id") Long id) {
-		ProductDTO data = productService.getProductById(id);
+	public ResponseData<ProductResponse> getProductById(@PathVariable(name = "id") Long id) {
+		ProductResponse data = productService.getProductById(id);
 		return new ResponseData<>(HttpStatus.OK.value(), "Data product" ,data);
 	}
 

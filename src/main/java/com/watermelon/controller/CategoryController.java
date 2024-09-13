@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.watermelon.dto.CategoryDTO;
+import com.watermelon.dto.response.CategoryResponse;
 import com.watermelon.dto.response.ResponseData;
 import com.watermelon.service.CategoryService;
 
@@ -23,8 +23,8 @@ public class CategoryController {
 	CategoryService categoryService;
 	
 	@GetMapping
-	public ResponseData<List<CategoryDTO>> getAllCategories(){
-		return new ResponseData<List<CategoryDTO>>(200, "Data categories", categoryService.getAllCategories());
+	public ResponseData<List<CategoryResponse>> getAllCategories(){
+		return new ResponseData<List<CategoryResponse>>(200, "Data categories", categoryService.getAllCategories());
 	}
 
 }

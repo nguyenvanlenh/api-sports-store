@@ -8,7 +8,7 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import com.watermelon.dto.PaymentRequest;
+import com.watermelon.dto.request.PaymentRequest;
 import com.watermelon.dto.response.PageResponse;
 import com.watermelon.dto.response.PaymentResponse;
 import com.watermelon.exception.ForbiddenException;
@@ -31,24 +31,26 @@ import lombok.extern.slf4j.Slf4j;
 public class PaymentServiceImp implements PaymentService{
 	CommonService commonService;
 	PaymentRepository paymentRepository;
+	PaymentMapper paymentMapper;
+	
 	@PreAuthorize("hasRole('ADMIN')")
 	@Override
 	public PageResponse<List<PaymentResponse>> getAllPayment(Pageable pageable) {
 		Page<Payment> pagePayments = paymentRepository.findAll(pageable);
-		List<PaymentResponse> data = PaymentMapper.getInstance().toDTO(pagePayments.getContent());
 		return new PageResponse<List<PaymentResponse>>(
 				pagePayments.getNumber(), 
 				pagePayments.getSize(), 
 				pagePayments.getTotalPages(),
 				pagePayments.getTotalElements(),
-				data);
+				paymentMapper.toDTO(pagePayments.getContent())
+				);
 	}
 
 	@PostAuthorize("hasRole('ADMIN') || returnObject.order.user.id == authentication.principal.id")
 	@Override
 	public PaymentResponse getPaymentById(Long paymentId) {
 		Payment payment = commonService.findPaymentById(paymentId);
-		return PaymentMapper.getInstance().toDTO(payment);
+		return paymentMapper.toDTO(payment);
 	}
 	@PreAuthorize("hasRole('USER')")
 	@Override
@@ -80,7 +82,7 @@ public class PaymentServiceImp implements PaymentService{
 	@Override
 	public PageResponse<List<PaymentResponse>> getAllPaymentByUserId(Long userId, Pageable pageable) {
 		Page<Payment> pagePayments = paymentRepository.findPaymentByOrderUserId(userId,pageable);
-		List<PaymentResponse> data = PaymentMapper.getInstance().toDTO(pagePayments.getContent());
+		List<PaymentResponse> data = paymentMapper.toDTO(pagePayments.getContent());
 		return new PageResponse<List<PaymentResponse>>(
 				pagePayments.getNumber(), 
 				pagePayments.getSize(), 

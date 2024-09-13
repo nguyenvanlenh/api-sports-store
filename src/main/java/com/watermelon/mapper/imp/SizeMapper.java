@@ -1,27 +1,18 @@
 package com.watermelon.mapper.imp;
 
-import com.watermelon.dto.SizeDTO;
+import org.springframework.stereotype.Component;
+
+import com.watermelon.dto.response.SizeResponse;
 import com.watermelon.mapper.EntityMapper;
 import com.watermelon.model.entity.ProductQuantity;
-
-public class SizeMapper implements EntityMapper<SizeDTO, ProductQuantity>{
-
-	private static SizeMapper INSTANCE;
-
-	private SizeMapper() {
-	}
-
-	public static SizeMapper getInstance() {
-		if (INSTANCE == null)
-			INSTANCE = new SizeMapper();
-		return INSTANCE;
-	}
+@Component
+public class SizeMapper implements EntityMapper<SizeResponse, ProductQuantity>{
 	
-	public SizeDTO toDTO(ProductQuantity productQuantity) {
+	public SizeResponse toDTO(ProductQuantity productQuantity) {
 		if(productQuantity == null) {
 			return null;
 		}
-		return new SizeDTO(
+		return new SizeResponse(
 				productQuantity.getSize().getId(),
 				productQuantity.getSize().getName(),
 				productQuantity.getQuantity());

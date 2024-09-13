@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.watermelon.dto.ProductDTO;
 import com.watermelon.dto.response.PageResponse;
+import com.watermelon.dto.response.ProductResponse;
 import com.watermelon.dto.response.ResponseData;
 import com.watermelon.service.SearchService;
 
@@ -35,7 +35,7 @@ public class SearchController {
 	SearchService searchService;
 	
 	@GetMapping
-    public ResponseData<PageResponse<List<ProductDTO>>> searchProducts(
+    public ResponseData<PageResponse<List<ProductResponse>>> searchProducts(
             @RequestParam(required = false)
             @Size(max = 100, message = "Name must be less than or equal to 100 characters")
             @Pattern(regexp = "^[a-zA-Z0-9\\s]*$", message = "Name must not contain special characters")
@@ -48,7 +48,7 @@ public class SearchController {
 					@SortDefault(direction = Sort.Direction.ASC, sort = {"name" })
 					) Pageable pageable
     		) {
-		PageResponse<List<ProductDTO>> data = 
+		PageResponse<List<ProductResponse>> data = 
         		searchService.findProductsByCriteria(
         				name, 
         				brands, 

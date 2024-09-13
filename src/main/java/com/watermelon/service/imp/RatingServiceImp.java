@@ -35,11 +35,12 @@ public class RatingServiceImp implements RatingService {
 	RatingRepository ratingRepository;
 	CommonService commonService;
 	OrderDetailRepository orderDetailRepository;
+	RatingMapper ratingMapper;
 
 	@Override
 	public PageResponse<List<RatingResponse>> getRatingListByProductId(Long productId, Pageable pageable) {
 		Page<Rating> pageRating = ratingRepository.findByProductId(productId, pageable);
-		List<RatingResponse> listRatingResponse = RatingMapper.INSTANCE.toDTO(pageRating.getContent());
+		List<RatingResponse> listRatingResponse = ratingMapper.toDTO(pageRating.getContent());
 
 		return new PageResponse<>(pageRating.getPageable().getPageNumber(),
 				pageRating.getSize(), pageRating.getTotalPages(), pageRating.getTotalElements(), listRatingResponse);

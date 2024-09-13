@@ -2,9 +2,9 @@ package com.watermelon.service;
 
 import java.util.List;
 
-import com.watermelon.dto.BrandDTO;
+import com.watermelon.dto.response.BrandResponse;
 
 public interface BrandService {
 
-	List<BrandDTO> getAllBrands();
+	List<BrandResponse> getAllBrands();
 }

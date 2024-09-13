@@ -1,27 +1,19 @@
 package com.watermelon.mapper.imp;
 
-import com.watermelon.dto.BrandDTO;
+import org.springframework.stereotype.Component;
+
+import com.watermelon.dto.response.BrandResponse;
 import com.watermelon.mapper.EntityMapper;
 import com.watermelon.model.entity.Brand;
-
-public class BrandMapper implements EntityMapper<BrandDTO, Brand> {
-	private static BrandMapper INSTANCE;
-
-	private BrandMapper() {
-	}
-
-	public static BrandMapper getInstance() {
-		if (INSTANCE == null)
-			INSTANCE = new BrandMapper();
-		return INSTANCE;
-	}
+@Component
+public class BrandMapper implements EntityMapper<BrandResponse, Brand> {
 
 	@Override
-	public BrandDTO toDTO(Brand entity) {
+	public BrandResponse toDTO(Brand entity) {
 		if (entity == null) {
 			return null;
 		}
-		return new BrandDTO(entity.getId(), entity.getName());
+		return new BrandResponse(entity.getId(), entity.getName());
 	}
 
 }

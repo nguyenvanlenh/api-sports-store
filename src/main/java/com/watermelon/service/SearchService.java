@@ -4,12 +4,12 @@ import java.util.List;
 
 import org.springframework.data.domain.Sort;
 
-import com.watermelon.dto.ProductDTO;
 import com.watermelon.dto.response.PageResponse;
+import com.watermelon.dto.response.ProductResponse;
 
 public interface SearchService {
 
-	PageResponse<List<ProductDTO>> findProductsByCriteria(
+	PageResponse<List<ProductResponse>> findProductsByCriteria(
             String name,
             Integer[] brands,
             Integer[] categories,
