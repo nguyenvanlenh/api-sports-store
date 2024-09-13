@@ -7,18 +7,9 @@ import com.watermelon.mapper.EntityMapper;
 import com.watermelon.model.entity.Rating;
 
 
-public class RatingMapper implements EntityMapper<RatingResponse, Rating>{
+public enum RatingMapper implements EntityMapper<RatingResponse, Rating>{
 
-	private static RatingMapper INSTANCE;
-
-	private RatingMapper() {
-	}
-
-	public static RatingMapper getInstance() {
-		if (INSTANCE == null)
-			INSTANCE = new RatingMapper();
-		return INSTANCE;
-	}
+	INSTANCE;
 	@Override
 	public RatingResponse toDTO(Rating entity) {
 		if (entity == null) {
@@ -26,7 +17,8 @@ public class RatingMapper implements EntityMapper<RatingResponse, Rating>{
 		}
 		return new RatingResponse(entity.getId(),
 				entity.getContent(),
-				entity.getStar(), 
+				entity.getStar(),
+				entity.getUser().getAvatar(),
 				entity.getUser().getEmail(),
 				entity.getCreatedOn()
 				);
