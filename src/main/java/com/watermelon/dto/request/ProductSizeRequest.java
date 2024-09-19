@@ -11,7 +11,7 @@ public record ProductSizeRequest(
 		@Min(value = 1, message = "ID must be greater than or equal to 1")
 		int id,
 		@Min(value = 1, message = "Quantity must be greater than or equal to 1")
-		@Max(value = Constants.QUANTITY_PRODUCT_MAX_BUY,
-		message = "Quantity must be less than or equal to "+ Constants.QUANTITY_PRODUCT_MAX_BUY) 
+		@Max(value = Constants.MAXIMUM_NUMBER_PRODUCTS,
+		message = "Quantity must be less than or equal to "+ Constants.MAXIMUM_NUMBER_PRODUCTS) 
 		int quantity) {
 }

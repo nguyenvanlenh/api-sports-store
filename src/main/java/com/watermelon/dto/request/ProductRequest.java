@@ -14,15 +14,15 @@ public record ProductRequest(
 	        String shortDescription,
 	        @NotBlank(message = "Description must not be blank")
 		 	String description,
-	        @NotNull(message = "Price must not be null")
-		 	BigDecimal price,
-	        @NotNull(message = "Tax must not be null")
-		 	Double tax,
+	        @NotNull(message = "Sale price must not be null")
+		 	BigDecimal salePrice,
+	        @NotNull(message = "Regular price not be null")
+		 	BigDecimal regularPrice,
 	        @NotNull(message = "Brand ID must not be null")
-		 	Integer idBrand,
+		 	Integer brandId,
 	        @NotNull(message = "Category ID must not be null")
-		 	Integer idCategory,
+		 	Integer categoryId,
 		 	List<ProductImageRequest> listImages,
-	        List<@Valid ProductSizeRequest> listSize
+	        List<@Valid ProductSizeRequest> listSizes
         ) {
 }

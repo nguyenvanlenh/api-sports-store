@@ -3,6 +3,7 @@ package com.watermelon.utils;
 public class Constants {
 	
 	private Constants(){}
+	public static final int MAXIMUM_NUMBER_PRODUCTS = 1000;
 	public static final int QUANTITY_PRODUCT_MAX_BUY = 20;
 	public static final int EXPIRATION_TIME_MINUTE = 15;
 	

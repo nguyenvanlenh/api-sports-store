@@ -1,5 +1,6 @@
 package com.watermelon.mapper.imp;
 
+
 import org.springframework.stereotype.Component;
 
 import com.watermelon.dto.response.ProductResponse;
@@ -24,17 +25,20 @@ public class ProductMapper implements EntityMapper<ProductResponse, Product> {
 		if (entity == null) {
 			return null;
 		}
-		return new ProductResponse(
-				entity.getId(),
-				entity.getName(),
-				entity.getShortDescription(),
-				entity.getDescription(),
-				entity.getPrice(),
-				entity.getTax(),
-				brandMapper.toDTO(entity.getBrand()),
-				categoryMapper.toDTO(entity.getCategory()),
-				imageMapper.toDTO(entity.getListImages().stream().toList()),
-				sizeMapper.toDTO(entity.getQuantityOfSizes().stream().toList()));
+		return ProductResponse.builder()
+				.id(entity.getId())
+				.name(entity.getName())
+				.shortDescription(entity.getShortDescription())
+				.description(entity.getDescription())
+				.salePrice(entity.getSalePrice())
+				.regularPrice(entity.getRegularPrice())
+				.thumbnailImage(entity.getThumbnailImage())
+				.isActive(entity.isActive())
+				.brand(brandMapper.toDTO(entity.getBrand()))
+				.category(categoryMapper.toDTO(entity.getCategory()))
+				.listImages(imageMapper.toDTO(entity.getListImages().stream().toList()))
+				.listSize(sizeMapper.toDTO(entity.getQuantityOfSizes().stream().toList()))
+				.build();
 	}
 
 }
