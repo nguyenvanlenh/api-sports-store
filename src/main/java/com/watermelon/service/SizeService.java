@@ -2,8 +2,8 @@ package com.watermelon.service;
 
 import java.util.List;
 
-import com.watermelon.model.entity.Size;
+import com.watermelon.dto.response.SizeResponse;
 
 public interface SizeService {
-	List<Size> getAllSizes();
+	List<SizeResponse> getAllSizes();
 }

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.watermelon.dto.response.ResponseData;
-import com.watermelon.model.entity.Size;
+import com.watermelon.dto.response.SizeResponse;
 import com.watermelon.service.SizeService;
 
 import lombok.AccessLevel;
@@ -23,8 +23,8 @@ public class SizeController {
 	SizeService sizeService;
 	
 	@GetMapping
-	public ResponseData<List<Size>> getAllCategories(){
-		return new ResponseData<List<Size>>(200, "Data sizes", sizeService.getAllSizes());
+	public ResponseData<List<SizeResponse>> getAllCategories(){
+		return new ResponseData<List<SizeResponse>>(200, "Data sizes", sizeService.getAllSizes());
 	}
 
 }

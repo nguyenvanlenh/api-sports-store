@@ -14,5 +14,7 @@ public record UserResponse(
 		String lastName,
 		String email,
 		String phone,
-		String avatar){
+		String avatar,
+		boolean isActive,
+		java.util.List<RoleResponse> listRoles){
 }

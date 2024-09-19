@@ -14,7 +14,11 @@ public class CategoryMapper implements EntityMapper<CategoryResponse, Category> 
 		if (entity == null) {
 			return null;
 		}
-		return new CategoryResponse(entity.getId(), entity.getName());
+		return CategoryResponse.builder()
+				.id(entity.getId())
+				.name(entity.getName())
+				.isActive(entity.isActive())
+				.build();
 	}
 
 }

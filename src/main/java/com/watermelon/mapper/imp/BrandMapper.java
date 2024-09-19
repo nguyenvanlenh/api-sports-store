@@ -13,7 +13,11 @@ public class BrandMapper implements EntityMapper<BrandResponse, Brand> {
 		if (entity == null) {
 			return null;
 		}
-		return new BrandResponse(entity.getId(), entity.getName());
+		return BrandResponse.builder()
+				.id(entity.getId())
+				.name(entity.getName())
+				.isActive(entity.isActive())
+				.build();
 	}
 
 }
