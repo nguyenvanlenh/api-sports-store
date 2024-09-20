@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.watermelon.dto.request.OrderRequest;
+import com.watermelon.dto.request.UpdateOrderStatusRequest;
 import com.watermelon.dto.response.OrderResponse;
 import com.watermelon.dto.response.PageResponse;
 import com.watermelon.dto.response.ResponseData;
@@ -67,11 +68,9 @@ public class OrderController {
 	
 	@PatchMapping("/{id}")
 	public ResponseData<Void> updateStatus(
-			@Min(value = 1, message = "Order ID must be greater than or equal to 1")
-			@NotBlank(message = "PathVariable Order ID is required")
-			@PathVariable(name = "id") Long id
-			,@NotBlank(message = "Status is required") @RequestParam EOrderStatus status) {
-		orderService.updateOrderStatus(status, id);
+			@PathVariable(name = "id") Long id,
+			@RequestBody UpdateOrderStatusRequest request) {
+		orderService.updateOrderStatus(request, id);
 		return new ResponseData<>(HttpStatus.ACCEPTED.value(),"Order updated successfully");
 	}
 	

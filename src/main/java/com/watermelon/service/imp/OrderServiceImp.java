@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.watermelon.dto.request.OrderAddressRequest;
 import com.watermelon.dto.request.OrderDetailRequest;
 import com.watermelon.dto.request.OrderRequest;
+import com.watermelon.dto.request.UpdateOrderStatusRequest;
 import com.watermelon.dto.response.OrderResponse;
 import com.watermelon.dto.response.PageResponse;
 import com.watermelon.exception.ForbiddenException;
@@ -97,19 +98,21 @@ public class OrderServiceImp implements OrderService {
 
 	@Transactional
 	@Override
-	public void updateOrderStatus(EOrderStatus orderStatus, Long idOrder) {
+	public void updateOrderStatus(UpdateOrderStatusRequest request, Long idOrder) {
 		Order order = commonService.findOrderById(idOrder);
-		if (EOrderStatus.CANCELLED.equals(order.getOrderStatus())) {
-			log.error("Cannot update order status as this order has been cancelled!");
-			throw new ForbiddenException("Cannot update order status as this order has been cancelled!");
-		}
-		if (EOrderStatus.CANCELLED.toString().equals(orderStatus)) {
+//		if (EOrderStatus.CANCELLED.equals(order.getOrderStatus())) {
+//			log.error("Cannot update order status as this order has been cancelled!");
+//			throw new ForbiddenException("Cannot update order status as this order has been cancelled!");
+//		}
+		if (EOrderStatus.CANCELLED.equals(request.status())) {
 			order.getListDetails().forEach(orderDetail -> {
 				List<Size> sizes = sizeRepository.findByName(orderDetail.getSize());
-				productService.updateProductQuantityForSize(-orderDetail.getQuantity(), idOrder, sizes.get(0).getId());
+				productService.updateProductQuantityForSize(-orderDetail.getQuantity(), orderDetail.getProduct().getId(), sizes.get(0).getId());
 			});
 		}
-		order.setOrderStatus(orderStatus);
+		order.setOrderStatus(request.status());
+		order.setRejectReason(request.rejectReason());
+		order.setDeliveryStatus(EDeliveryStatus.CANCELLED);
 		orderRepository.save(order);
 	}
 
