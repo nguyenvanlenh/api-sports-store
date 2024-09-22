@@ -100,10 +100,10 @@ public class OrderServiceImp implements OrderService {
 	@Override
 	public void updateOrderStatus(UpdateOrderStatusRequest request, Long idOrder) {
 		Order order = commonService.findOrderById(idOrder);
-//		if (EOrderStatus.CANCELLED.equals(order.getOrderStatus())) {
-//			log.error("Cannot update order status as this order has been cancelled!");
-//			throw new ForbiddenException("Cannot update order status as this order has been cancelled!");
-//		}
+		if (EOrderStatus.CANCELLED.equals(order.getOrderStatus())) {
+			log.error("Cannot update order status as this order has been cancelled!");
+			throw new ForbiddenException("Cannot update order status as this order has been cancelled!");
+		}
 		if (EOrderStatus.CANCELLED.equals(request.status())) {
 			order.getListDetails().forEach(orderDetail -> {
 				List<Size> sizes = sizeRepository.findByName(orderDetail.getSize());

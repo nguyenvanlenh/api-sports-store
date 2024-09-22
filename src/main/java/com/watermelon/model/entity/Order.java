@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.watermelon.model.AbstractAuditEntity;
 import com.watermelon.model.enumeration.EDeliveryMethod;
 import com.watermelon.model.enumeration.EDeliveryStatus;
@@ -60,5 +61,8 @@ public class Order extends AbstractAuditEntity {
 	@ManyToOne
 	@JoinColumn(name = "user_id")
 	private User user;
+	
+	@OneToOne(mappedBy = "order")
+	private Payment payment;
 
 }

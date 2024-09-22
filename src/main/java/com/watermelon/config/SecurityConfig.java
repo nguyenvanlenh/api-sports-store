@@ -69,9 +69,9 @@ public class SecurityConfig {
 					    .requestMatchers(HttpMethod.PATCH, PRODUCTS_ENDPOINT).hasRole(ERole.USER.toString())
 					    .requestMatchers(HttpMethod.DELETE, PRODUCTS_ENDPOINT).hasRole(ERole.ADMIN.toString())
 					    
-					    .requestMatchers(HttpMethod.GET, ORDERS_ENDPOINT).hasRole(ERole.USER.toString())
+					    .requestMatchers(HttpMethod.GET, ORDERS_ENDPOINT).hasAnyRole(ERole.USER.toString(),ERole.ADMIN.toString())
 					    .requestMatchers(HttpMethod.POST, ORDERS_ENDPOINT).hasRole(ERole.USER.toString())
-					    .requestMatchers(HttpMethod.PATCH, ORDERS_ENDPOINT).hasRole(ERole.USER.toString())
+					    .requestMatchers(HttpMethod.PATCH, ORDERS_ENDPOINT).hasAnyRole(ERole.USER.toString(),ERole.ADMIN.toString())
 					    .requestMatchers(HttpMethod.DELETE, ORDERS_ENDPOINT).hasRole(ERole.ADMIN.toString())
 					    
 					    .requestMatchers(HttpMethod.GET, RATINGS_ENDPOINT).permitAll()

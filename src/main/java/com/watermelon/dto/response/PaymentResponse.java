@@ -7,10 +7,10 @@ import com.watermelon.model.enumeration.EPaymentStatus;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
-
+import lombok.Builder;
+@Builder
 public record PaymentResponse(
 		Long paymentId,
-		OrderResponse order,
 		@PositiveOrZero(message = "The total amount must be zero or a positive number")
 		BigDecimal amount,
 		@PositiveOrZero(message = "Payment fee must be zero or a positive number")

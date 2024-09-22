@@ -42,7 +42,7 @@ public class OrderController {
 	
 	OrderService orderService;
 	
-	@GetMapping()
+	@GetMapping
 	public ResponseData<PageResponse<List<OrderResponse>>> getOrders(
 			@PageableDefault(page = 0, size = 20) 
 			@SortDefaults(
@@ -74,7 +74,7 @@ public class OrderController {
 		return new ResponseData<>(HttpStatus.ACCEPTED.value(),"Order updated successfully");
 	}
 	
-	@GetMapping("/user/{idUser}")
+	@GetMapping("/users/{idUser}")
 	public ResponseData<PageResponse<List<OrderResponse>>> getOrdersOfUserId(
 			@PathVariable Long idUser,
 			@PageableDefault(page = 0, size = 20) 

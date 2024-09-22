@@ -1,8 +1,11 @@
 package com.watermelon.mapper.imp;
 
-import org.springframework.stereotype.Component;
-import org.springframework.util.ObjectUtils;
+import java.util.List;
+import java.util.Optional;
 
+import org.springframework.stereotype.Component;
+
+import com.watermelon.dto.response.OrderDetailResponse;
 import com.watermelon.dto.response.OrderResponse;
 import com.watermelon.dto.response.UserResponse;
 import com.watermelon.mapper.EntityMapper;
@@ -17,29 +20,41 @@ import lombok.experimental.FieldDefaults;
 public class OrderMapper implements EntityMapper<OrderResponse, Order> {
 	OrderAdressMapper orderAdressMapper;
 	OrderDetailMapper orderDetailMapper;
+	PaymentMapper paymentMapper;
 	
 	@Override
 	public OrderResponse toDTO(Order entity) {
-		if (ObjectUtils.isEmpty(entity))
-			return null;
-		return new OrderResponse(
-				entity.getId(), 
-				UserResponse.builder()
-					.id(entity.getUser().getId())
-					.username(entity.getUser().getUsername())
-					.build(),
-				orderAdressMapper.toDTO(entity.getOrderAddress()), 
-				entity.getNameCustomer(),
-				entity.getEmailCustomer(), 
-				entity.getPhoneNumberCustomer(), 
-				entity.getTotalPrice(),
-				entity.getDeliveryFee(), 
-				entity.getOrderStatus(), 
-				entity.getDeliveryStatus(),
-				entity.getDeliveryMethod(), 
-				entity.getCouponCode(), 
-				entity.getRejectReason(),
-				orderDetailMapper.toDTO(entity.getListDetails().stream().toList()));
+	    return Optional.ofNullable(entity)
+	        .map(order -> {
+	            List<OrderDetailResponse> orderDetailResponses = 
+	            		orderDetailMapper.toDTO(order.getListDetails()
+	            				.stream().toList());
+	            return OrderResponse.builder()
+	                .id(order.getId())
+	                .user(UserResponse.builder()
+	                    .id(order.getUser().getId())
+	                    .username(order.getUser().getUsername())
+	                    .build())
+	                .payment(paymentMapper.toDTO(order.getPayment()))
+	                .address(orderAdressMapper.toDTO(order.getOrderAddress()))
+	                .nameCustomer(order.getNameCustomer())
+	                .emailCustomer(order.getEmailCustomer())
+	                .phoneNumberCustomer(order.getPhoneNumberCustomer())
+	                .totalPrice(order.getTotalPrice())
+	                .deliveryFee(order.getDeliveryFee())
+	                .orderStatus(order.getOrderStatus())
+	                .deliveryStatus(order.getDeliveryStatus())
+	                .deliveryMethod(order.getDeliveryMethod())
+	                .coupondCode(order.getCouponCode())
+	                .rejectReason(order.getRejectReason())
+	                .listOrderDetails(orderDetailResponses)
+	                .createdOn(order.getCreatedOn())
+	                .build();
+	        })
+	        .orElse(OrderResponse.builder().build());
 	}
+
+
+
 
 }
