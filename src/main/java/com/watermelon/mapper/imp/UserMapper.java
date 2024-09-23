@@ -1,8 +1,9 @@
 package com.watermelon.mapper.imp;
 
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Component;
-import org.springframework.util.ObjectUtils;
 
 import com.watermelon.dto.response.UserResponse;
 import com.watermelon.mapper.EntityMapper;
@@ -19,18 +20,19 @@ public class UserMapper implements EntityMapper<UserResponse, User> {
 	
 	@Override
 	public UserResponse toDTO(User entity) {
-		if (ObjectUtils.isEmpty(entity))return null;
-		return UserResponse.builder()
-				.id(entity.getId())
-				.username(entity.getUsername())
-				.firstName(entity.getFirstName())
-				.lastName(entity.getLastName())
-				.email(entity.getEmail())
-				.phone(entity.getPhone())
-				.avatar(entity.getAvatar())
-				.isActive(entity.isActive())
-				.listRoles(roleMapper.toDTO(entity))
-				.build();
+		return Optional.ofNullable(entity)
+				.map(user -> UserResponse.builder()
+					.id(entity.getId())
+					.username(entity.getUsername())
+					.firstName(entity.getFirstName())
+					.lastName(entity.getLastName())
+					.email(entity.getEmail())
+					.phone(entity.getPhone())
+					.avatar(entity.getAvatar())
+					.isActive(entity.isActive())
+					.listRoles(roleMapper.toDTO(entity))
+					.build())
+				.orElse(UserResponse.builder().build());
 	}
 
 }

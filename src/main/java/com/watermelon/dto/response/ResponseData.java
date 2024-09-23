@@ -1,9 +1,11 @@
 package com.watermelon.dto.response;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter

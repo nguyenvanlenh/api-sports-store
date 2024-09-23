@@ -27,8 +27,8 @@ public class AbstractAuditEntity {
 	@Column(name="created_by")
 	private String createdBy;
 	@UpdateTimestamp
-	@Column(name="last_mofified_on")
-	private ZonedDateTime lastMofifiedOn;
+	@Column(name="last_modified_on")
+	private ZonedDateTime lastModifiedOn;
 	@LastModifiedBy
 	@Column(name="last_modified_by")
 	private String lastModifiedBy;

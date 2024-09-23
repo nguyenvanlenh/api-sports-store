@@ -1,6 +1,8 @@
 package com.watermelon.mapper.imp;
 
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Component;
 
 import com.watermelon.dto.response.ProductResponse;
@@ -22,23 +24,22 @@ public class ProductMapper implements EntityMapper<ProductResponse, Product> {
 	
 	@Override
 	public ProductResponse toDTO(Product entity) {
-		if (entity == null) {
-			return null;
-		}
-		return ProductResponse.builder()
-				.id(entity.getId())
-				.name(entity.getName())
-				.shortDescription(entity.getShortDescription())
-				.description(entity.getDescription())
-				.salePrice(entity.getSalePrice())
-				.regularPrice(entity.getRegularPrice())
-				.thumbnailImage(entity.getThumbnailImage())
-				.isActive(entity.isActive())
-				.brand(brandMapper.toDTO(entity.getBrand()))
-				.category(categoryMapper.toDTO(entity.getCategory()))
-				.listImages(imageMapper.toDTO(entity.getListImages().stream().toList()))
-				.listSize(sizeMapper.toDTO(entity.getQuantityOfSizes().stream().toList()))
-				.build();
+		return Optional.ofNullable(entity)
+				.map(product -> ProductResponse.builder()
+					.id(product.getId())
+					.name(product.getName())
+					.shortDescription(product.getShortDescription())
+					.description(product.getDescription())
+					.salePrice(product.getSalePrice())
+					.regularPrice(product.getRegularPrice())
+					.thumbnailImage(product.getThumbnailImage())
+					.isActive(product.isActive())
+					.brand(brandMapper.toDTO(product.getBrand()))
+					.category(categoryMapper.toDTO(product.getCategory()))
+					.listImages(imageMapper.toDTO(product.getListImages().stream().toList()))
+					.listSize(sizeMapper.toDTO(product.getQuantityOfSizes().stream().toList()))
+					.build())
+				.orElse(ProductResponse.builder().build());
 	}
 
 }

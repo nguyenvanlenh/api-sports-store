@@ -13,31 +13,29 @@ import com.watermelon.model.entity.Size;
 @Component
 public class SizeMapper implements EntityMapper<SizeResponse, ProductQuantity>{
 	
-	public SizeResponse toDTO(ProductQuantity productQuantity) {
-		if(productQuantity == null) {
-			return null;
-		}
-		return SizeResponse.builder()
-				.id(productQuantity.getSize().getId())
-				.name(productQuantity.getSize().getName())
-				.quantity(productQuantity.getQuantity())
-				.isActive(productQuantity.getSize().isActive())
-				.build();
+	public SizeResponse toDTO(ProductQuantity entity) {
+		return Optional.ofNullable(entity)
+				.map(productQuantity -> SizeResponse.builder()
+					.id(productQuantity.getSize().getId())
+					.name(productQuantity.getSize().getName())
+					.quantity(productQuantity.getQuantity())
+					.isActive(productQuantity.getSize().isActive())
+					.build())
+				.orElse(SizeResponse.builder().build());
 	}
-	public SizeResponse toDTO(Size size) {
-		if(size == null) {
-			return null;
-		}
-		return SizeResponse.builder()
-				.id(size.getId())
-				.name(size.getName())
-				.isActive(size.isActive())
-				.build();
+	public SizeResponse toDTO(Size entity) {
+		return Optional.ofNullable(entity)
+				.map(size -> SizeResponse.builder()
+					.id(size.getId())
+					.name(size.getName())
+					.isActive(size.isActive())
+					.build())
+				.orElse(SizeResponse.builder().build());
+				
 	}
 	public List<SizeResponse> toDTOFromSizes(List<Size> sizes) {
-		return Optional.ofNullable(
-				sizes).orElse(Collections.emptyList()).stream()
-				.map(item -> this.toDTO(item))
-				.toList();
+		return Optional.ofNullable(sizes)
+				.map(list ->list.stream().map(this::toDTO).toList())
+				.orElse(Collections.emptyList());
 	}
 }
