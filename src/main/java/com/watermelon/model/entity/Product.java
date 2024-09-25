@@ -7,6 +7,7 @@ import java.util.Set;
 import com.watermelon.model.AbstractAuditEntity;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -36,6 +37,8 @@ public class Product extends AbstractAuditEntity{
 	@NotNull
 	private String name;
 	private String shortDescription;
+	
+	@Column(columnDefinition = "TEXT")
 	private String description;
 	private BigDecimal salePrice;
 	private BigDecimal regularPrice;

@@ -146,6 +146,12 @@ public class OrderServiceImp implements OrderService {
 				orderMapper.toDTO(page.getContent())
 				);
 	}
+	@PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+	@Override
+	public void deleteOrder(Long orderId) {
+		orderRepository.deleteById(orderId);
+		
+	}
 
 	private OrderDetail mapRequestToOrderDetail(OrderDetailRequest request) {
 

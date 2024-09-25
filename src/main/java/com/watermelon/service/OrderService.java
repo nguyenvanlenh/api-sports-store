@@ -19,5 +19,6 @@ public interface OrderService {
 	void updateDeliveryStatus(EDeliveryStatus deliveryStatus, Long idOrder);
 	
 	PageResponse<List<OrderResponse>> getOrderByUserId(Long idUser,Pageable pageable);
+	void deleteOrder(Long orderId);
 	
 }

@@ -9,6 +9,7 @@ import org.springframework.data.web.SortDefault;
 import org.springframework.data.web.SortDefault.SortDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,7 +47,7 @@ public class OrderController {
 	public ResponseData<PageResponse<List<OrderResponse>>> getOrders(
 			@PageableDefault(page = 0, size = 20) 
 			@SortDefaults(
-					@SortDefault(direction = Sort.Direction.DESC, sort = {"createdOn" })
+					@SortDefault(direction = Sort.Direction.DESC, sort = {"id" })
 					) Pageable pageable
 			){
 		return new ResponseData<>(HttpStatus.OK.value(),"Data orders",orderService.getAllOrder(pageable));
@@ -77,12 +78,18 @@ public class OrderController {
 	@GetMapping("/users/{idUser}")
 	public ResponseData<PageResponse<List<OrderResponse>>> getOrdersOfUserId(
 			@PathVariable Long idUser,
-			@PageableDefault(page = 0, size = 20) 
+			@PageableDefault(page = 0, size = 100) 
 			@SortDefaults(
-					@SortDefault(direction = Sort.Direction.DESC, sort = {"createdOn" })
+					@SortDefault(direction = Sort.Direction.DESC, sort = {"id" })
 					) Pageable pageable
 			){
 		return  new ResponseData<>(HttpStatus.OK.value(),"Data order",orderService.getOrderByUserId(idUser,pageable));
 	}
 
+	@DeleteMapping("/{orderId}")
+	public ResponseData<Void> getOrdersOfUserId(
+			@PathVariable Long orderId){
+		orderService.deleteOrder(orderId);
+		return  new ResponseData<>(HttpStatus.NO_CONTENT.value(),"Order deleted successfully");
+	}
 }

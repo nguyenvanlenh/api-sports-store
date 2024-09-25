@@ -14,6 +14,7 @@ import com.paypal.base.rest.PayPalRESTException;
 import com.watermelon.dto.request.PaymentRequest;
 import com.watermelon.dto.response.PaypalResponse;
 import com.watermelon.dto.response.ResponseData;
+import com.watermelon.service.OrderService;
 import com.watermelon.service.PaypalService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,7 +43,7 @@ public class PaypalController {
 			@RequestBody PaymentRequest paymentRequest,
 			HttpServletRequest request) {
 		try {
-            String cancelUrl = applicationUrl(request) + "/api/payments/paypal/cancel";
+            String cancelUrl = applicationUrl(request) + "/api/payments/paypal/cancel?orderId=" + paymentRequest.orderId();
             String successUrl = applicationUrl(request) + "/api/payments/paypal/success?orderId=" + paymentRequest.orderId();
 
             PaypalResponse response = paypalService.generatePaypalLink(paymentRequest, cancelUrl, successUrl);
@@ -62,7 +63,7 @@ public class PaypalController {
 	        return new RedirectView(url);
 	    } catch (PayPalRESTException e) {
 	        log.error("Error: ", e);
-	        return new RedirectView(String.format("%s?status=error", redirectUri));
+	        return new RedirectView(String.format("%s?status=error&orderId=%d", redirectUri,orderId));
 	    }
 	}
 	@GetMapping("/error")
@@ -70,8 +71,9 @@ public class PaypalController {
 		return new RedirectView(String.format("%s?status=error", redirectUri));
 	}
 	@GetMapping("/cancel")
-	public RedirectView paymentCancel(@RequestParam("token") String token) {
-		return new RedirectView(String.format("%s?status=cancel", redirectUri));
+	public RedirectView paymentCancel(@RequestParam("token") String token,
+			@RequestParam("orderId") Long orderId) {
+		return new RedirectView(String.format("%s?status=cancel&orderId=%d", redirectUri, orderId));
 	}
 	private String applicationUrl(HttpServletRequest request) {
 //		String scheme = request.getScheme(); scheme HTTP/HTTPS

@@ -100,20 +100,21 @@ public class PaypalService {
         Order order = orderRepository.findById(orderId)
         		.orElseThrow(() -> new ResourceNotFoundException("ORDER_NOT_FOUND", orderId));
 		com.watermelon.model.entity.Payment paymentClient = com.watermelon.model.entity.Payment.builder()
-		.order(order)
-		.amount(order.getTotalPrice())
-		.paymentFee(order.getDeliveryFee())
-		.paymentMethod(EPaymentMethod.PAYPAL)
-		.paymentStatus(EPaymentStatus.COMPLETED)
-		.build();
+			.order(order)
+			.amount(order.getTotalPrice())
+			.paymentFee(order.getDeliveryFee())
+			.paymentMethod(EPaymentMethod.PAYPAL)
+			.paymentStatus(EPaymentStatus.COMPLETED)
+			.build();
         
         if ("approved".equals(executedPayment.getState())) {
         	paymentRepository.save(paymentClient);
         	log.info("payment added successfully: {}", paymentClient);
-            return String.format("%s?status=success&orderId=%d", redirectUri,orderId);
+            return String.format("%s?status=success", redirectUri);
         }
-        else 
-            return  String.format("%s?status=error",redirectUri);
+        else {
+        	return  String.format("%s?status=error&orderId=%d", redirectUri,orderId);
+        }
         
     }
 

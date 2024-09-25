@@ -28,6 +28,7 @@ public class OrderDetailMapper implements EntityMapper<OrderDetailResponse, Orde
 						.size(od.getSize())
 						.quantity(od.getQuantity())
 						.price(od.getPrice())
+						.isRating(entity.getIsRating())
 						.discountAmount(od.getDiscountAmount())
 						.product(productMapper.toDTO(od.getProduct()))
 						.build())
