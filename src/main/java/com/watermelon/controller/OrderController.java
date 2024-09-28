@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.watermelon.dto.request.OrderRequest;
@@ -24,12 +23,10 @@ import com.watermelon.dto.request.UpdateOrderStatusRequest;
 import com.watermelon.dto.response.OrderResponse;
 import com.watermelon.dto.response.PageResponse;
 import com.watermelon.dto.response.ResponseData;
-import com.watermelon.model.enumeration.EOrderStatus;
 import com.watermelon.service.OrderService;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -50,21 +47,30 @@ public class OrderController {
 					@SortDefault(direction = Sort.Direction.DESC, sort = {"id" })
 					) Pageable pageable
 			){
-		return new ResponseData<>(HttpStatus.OK.value(),"Data orders",orderService.getAllOrder(pageable));
+		return ResponseData.<PageResponse<List<OrderResponse>>>builder()
+				.status(HttpStatus.OK.value())
+				.message("Orders data")
+				.data(orderService.getAllOrder(pageable))
+				.build();
 	}
 	@GetMapping("/{id}")
 	public ResponseData<OrderResponse> getOrderById(
 			@Min(value = 1, message = "Order ID must be greater than or equal to 1")
 			@PathVariable(name = "id") Long id) {
-		return  new ResponseData<>(HttpStatus.OK.value(),"Data order",orderService.getOrderById(id));
+		return ResponseData.<OrderResponse>builder()
+				.status(HttpStatus.OK.value())
+				.message("Order data")
+				.data(orderService.getOrderById(id))
+				.build();
 	}
 	@PostMapping()
 	public ResponseData<OrderResponse> saveOrder(@RequestBody @Valid OrderRequest request){
 		OrderResponse data = orderService.createOrder(request);
-		return new ResponseData<>(
-				HttpStatus.CREATED.value(),
-				"Order added successfully",
-				data);
+		return ResponseData.<OrderResponse>builder()
+				.status(HttpStatus.CREATED.value())
+				.message("Order added successfully")
+				.data(data)
+				.build();
 	}
 	
 	@PatchMapping("/{id}")
@@ -72,7 +78,10 @@ public class OrderController {
 			@PathVariable(name = "id") Long id,
 			@RequestBody UpdateOrderStatusRequest request) {
 		orderService.updateOrderStatus(request, id);
-		return new ResponseData<>(HttpStatus.ACCEPTED.value(),"Order updated successfully");
+		return ResponseData.<Void>builder()
+				.status(HttpStatus.ACCEPTED.value())
+				.message("Order updated successfully")
+				.build();
 	}
 	
 	@GetMapping("/users/{idUser}")
@@ -83,13 +92,20 @@ public class OrderController {
 					@SortDefault(direction = Sort.Direction.DESC, sort = {"id" })
 					) Pageable pageable
 			){
-		return  new ResponseData<>(HttpStatus.OK.value(),"Data order",orderService.getOrderByUserId(idUser,pageable));
+		return ResponseData.<PageResponse<List<OrderResponse>>>builder()
+				.status(HttpStatus.OK.value())
+				.message("Orders data")
+				.data(orderService.getOrderByUserId(idUser,pageable))
+				.build();
 	}
 
 	@DeleteMapping("/{orderId}")
 	public ResponseData<Void> getOrdersOfUserId(
 			@PathVariable Long orderId){
 		orderService.deleteOrder(orderId);
-		return  new ResponseData<>(HttpStatus.NO_CONTENT.value(),"Order deleted successfully");
+		return ResponseData.<Void>builder()
+				.status(HttpStatus.NO_CONTENT.value())
+				.message("Orders data")
+				.build();
 	}
 }
