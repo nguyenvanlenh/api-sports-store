@@ -36,4 +36,8 @@ public class Size extends AbstractAuditEntity{
 //	
 //	@OneToMany(mappedBy = "size")
 //	private Set<ProductQuantity> listProductQuantities = new HashSet<>();
+	@Override
+	public int hashCode() {
+		return getClass().hashCode();
+	}
 }

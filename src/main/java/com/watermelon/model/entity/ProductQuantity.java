@@ -39,7 +39,10 @@ public class ProductQuantity extends AbstractAuditEntity{
 	@JoinColumn(name = "product_id")
 	private Product product;
 	
-	
+	@Override
+	public int hashCode() {
+		return getClass().hashCode();
+	}
 	
 
 }

@@ -24,13 +24,9 @@ public class OrderAddress extends AbstractAuditEntity{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	@Column(name = "contact_name")
-	private String contactName;
-	private String phone;
 	@Column(name = "address_line")
 	private String addressLine;
 	private String commune;
-	private String zipcode;
 	private String district;
 	private String province;
 	private String country;

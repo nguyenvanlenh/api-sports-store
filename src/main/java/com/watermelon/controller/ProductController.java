@@ -82,12 +82,12 @@ public class ProductController {
 		return new ResponseData<>(HttpStatus.CREATED.value(), "Images upload successfully" ,data);
 	}
 
-	@PutMapping("/{idProduct}" )
+	@PutMapping("/{productId}" )
 	public ResponseData<Void> updateProduct(
-			@PathVariable Long idProduct,
+			@PathVariable Long productId,
 			@Valid @RequestPart("product") ProductRequest request,
 	        @RequestPart(name = "files", required = false) List<MultipartFile> files) {
-	    productService.updateProduct(idProduct, request, files);
+	    productService.updateProduct(productId, request, files);
 	    return new ResponseData<>(HttpStatus.ACCEPTED.value(), "Product updated successfully");
 
 	}

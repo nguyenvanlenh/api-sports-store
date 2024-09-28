@@ -1,5 +1,7 @@
 package com.watermelon.service.imp;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -106,31 +108,6 @@ public class ProductServiceImp implements ProductService {
 		return false;
 	}
 
-	
-	 
-	@PreAuthorize("hasRole('ADMIN')")
-	@Transactional
-	@Override
-	public boolean updateProduct(Long idProduct, ProductRequest request, List<MultipartFile> files) {
-		boolean result = false;
-		Product product = commonService.findProductById(idProduct);
-		updateChangedFields(product, request);
-
-		if (!CollectionUtils.isEmpty(files)) {
-			List<Image> savedImages = helperSaveImage(files, product);
-			product.getListImages().addAll(savedImages);
-		}
-
-		Product productUpdated = productRepository.save(product);
-		if(!ObjectUtils.isEmpty(productUpdated)) {
-			log.info("update product ID {} success", idProduct);
-			result = true;
-		}
-		
-		return result;
-	}
-	
-
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@Transactional
@@ -227,6 +204,27 @@ public class ProductServiceImp implements ProductService {
 		
 	}
 	
+	@PreAuthorize("hasRole('ADMIN')")
+	@Transactional
+	@Override
+	public boolean updateProduct(Long idProduct, ProductRequest request, List<MultipartFile> files) {
+		boolean result = false;
+		Product product = commonService.findProductById(idProduct);
+
+		updateChangedFields(product, request);
+		if (!CollectionUtils.isEmpty(files)) {
+			List<Image> savedImages = helperSaveImage(files, product);
+			log.info("imagesSaved {}",savedImages);
+			product.getListImages().addAll(savedImages);
+		}
+		Product productUpdated = productRepository.save(product);
+		if(!ObjectUtils.isEmpty(productUpdated)) {
+			log.info("update product ID {} success", idProduct);
+			result = true;
+		}
+		
+		return result;
+	}
 	
 	private List<Image> helperSaveImage(List<MultipartFile> files, Product product) {
 		List<String> listPath = cloudinaryServiceImp.upload(files);
@@ -237,8 +235,7 @@ public class ProductServiceImp implements ProductService {
 			return image;
 		}).toList();
 
-		imageRepository.saveAll(savedImages);
-		return savedImages;
+		return imageRepository.saveAll(savedImages);
 	}
 
 	private void updateChangedFields(Product product, ProductRequest request) {
@@ -270,53 +267,68 @@ public class ProductServiceImp implements ProductService {
 
 		helperUpdateQuantityOfProductSize(product, request.listSizes());
 
-		helperUpdateProductImages(product, request.listImages());
+		helperUpdateProductImages(product,request.listImages());
 	}
 
 	private void helperUpdateQuantityOfProductSize(Product product, List<ProductSizeRequest> newSizeList) {
-		List<ProductQuantity> existingQuantities = productQuantityRepository.findByProduct_Id(product.getId());
-		// list product quantity will be deleted
-		Set<ProductQuantity> quantitiesToRemove = existingQuantities.stream().filter(
-				quantity -> newSizeList.stream().noneMatch(s -> s.id() == quantity.getSize().getId()))
-				.collect(Collectors.toSet());
+	    List<ProductQuantity> existingQuantities = productQuantityRepository.findByProduct_Id(product.getId());
+	    
+	    List<Integer> newSizeIds = newSizeList.stream().map(ProductSizeRequest::id).toList();
+	    
+	    Iterator<ProductQuantity> iterator = existingQuantities.iterator();
+	    while (iterator.hasNext()) {
+	        ProductQuantity quantity = iterator.next();
+	        if (!newSizeIds.contains(quantity.getSize().getId())) {
+	            iterator.remove();
+	            productQuantityRepository.deleteById(quantity.getId());
+	            log.info("Deleting quantity of size with ID: {}", quantity.getId());
+	        }
+	    }
 
-		// delete quantity when no longer in list
-		productQuantityRepository.deleteAll(quantitiesToRemove);
+	    newSizeList.forEach(s -> {
+	        ProductQuantity existingQuantity = existingQuantities.stream()
+	                .filter(quantity -> quantity.getSize().getId().equals(s.id()))
+	                .findFirst()
+	                .orElse(null);
 
-		// update or add quantity of size
-		newSizeList.forEach(s -> {
-			ProductQuantity existingQuantity = existingQuantities.stream()
-					.filter(quantity -> quantity.getSize().getId() == s.id()).findFirst().orElse(null);
+	        if (existingQuantity != null) {
+	            existingQuantity.setQuantity(s.quantity());
+	        } else {
+	            ProductQuantity newQuantity = new ProductQuantity();
+	            Size size = sizeRepository.findById(s.id()).orElse(null);
+	            if (size != null) {
+	                newQuantity.setSize(size);
+	                newQuantity.setQuantity(s.quantity());
+	                newQuantity.setProduct(product);
+	                existingQuantities.add(productQuantityRepository.save(newQuantity));
+	            }
+	        }
+	    });
 
-			if (existingQuantity != null) {
-				// update
-				existingQuantity.setQuantity(s.quantity());
-			} else {
-				// add
-				ProductQuantity newQuantity = new ProductQuantity();
-				Size size = sizeRepository.findById(s.id()).orElse(null);
-				if (size != null) {
-					newQuantity.setSize(size);
-					newQuantity.setQuantity(s.quantity());
-					newQuantity.setProduct(product);
-					existingQuantities.add(productQuantityRepository.save(newQuantity));
-				}
-			}
-		});
+	    productQuantityRepository.saveAll(existingQuantities);
+	    
+	    product.setQuantityOfSizes(new HashSet<>(existingQuantities));
 	}
+
+
 
 	
 	private void helperUpdateProductImages(Product product, List<ProductImageRequest> newImageList) {
-		List<Image> existingImages = imageRepository.findByProduct_Id(product.getId());
-		Set<Image> imagesToRemove = existingImages.stream()
-				.filter(image -> newImageList.stream().noneMatch(i -> i.id() == image.getId()))
-				.collect(Collectors.toSet());
+		
+	    List<Image> existingImages = imageRepository.findByProduct_Id(product.getId());
 
-		if (newImageList.size() == existingImages.size()) {
-			return;
-		}
+	    Set<Long> newImageIds = newImageList.stream()
+	            .map(ProductImageRequest::id)
+	            .collect(Collectors.toSet());
 
-		imageRepository.deleteAll(imagesToRemove);
+	    existingImages.forEach(itemEx -> {
+	        if (!newImageIds.contains(itemEx.getId())) {
+	            imageRepository.deleteById(itemEx.getId());
+	            log.info("Deleting image with ID: {}", itemEx.getId());
+	        }
+	    });
+	    
+	    product.setListImages(new HashSet<>(existingImages));
 	}
 
 	// method supports null-safe comparison
