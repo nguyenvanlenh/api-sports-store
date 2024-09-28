@@ -1,9 +1,7 @@
 package com.watermelon.controller;
 
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,34 +40,41 @@ public class AuthController {
 			final HttpServletRequest servletRequest) {
 		User user = authService.register(registerRequest);
 		publisher.publishEvent(new RegistrationCompleteEvent(user, applicationUrl(servletRequest)));
-		return new ResponseData<>(HttpStatus.CREATED.value(), "User registered successfully", user.getId());
+		return ResponseData.<Long>builder()
+				.status(HttpStatus.CREATED.value())
+				.message("User registered successfully")
+				.data(user.getId())
+				.build();
 	}
 
 	@PostMapping("/login")
 
-	public ResponseEntity<ResponseData<AuthenticationResponse>> login(@RequestBody @Valid LoginRequest request) {
+	public ResponseData<AuthenticationResponse> login(@RequestBody @Valid LoginRequest request) {
 		AuthenticationResponse data = authService.login(request);
-		ResponseData<AuthenticationResponse> response = new ResponseData<>(HttpStatus.OK.value(), "Login successful",
-				data);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setBearerAuth(data.getAccessToken());
-		return ResponseEntity.ok().headers(headers).body(response);
+		return ResponseData.<AuthenticationResponse>builder()
+				.status(HttpStatus.OK.value())
+				.message("Login successful")
+				.data(data)
+				.build();
 	}
 
 	@PostMapping("/refresh-token")
-	public ResponseEntity<ResponseData<AuthenticationResponse>> getRefreshToken(@RequestBody RefreshRequest request) {
+	public ResponseData<AuthenticationResponse> getRefreshToken(@RequestBody RefreshRequest request) {
 			AuthenticationResponse data = authService.getAccessTokenFromRefeshToken(request);
-			HttpHeaders headers = new HttpHeaders();
-			headers.setBearerAuth(data.getAccessToken());
-			return ResponseEntity.ok().headers(headers)
-					.body(new ResponseData<>(HttpStatus.OK.value(), "Refresh token", data));
+			return ResponseData.<AuthenticationResponse>builder()
+					.status(HttpStatus.OK.value())
+					.message("Refresh token")
+					.data(data)
+					.build();
 		
 	}
 	@PatchMapping("/refresh-token/revocation")
-	public ResponseEntity<ResponseData<Void>> revokeRefreshToken(@RequestBody RefreshRequest request) {
+	public ResponseData<Void> revokeRefreshToken(@RequestBody RefreshRequest request) {
 		authService.revokeRefreshToken(request);
-		return ResponseEntity.ok()
-				.body(new ResponseData<>(HttpStatus.OK.value(), "Refresh token revoked successfully"));
+		return ResponseData.<Void>builder()
+				.status(HttpStatus.OK.value())
+				.message("Refresh token revoked successfully")
+				.build();
 		
 	}
 	@PostMapping("/outbound/authentication")
@@ -77,7 +82,11 @@ public class AuthController {
             @RequestParam("code") String code,
             @RequestParam("type") String type) {
         AuthenticationResponse data = authService.outboundAuthenticate(code, type);
-        return new ResponseData<>(HttpStatus.OK.value(), "Login successful", data);
+        return ResponseData.<AuthenticationResponse>builder()
+				.status(HttpStatus.OK.value())
+				.message("Login successful")
+				.data(data)
+				.build();
     }
 
 	private String applicationUrl(HttpServletRequest request) {
