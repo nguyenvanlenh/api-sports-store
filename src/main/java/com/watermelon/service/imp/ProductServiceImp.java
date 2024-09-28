@@ -29,6 +29,7 @@ import com.watermelon.model.entity.Image;
 import com.watermelon.model.entity.Product;
 import com.watermelon.model.entity.ProductQuantity;
 import com.watermelon.model.entity.Size;
+import com.watermelon.model.enumeration.ERole;
 import com.watermelon.repository.BrandRepository;
 import com.watermelon.repository.CategoryRepository;
 import com.watermelon.repository.ImageRepository;
@@ -37,6 +38,7 @@ import com.watermelon.repository.ProductRepository;
 import com.watermelon.repository.SizeRepository;
 import com.watermelon.service.CommonService;
 import com.watermelon.service.ProductService;
+import com.watermelon.utils.AuthenticationUtils;
 import com.watermelon.utils.Constants;
 
 import lombok.AccessLevel;
@@ -71,7 +73,12 @@ public class ProductServiceImp implements ProductService {
 	@Transactional(readOnly = true)
 	@Override
 	public PageResponse<List<ProductResponse>> getAllProduct(Pageable pageable) {
-		Page<Product> pageProduct = productRepository.findByIsActiveTrue(pageable);
+		Page<Product> pageProduct = null;
+		if (AuthenticationUtils.extractUserAuthorities()
+				.contains(String.format("ROLE_%s", ERole.ADMIN.toString())))
+			pageProduct = productRepository.findAll(pageable);
+		else
+			pageProduct = productRepository.findByIsActiveTrue(pageable);
 		List<ProductResponse> listProductDTO = productMapper.toDTO(pageProduct.getContent());
 
 		return new PageResponse<>(
@@ -195,13 +202,13 @@ public class ProductServiceImp implements ProductService {
 
 	}
 	
+	@PreAuthorize("hasRole('ADMIN')")
 	@Override
-	public void updateStatusProduct(Long idProduct, Boolean isActive) {
+	public void updateProductStatus(Long idProduct, Boolean isActive) {
 		Product product = commonService.findProductById(idProduct);
 		product.setActive(isActive);
 		productRepository.save(product);
 		log.info("Updated status of product ID {}successfully", idProduct);
-		
 	}
 	
 	@PreAuthorize("hasRole('ADMIN')")

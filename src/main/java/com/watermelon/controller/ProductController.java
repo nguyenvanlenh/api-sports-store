@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -45,41 +46,45 @@ public class ProductController {
 	public ResponseData<PageResponse<List<ProductResponse>>> getProducts(
 			@PageableDefault(page = 0, size = 20) 
 			@SortDefaults(
-					@SortDefault(direction = Sort.Direction.DESC, sort = {"price" })
-					) Pageable pageable,
-			@RequestParam(name = "search", required = false) String content,
-			@RequestParam(name = "category", required = false) String urlKey) {
-		PageResponse<List<ProductResponse>> listData = null;
-		if (content != null) {
-			listData = productService.getProductContainName(content, pageable);
-		} else if (urlKey != null) {
-			listData = productService.getProductByUrlKeyCategory(urlKey, pageable);
-		} else {
-			listData = productService.getAllProduct(pageable);
-		}
-
-		return new ResponseData<>(HttpStatus.OK.value(), "Data products" ,listData);
+					@SortDefault(direction = Sort.Direction.DESC, sort = {"price" })) Pageable pageable) {
+		PageResponse<List<ProductResponse>> listData = productService.getAllProduct(pageable);
+		return ResponseData.<PageResponse<List<ProductResponse>>>builder()
+				.status(HttpStatus.OK.value())
+				.message("Products data")
+				.data(listData)
+				.build();
 
 	}
 
 	@GetMapping("/{id}")
 	public ResponseData<ProductResponse> getProductById(@PathVariable(name = "id") Long id) {
 		ProductResponse data = productService.getProductById(id);
-		return new ResponseData<>(HttpStatus.OK.value(), "Data product" ,data);
+		return ResponseData.<ProductResponse>builder()
+				.status(HttpStatus.OK.value())
+				.message("Product data")
+				.data(data)
+				.build();
 	}
 
 	@PostMapping
 	public ResponseData<Long> addProduct(@Valid @RequestPart("product") ProductRequest productRequest,
 			@RequestPart("files") List<MultipartFile> files) {
 		Long data = productService.addProduct(productRequest, files);
-		return new ResponseData<>(HttpStatus.CREATED.value(), "Product added successfully",data);
+		return ResponseData.<Long>builder()
+				.status(HttpStatus.CREATED.value())
+				.message("Product added successfully")
+				.data(data)
+				.build();
 	}
 
 	@PostMapping("/upload")
 	public ResponseData<List<String>> upload(@RequestPart("files") List<MultipartFile> files) {
 		List<String> data = imageService.upload(files);
-
-		return new ResponseData<>(HttpStatus.CREATED.value(), "Images upload successfully" ,data);
+		return ResponseData.<List<String>>builder()
+				.status(HttpStatus.CREATED.value())
+				.message("Images upload successfully")
+				.data(data)
+				.build();
 	}
 
 	@PutMapping("/{productId}" )
@@ -88,24 +93,42 @@ public class ProductController {
 			@Valid @RequestPart("product") ProductRequest request,
 	        @RequestPart(name = "files", required = false) List<MultipartFile> files) {
 	    productService.updateProduct(productId, request, files);
-	    return new ResponseData<>(HttpStatus.ACCEPTED.value(), "Product updated successfully");
+	    return ResponseData.<Void>builder()
+				.status(HttpStatus.ACCEPTED.value())
+				.message("Product updated successfully")
+				.build();
 
 	}
 	
-	@DeleteMapping("/{id}")
-	public ResponseData<Void> deleteProductById(@PathVariable (name = "id") Long id){
+	@DeleteMapping("/{productId}")
+	public ResponseData<Void> deleteProductById(@PathVariable (name = "productId") Long id){
 		productService.deleteProduct(id);
-		return new ResponseData<>(HttpStatus.NO_CONTENT.value(), "User delete successfully");
+		return ResponseData.<Void>builder()
+				.status(HttpStatus.NO_CONTENT.value())
+				.message("User delete successfully")
+				.build();
 	}
 	
-	@PatchMapping("/{idProduct}/size/{isSize}/quantity")
+	@PatchMapping("/{productId}/size/{isSize}/quantity")
 	public ResponseData<Void> updateProductQuantity(
-			@PathVariable Long idProduct,
+			@PathVariable Long productId,
 			@PathVariable Integer idSize,
 			@RequestParam Integer quantitySubtract){
-		productService.updateProductQuantityForSize(quantitySubtract, idProduct, idSize);
-		return new ResponseData<>(HttpStatus.ACCEPTED.value(), "Product quantity updated successfully");
+		productService.updateProductQuantityForSize(quantitySubtract, productId, idSize);
+		return ResponseData.<Void>builder()
+				.status(HttpStatus.ACCEPTED.value())
+				.message("Product quantity updated successfully")
+				.build();
 		
+	}
+	
+	@PatchMapping("/{productId}")
+	public ResponseData<Void> updateProductStatus(@PathVariable Long productId, @RequestBody Boolean status){
+		productService.updateProductStatus(productId, status);
+		return ResponseData.<Void>builder()
+				.status(HttpStatus.ACCEPTED.value())
+				.message("Product quantity updated successfully")
+				.build();
 	}
 	
 

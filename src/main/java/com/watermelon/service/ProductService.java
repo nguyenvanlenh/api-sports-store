@@ -20,6 +20,6 @@ public interface ProductService {
 	boolean updateProduct(Long idProduct, ProductRequest request,List<MultipartFile> files);
 	Long addProduct(ProductRequest productRequest,List<MultipartFile> files);
 	void updateProductQuantityForSize(int quantitySubtract, Long idProduct, Integer idSize);
-	void updateStatusProduct(Long idProduct, Boolean isActive);
+	void updateProductStatus(Long idProduct, Boolean isActive);
 
 }

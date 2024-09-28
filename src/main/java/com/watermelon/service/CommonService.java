@@ -28,6 +28,7 @@ import com.watermelon.repository.RatingRepository;
 import com.watermelon.repository.RoleRepository;
 import com.watermelon.repository.SizeRepository;
 import com.watermelon.repository.UserRepository;
+import com.watermelon.utils.AuthenticationUtils;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +54,9 @@ public class CommonService {
 	}
 
 	public Product findProductById(Long id) {
+		if (AuthenticationUtils.extractUserAuthorities()
+				.contains(String.format("ROLE_%s", ERole.ADMIN.toString())))
+			return productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("PRODUCT_NOT_FOUND", id));
 		return productRepository.findByIdAndIsActiveTrue(id).orElseThrow(() -> new ResourceNotFoundException("PRODUCT_NOT_FOUND", id));
 	}
 
