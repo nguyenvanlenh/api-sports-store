@@ -39,8 +39,10 @@ public class PaymentController {
 
 	@GetMapping
 	public ResponseData<PageResponse<List<PaymentResponse>>> getPayments(
-			@PageableDefault(page = 0, size = 20) @SortDefaults(@SortDefault(direction = Sort.Direction.ASC, sort = {
-					"createdOn" })) Pageable pageable) {
+			@PageableDefault(page = 0, size = 20) 
+			@SortDefaults(@SortDefault(
+					direction = Sort.Direction.ASC, 
+					sort = {"createdOn" })) Pageable pageable) {
 		PageResponse<List<PaymentResponse>> data = paymentService.getAllPayment(pageable);
 		return ResponseData.<PageResponse<List<PaymentResponse>>>builder()
 				.status(HttpStatus.OK.value())
@@ -59,8 +61,10 @@ public class PaymentController {
 
 	@GetMapping("/user/{userId}")
 	public ResponseData<PageResponse<List<PaymentResponse>>> getPaymentsByUserId(
-			@PageableDefault(page = 0, size = 20) @SortDefaults(@SortDefault(direction = Sort.Direction.ASC, sort = {
-					"createdOn" })) Pageable pageable,
+			@PageableDefault(page = 0, size = 20) 
+			@SortDefaults(@SortDefault(
+					direction = Sort.Direction.ASC, 
+					sort = {"createdOn" })) Pageable pageable,
 			@PathVariable Long userId) {
 		PageResponse<List<PaymentResponse>> data = paymentService.getAllPaymentByUserId(userId, pageable);
 		return ResponseData
@@ -72,7 +76,9 @@ public class PaymentController {
 	}
 
 	@PatchMapping("/{paymentId}")
-	public ResponseData<Void> updatePaymentStatus(@PathVariable Long paymentId, @RequestParam EPaymentStatus status) {
+	public ResponseData<Void> updatePaymentStatus(
+			@PathVariable Long paymentId,
+			@RequestParam EPaymentStatus status) {
 		paymentService.updatePaymentStatus(paymentId, status);
 		return ResponseData.<Void>builder()
 				.status(HttpStatus.OK.value())

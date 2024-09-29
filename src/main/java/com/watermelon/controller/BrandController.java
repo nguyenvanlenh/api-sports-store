@@ -2,15 +2,14 @@ package com.watermelon.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.watermelon.dto.response.BrandResponse;
 import com.watermelon.dto.response.ResponseData;
-import com.watermelon.model.entity.Size;
 import com.watermelon.service.BrandService;
-import com.watermelon.service.SizeService;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +25,11 @@ public class BrandController {
 	
 	@GetMapping
 	public ResponseData<List<BrandResponse>> getAllCategories(){
-		return new ResponseData<List<BrandResponse>>(200, "Data brands", brandService.getAllBrands());
+		return ResponseData.<List<BrandResponse>>builder()
+				.status(HttpStatus.OK.value())
+				.message("Brands data")
+				.data(brandService.getAllBrands())
+				.build();
 	}
 
 }

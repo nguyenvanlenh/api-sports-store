@@ -2,6 +2,7 @@ package com.watermelon.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,7 +25,11 @@ public class SizeController {
 	
 	@GetMapping
 	public ResponseData<List<SizeResponse>> getAllCategories(){
-		return new ResponseData<List<SizeResponse>>(200, "Data sizes", sizeService.getAllSizes());
+		return ResponseData.<List<SizeResponse>>builder()
+				.status(HttpStatus.OK.value())
+				.message("Sizes data")
+				.data(sizeService.getAllSizes())
+				.build();
 	}
 
 }

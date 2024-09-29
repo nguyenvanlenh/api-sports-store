@@ -36,26 +36,40 @@ public class RatingController {
 	@GetMapping("/products/{productId}/average-star")
 	public ResponseData<Double> getAverageStar(
 			@PathVariable Long productId){
-		return new ResponseData<>(HttpStatus.OK.value(),"Average star of product "+productId,ratingService.caculatorAverageStar(productId));
+		return ResponseData.<Double>builder()
+				.status(HttpStatus.OK.value())
+				.message(String.format("Average star of product %d", productId))
+				.data(ratingService.caculatorAverageStar(productId))
+				.build();
 	}
 	
 	@GetMapping("/products/{productId}")
-	public ResponseData<PageResponse<List<RatingResponse>>> getRatingListByProductId(@PathVariable(name = "productId") Long id,
-			@PageableDefault(page = 0, size = 1) Pageable pageable
-			){
+	public ResponseData<PageResponse<List<RatingResponse>>> getRatingListByProductId(
+			@PathVariable(name = "productId") Long id,
+			@PageableDefault(page = 0, size = 1) Pageable pageable){
 		PageResponse<List<RatingResponse>> data = ratingService.getRatingListByProductId(id, pageable);
-		return new ResponseData<>(HttpStatus.OK.value(), "List rating of product " + id, data);
+		return ResponseData.<PageResponse<List<RatingResponse>>>builder()
+				.status(HttpStatus.OK.value())
+				.message(String.format("List rating of product %d", id))
+				.data(data)
+				.build();
 	}
 	
 	@PostMapping
 	public ResponseData<Void> addRating(@Valid @RequestBody RatingRequest requestRating){
 		ratingService.addRating(requestRating);
-		return new ResponseData<>(HttpStatus.CREATED.value(), "Rating added successfully");
+		return ResponseData.<Void>builder()
+				.status(HttpStatus.CREATED.value())
+				.message("Rating added successfully")
+				.build();
 	}
 	
 	@DeleteMapping("/{id}")
 	public ResponseData<Void> deleteRating(@PathVariable(name = "id") Long id){
 		ratingService.deleteRating(id);
-		return new ResponseData<>(HttpStatus.NO_CONTENT.value(), "Rating deleted successfully");
+		return ResponseData.<Void>builder()
+				.status(HttpStatus.NO_CONTENT.value())
+				.message("Rating deleted successfully")
+				.build();
 	}
 }

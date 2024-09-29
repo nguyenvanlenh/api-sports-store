@@ -44,10 +44,9 @@ public class SearchController {
             @RequestParam(required = false) Integer[] categories,
             @RequestParam(required = false) Integer[] sizes,
             @PageableDefault(page = 0, size = 3) 
-			@SortDefaults(
-					@SortDefault(direction = Sort.Direction.ASC, sort = {"name" })
-					) Pageable pageable
-    		) {
+			@SortDefaults(@SortDefault(
+					direction = Sort.Direction.ASC, 
+					sort = {"name" })) Pageable pageable) {
 		PageResponse<List<ProductResponse>> data = 
         		searchService.findProductsByCriteria(
         				name, 
@@ -58,7 +57,11 @@ public class SearchController {
         				pageable.getPageSize(),
         				pageable.getSort());
 		
-        return new ResponseData<>(HttpStatus.OK.value(), "Data products" ,data);
+        return ResponseData.<PageResponse<List<ProductResponse>>>builder()
+				.status(HttpStatus.OK.value())
+				.message("Products data")
+				.data(data)
+				.build();
     }
 	
 }

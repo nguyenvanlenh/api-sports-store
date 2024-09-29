@@ -5,17 +5,20 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.watermelon.utils.Constants.EmailVerificationMessage;
+
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+
 import com.watermelon.service.AuthService;
 
 @Controller
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EmailController {
 
-	private final AuthService authService;
-
-	public EmailController(AuthService authService) {
-		this.authService = authService;
-	}
+	AuthService authService;
 
 	@GetMapping("/verify-email")
 	public String verifyEmail(@RequestParam("token") String token) {

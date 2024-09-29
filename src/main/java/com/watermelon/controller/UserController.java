@@ -35,24 +35,33 @@ public class UserController {
 	@GetMapping("/{id}")
 	public ResponseData<UserResponse> getUser(@PathVariable(name="id") Long id){
 		UserResponse data = userService.getUserById(id);
-		return new ResponseData<>(HttpStatus.OK.value(), "Data user",data);
+		return ResponseData.<UserResponse>builder()
+				.status(HttpStatus.OK.value())
+				.message("User data")
+				.data(data)
+				.build();
 	}
 	@GetMapping
 	public ResponseData<PageResponse<List<UserResponse>>> getAllUsers(
 			@PageableDefault(page = 0, size = 20)
 			@SortDefaults(@SortDefault(
 							direction = Sort.Direction.DESC,
-							sort = "id")
-			) Pageable pageable
-			){
+							sort = "id")) Pageable pageable){
 		PageResponse<List<UserResponse>> data = userService.getAllUsers(pageable);
-		return new ResponseData<>(HttpStatus.OK.value(), "Data user",data);
+		return ResponseData.<PageResponse<List<UserResponse>>>builder()
+				.status(HttpStatus.OK.value())
+				.message("Users data")
+				.data(data)
+				.build();
 	}
 	@PatchMapping("/{idUser}")
 	public ResponseData<Void> updateUserActive(
 			@PathVariable(name = "idUser") Long idUser,
 			@RequestParam(name = "active") Boolean active){
 		userService.updateStatusUser(idUser, active);
-		return new ResponseData<>(HttpStatus.ACCEPTED.value(), "User updated successfully");
+		return ResponseData.<Void>builder()
+				.status(HttpStatus.ACCEPTED.value())
+				.message("User updated successfully")
+				.build();
 	}
 }
