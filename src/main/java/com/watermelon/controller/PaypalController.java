@@ -2,6 +2,7 @@ package com.watermelon.controller;
 
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,7 +15,6 @@ import com.paypal.base.rest.PayPalRESTException;
 import com.watermelon.dto.request.PaymentRequest;
 import com.watermelon.dto.response.PaypalResponse;
 import com.watermelon.dto.response.ResponseData;
-import com.watermelon.service.OrderService;
 import com.watermelon.service.PaypalService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,10 +47,18 @@ public class PaypalController {
             String successUrl = applicationUrl(request) + "/api/payments/paypal/success?orderId=" + paymentRequest.orderId();
 
             PaypalResponse response = paypalService.generatePaypalLink(paymentRequest, cancelUrl, successUrl);
-            return new ResponseData<>(200, "Create payment success", response);
+            return ResponseData
+    				.<PaypalResponse>builder()
+    				.status(HttpStatus.OK.value())
+    				.message("Paypal payment created successfully")
+    				.data(response)
+    				.build();
         } catch (PayPalRESTException e) {
             log.error("Error: {}", e.getMessage());
-            return new ResponseData<>(500, "Payment creation failed", null);
+            return ResponseData.<PaypalResponse>builder()
+    				.status(HttpStatus.BAD_REQUEST.value())
+    				.message("Payment creation failed")
+    				.build();
         }
 	}
 	@GetMapping("/success")

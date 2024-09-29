@@ -32,59 +32,62 @@ import lombok.experimental.FieldDefaults;
 @RestController
 @RequestMapping("/api/payments")
 @RequiredArgsConstructor
-@FieldDefaults(level=AccessLevel.PRIVATE, makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PaymentController {
 
 	PaymentService paymentService;
-	
+
 	@GetMapping
 	public ResponseData<PageResponse<List<PaymentResponse>>> getPayments(
-			@PageableDefault(page = 0, size = 20) 
-			@SortDefaults(
-					@SortDefault(direction = Sort.Direction.ASC, sort = {"createdOn" })
-					) Pageable pageable){
+			@PageableDefault(page = 0, size = 20) @SortDefaults(@SortDefault(direction = Sort.Direction.ASC, sort = {
+					"createdOn" })) Pageable pageable) {
 		PageResponse<List<PaymentResponse>> data = paymentService.getAllPayment(pageable);
-		return new ResponseData<PageResponse<List<PaymentResponse>>>(
-				HttpStatus.OK.value(), 
-				"Payment data list", 
-				data);
+		return ResponseData.<PageResponse<List<PaymentResponse>>>builder()
+				.status(HttpStatus.OK.value())
+				.message("Payments data").data(data).build();
 	}
+
 	@GetMapping("/{paymentId}")
-	public ResponseData<PaymentResponse> getPayment(@PathVariable Long paymentId){
+	public ResponseData<PaymentResponse> getPayment(@PathVariable Long paymentId) {
 		PaymentResponse data = paymentService.getPaymentById(paymentId);
-		return new ResponseData<PaymentResponse>(
-				HttpStatus.OK.value(), 
-				"Payment data", 
-				data);
+		return ResponseData.<PaymentResponse>builder()
+				.status(HttpStatus.OK.value())
+				.message("Payment data")
+				.data(data)
+				.build();
 	}
+
 	@GetMapping("/user/{userId}")
 	public ResponseData<PageResponse<List<PaymentResponse>>> getPaymentsByUserId(
-			@PageableDefault(page = 0, size = 20) 
-			@SortDefaults(
-					@SortDefault(direction = Sort.Direction.ASC, sort = {"createdOn" })
-					) Pageable pageable,
-			@PathVariable Long userId){
-		PageResponse<List<PaymentResponse>> data = paymentService.getAllPaymentByUserId(userId,pageable);
-		return new ResponseData<PageResponse<List<PaymentResponse>>>(
-				HttpStatus.OK.value(), 
-				"Payment data of each user", 
-				data);
+			@PageableDefault(page = 0, size = 20) @SortDefaults(@SortDefault(direction = Sort.Direction.ASC, sort = {
+					"createdOn" })) Pageable pageable,
+			@PathVariable Long userId) {
+		PageResponse<List<PaymentResponse>> data = paymentService.getAllPaymentByUserId(userId, pageable);
+		return ResponseData
+				.<PageResponse<List<PaymentResponse>>>builder()
+				.status(HttpStatus.OK.value())
+				.message("Payments data of each user")
+				.data(data)
+				.build();
 	}
+
 	@PatchMapping("/{paymentId}")
-	public ResponseData<Void> updatePaymentStatus(@PathVariable Long paymentId, @RequestParam EPaymentStatus status){
+	public ResponseData<Void> updatePaymentStatus(@PathVariable Long paymentId, @RequestParam EPaymentStatus status) {
 		paymentService.updatePaymentStatus(paymentId, status);
-		return new ResponseData<Void>(
-				HttpStatus.ACCEPTED.value(), 
-				"Payment updated successfully");
+		return ResponseData.<Void>builder()
+				.status(HttpStatus.OK.value())
+				.message("Payment updated successfully")
+				.build();
 	}
+
 	@PostMapping
-	public ResponseData<Long> createPayment(@Valid @RequestBody PaymentRequest request){
-		
+	public ResponseData<Long> createPayment(@Valid @RequestBody PaymentRequest request) {
+
 		Long data = paymentService.createPayment(request);
-		return new ResponseData<Long>(
-				HttpStatus.ACCEPTED.value(),
-				"Payment added successfully",
-				data
-				);
+		return ResponseData.<Long>builder()
+				.status(HttpStatus.OK.value())
+				.message("Payment created successfully")
+				.data(data)
+				.build();
 	}
 }
