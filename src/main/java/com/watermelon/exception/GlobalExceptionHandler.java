@@ -59,7 +59,6 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler({
 		AuthenticationException.class,
-		UserNotActivatedException.class,
 		BadCredentialsException.class,
 		UsernameNotFoundException.class
 		})
@@ -85,6 +84,13 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
 	}
 	
+	@ExceptionHandler(UserNotActivatedException.class)
+	ResponseEntity<ErrorResponse> handlingUserNotActivatedException(UserNotActivatedException e,WebRequest request) {
+		ErrorResponse error = new ErrorResponse(HttpStatus.LOCKED.value(),
+				e.getLocalizedMessage(),
+				getServletPath(request));
+		return ResponseEntity.status(HttpStatus.LOCKED).body(error);
+	}
 	@ExceptionHandler(ResourceExistedException.class)
 	ResponseEntity<ErrorResponse> handlingResourceExistedException(ResourceExistedException e,WebRequest request) {
 		ErrorResponse error = new ErrorResponse(HttpStatus.CONFLICT.value(),

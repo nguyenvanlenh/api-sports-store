@@ -15,6 +15,6 @@ public interface UserService {
 	boolean existsByUsername(String username);
 	boolean existsByEmail(String email);
 	Long saveOrUpdate(User user);
-	void updateStatusUser(Long idUser, Boolean active);
+	void updateUserStatus(Long userId, Boolean status);
 	void saveUserVerificationToken(User theUser, String token);
 }

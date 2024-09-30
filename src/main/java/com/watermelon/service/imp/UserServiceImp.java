@@ -82,9 +82,9 @@ public class UserServiceImp implements UserService {
 	
 	@PreAuthorize("hasRole('ADMIN')")
 	@Override
-	public void updateStatusUser(Long idUser ,Boolean active) {
-		User user = commonService.findUserById(idUser);
-		user.setActive(active);
+	public void updateUserStatus(Long userId ,Boolean status) {
+		User user = commonService.findUserById(userId);
+		user.setActive(status);
 		userRepository.save(user);
 	}
 
