@@ -23,6 +23,7 @@ import com.watermelon.dto.request.UpdateOrderStatusRequest;
 import com.watermelon.dto.response.OrderResponse;
 import com.watermelon.dto.response.PageResponse;
 import com.watermelon.dto.response.ResponseData;
+import com.watermelon.model.enumeration.EDeliveryStatus;
 import com.watermelon.service.OrderService;
 
 import jakarta.validation.Valid;
@@ -74,13 +75,23 @@ public class OrderController {
 	}
 	
 	@PatchMapping("/{id}")
-	public ResponseData<Void> updateStatus(
+	public ResponseData<Void> updateOrderStatus(
 			@PathVariable(name = "id") Long id,
 			@RequestBody UpdateOrderStatusRequest request) {
 		orderService.updateOrderStatus(request, id);
 		return ResponseData.<Void>builder()
 				.status(HttpStatus.ACCEPTED.value())
 				.message("Order updated successfully")
+				.build();
+	}
+	@PatchMapping("/{id}/delivery-status")
+	public ResponseData<Void> updateDeliveryStatus(
+			@PathVariable(name = "id") Long id,
+			@RequestBody EDeliveryStatus status) {
+		orderService.updateDeliveryStatus(status, id);
+		return ResponseData.<Void>builder()
+				.status(HttpStatus.ACCEPTED.value())
+				.message(String.format("Delivery status of order id %d updated successfully",id))
 				.build();
 	}
 	

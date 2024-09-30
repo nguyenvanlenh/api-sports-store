@@ -11,11 +11,12 @@ import org.springframework.stereotype.Service;
 import com.watermelon.dto.request.PaymentRequest;
 import com.watermelon.dto.response.PageResponse;
 import com.watermelon.dto.response.PaymentResponse;
-import com.watermelon.exception.ForbiddenException;
 import com.watermelon.mapper.imp.PaymentMapper;
 import com.watermelon.model.entity.Order;
 import com.watermelon.model.entity.Payment;
+import com.watermelon.model.enumeration.EOrderStatus;
 import com.watermelon.model.enumeration.EPaymentStatus;
+import com.watermelon.repository.OrderRepository;
 import com.watermelon.repository.PaymentRepository;
 import com.watermelon.service.CommonService;
 import com.watermelon.service.PaymentService;
@@ -32,6 +33,7 @@ public class PaymentServiceImp implements PaymentService{
 	CommonService commonService;
 	PaymentRepository paymentRepository;
 	PaymentMapper paymentMapper;
+	OrderRepository orderRepository;
 	
 	@PreAuthorize("hasRole('ADMIN')")
 	@Override
@@ -71,11 +73,17 @@ public class PaymentServiceImp implements PaymentService{
 	@Override
 	public void updatePaymentStatus(Long paymentId, EPaymentStatus status) {
 		Payment payment = commonService.findPaymentById(paymentId);
-		if(EPaymentStatus.CANCELLED.equals(payment.getPaymentStatus())) {
-			log.error("Cannot update payment status as this order has been cancelled!");
-		throw new ForbiddenException("Cannot update payment status as this order has been cancelled!");
+//		if(EPaymentStatus.CANCELLED.equals(payment.getPaymentStatus())) {
+//			log.error("Cannot update payment status as this order has been cancelled!");
+//		throw new ForbiddenException("Cannot update payment status as this order has been cancelled!");
+//		}
+		if(EPaymentStatus.COMPLETED.equals(status)) {
+			Order order = commonService.findOrderById(payment.getOrder().getId());
+			order.setOrderStatus(EOrderStatus.PAID);
+			orderRepository.save(order);
 		}
 		payment.setPaymentStatus(status);
+		paymentRepository.save(payment);
 		log.info("Payment status updated successfully for payment ID: {}", paymentId);
 	}
 	@PreAuthorize("hasRole('USER') || #userId == authentication.principal.id")

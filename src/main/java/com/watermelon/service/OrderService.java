@@ -15,10 +15,11 @@ public interface OrderService {
 	PageResponse<List<OrderResponse>> getAllOrder(Pageable pageable);
 	OrderResponse getOrderById(Long id);
 	OrderResponse createOrder(OrderRequest orderRequest);
-	void updateOrderStatus(UpdateOrderStatusRequest orderStatusRequest, Long idOrder);
-	void updateDeliveryStatus(EDeliveryStatus deliveryStatus, Long idOrder);
+	void updateOrderStatus(UpdateOrderStatusRequest orderStatusRequest, Long orderId);
+	void updateDeliveryStatus(EDeliveryStatus deliveryStatus, Long deliveryMethod);
+	void updateDeliveryMethod(EDeliveryStatus deliveryStatus, Long deliveryMethod);
 	
-	PageResponse<List<OrderResponse>> getOrderByUserId(Long idUser,Pageable pageable);
+	PageResponse<List<OrderResponse>> getOrderByUserId(Long userId,Pageable pageable);
 	void deleteOrder(Long orderId);
 	
 }

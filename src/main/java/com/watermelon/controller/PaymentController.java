@@ -78,7 +78,7 @@ public class PaymentController {
 	@PatchMapping("/{paymentId}")
 	public ResponseData<Void> updatePaymentStatus(
 			@PathVariable Long paymentId,
-			@RequestParam EPaymentStatus status) {
+			@RequestBody EPaymentStatus status) {
 		paymentService.updatePaymentStatus(paymentId, status);
 		return ResponseData.<Void>builder()
 				.status(HttpStatus.OK.value())

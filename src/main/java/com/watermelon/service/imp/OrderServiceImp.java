@@ -98,8 +98,8 @@ public class OrderServiceImp implements OrderService {
 
 	@Transactional
 	@Override
-	public void updateOrderStatus(UpdateOrderStatusRequest request, Long idOrder) {
-		Order order = commonService.findOrderById(idOrder);
+	public void updateOrderStatus(UpdateOrderStatusRequest request, Long orderId) {
+		Order order = commonService.findOrderById(orderId);
 		if (EOrderStatus.CANCELLED.equals(order.getOrderStatus())) {
 			log.error("Cannot update order status as this order has been cancelled!");
 			throw new ForbiddenException("Cannot update order status as this order has been cancelled!");
@@ -109,10 +109,10 @@ public class OrderServiceImp implements OrderService {
 				List<Size> sizes = sizeRepository.findByName(orderDetail.getSize());
 				productService.updateProductQuantityForSize(-orderDetail.getQuantity(), orderDetail.getProduct().getId(), sizes.get(0).getId());
 			});
+			order.setDeliveryStatus(EDeliveryStatus.CANCELLED);
+			order.setRejectReason(request.rejectReason());
 		}
 		order.setOrderStatus(request.status());
-		order.setRejectReason(request.rejectReason());
-		order.setDeliveryStatus(EDeliveryStatus.CANCELLED);
 		orderRepository.save(order);
 	}
 
@@ -151,6 +151,12 @@ public class OrderServiceImp implements OrderService {
 	public void deleteOrder(Long orderId) {
 		orderRepository.deleteById(orderId);
 		
+	}
+	@Override
+	public void updateDeliveryMethod(EDeliveryStatus deliveryStatus, Long orderId) {
+		
+		Order order = commonService.findOrderById(orderId);
+		order.setDeliveryStatus(deliveryStatus);
 	}
 
 	private OrderDetail mapRequestToOrderDetail(OrderDetailRequest request) {
