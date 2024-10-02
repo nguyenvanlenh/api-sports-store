@@ -3,5 +3,5 @@ package com.watermelon.dto.response;
 import lombok.Builder;
 
 @Builder
-public record SizeResponse(int id, String name, int quantity,boolean isActive) {
+public record SizeResponse(int id, String name,String description, int quantity,boolean isActive) {
 }

@@ -6,8 +6,11 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
+import com.watermelon.dto.request.BrandRequest;
+import com.watermelon.dto.request.SizeRequest;
 import com.watermelon.dto.response.SizeResponse;
 import com.watermelon.mapper.EntityMapper;
+import com.watermelon.model.entity.Brand;
 import com.watermelon.model.entity.ProductQuantity;
 import com.watermelon.model.entity.Size;
 @Component
@@ -19,6 +22,7 @@ public class SizeMapper implements EntityMapper<SizeResponse, ProductQuantity>{
 					.id(productQuantity.getSize().getId())
 					.name(productQuantity.getSize().getName())
 					.quantity(productQuantity.getQuantity())
+					.description(productQuantity.getSize().getDescription())
 					.isActive(productQuantity.getSize().isActive())
 					.build())
 				.orElse(SizeResponse.builder().build());
@@ -28,11 +32,23 @@ public class SizeMapper implements EntityMapper<SizeResponse, ProductQuantity>{
 				.map(size -> SizeResponse.builder()
 					.id(size.getId())
 					.name(size.getName())
+					.description(size.getDescription())
 					.isActive(size.isActive())
 					.build())
 				.orElse(SizeResponse.builder().build());
 				
 	}
+	
+	public Size toEntity(SizeRequest request) {
+		return Optional.ofNullable(request)
+				.map(sizeRq -> Size.builder()
+						.name(sizeRq.name())
+						.description(sizeRq.description())
+						.isActive(sizeRq.active())
+						.build())
+				.orElse(Size.builder().build());
+	}
+	
 	public List<SizeResponse> toDTOFromSizes(List<Size> sizes) {
 		return Optional.ofNullable(sizes)
 				.map(list ->list.stream().map(this::toDTO).toList())
