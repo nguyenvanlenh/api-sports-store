@@ -26,7 +26,7 @@ public class CategoryMapper implements EntityMapper<CategoryResponse, Category> 
 				.map(cateRq -> Category.builder()
 						.name(cateRq.name())
 						.description(cateRq.description())
-						.isActive(request.active())
+						.isActive(cateRq.active())
 						.build())
 				.orElse(Category.builder().build());
 	}
