@@ -31,6 +31,7 @@ public class UserMapper implements EntityMapper<UserResponse, User> {
 					.avatar(entity.getAvatar())
 					.isActive(entity.isActive())
 					.listRoles(roleMapper.toDTO(entity))
+					.createdOn(entity.getCreatedOn())
 					.build())
 				.orElse(UserResponse.builder().build());
 	}

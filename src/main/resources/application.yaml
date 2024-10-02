@@ -5,7 +5,7 @@ server:
   port: ${SERVER_PORT:8081}
 spring:
   application:
-    name: sportshop
+    name: sporter
   jpa:
     hibernate:
       ddl-auto: update
@@ -82,20 +82,20 @@ outbound:
   gg:
     client-id: ${CLIENT_ID_GOOGLE} 
     client-secret: ${CLIENT_SECRET_GOOGLE}
-    redirect-uri: "http://localhost:3000/authenticate"
+    redirect-uri: ${REDIRECT_URI_OAUTH2:http://localhost:3000/authenticate}
     grant-type: "authorization_code"
   gh:
     client-id: ${CLIENT_ID_GITHUB} 
     client-secret: ${CLIENT_SECRET_GITHUB}
-    redirect-uri: "http://localhost:3000/authenticate"
+    redirect-uri: ${REDIRECT_URI_OAUTH2:http://localhost:3000/authenticate}
   fb:
     client-id: ${CLIENT_ID_FACEBOOK} 
     client-secret: ${CLIENT_SECRET_FACEBOOK}
-    redirect-uri: "http://localhost:3000/authenticate"
+    redirect-uri: ${REDIRECT_URI_OAUTH2:http://localhost:3000/authenticate}
     fields: "id,name,email,gender,first_name,last_name,picture"
 paypal:
  client-id: AZGuQXyAY4NsclI3kK8GVF1FKQQ_G_jgESNQDIDed69kB0ESPvJNck8fInAO-prHSeG4ueCCfDZo4qUB
  client-secret: EPRdArqQPNWvZpYPJ18V_D6ls0rcHo2hJsKkXU-hLSE1cFxaEUuLbEWLfVxeUR-l2LfnGVVF8aSy_bW2
  mode: sandbox
- redirect-uri: http://localhost:3000/payment-processing
+ redirect-uri: ${REDIRECT_URI_PAYPAL:http://localhost:3000/payment-processing}
  

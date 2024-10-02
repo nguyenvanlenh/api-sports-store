@@ -46,7 +46,7 @@ public class UserController {
 			@PageableDefault(page = 0, size = 20)
 			@SortDefaults(@SortDefault(
 							direction = Sort.Direction.DESC,
-							sort = "id")) Pageable pageable){
+							sort = "createdOn")) Pageable pageable){
 		PageResponse<List<UserResponse>> data = userService.getAllUsers(pageable);
 		return ResponseData.<PageResponse<List<UserResponse>>>builder()
 				.status(HttpStatus.OK.value())

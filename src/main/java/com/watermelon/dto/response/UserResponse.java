@@ -1,6 +1,8 @@
 package com.watermelon.dto.response;
 
 
+import java.time.ZonedDateTime;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Builder;
@@ -16,5 +18,7 @@ public record UserResponse(
 		String phone,
 		String avatar,
 		boolean isActive,
-		java.util.List<RoleResponse> listRoles){
+		java.util.List<RoleResponse> listRoles,
+		ZonedDateTime createdOn
+		){
 }
