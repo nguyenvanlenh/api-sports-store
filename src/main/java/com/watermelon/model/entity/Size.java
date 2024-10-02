@@ -23,7 +23,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Size extends AbstractAuditEntity{
 
-	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
@@ -31,9 +30,7 @@ public class Size extends AbstractAuditEntity{
 	private String name;
 	private String description;
 	private boolean isActive;
-//	
-//	@OneToMany(mappedBy = "size")
-//	private Set<ProductQuantity> listProductQuantities = new HashSet<>();
+
 	@Override
 	public int hashCode() {
 		return getClass().hashCode();

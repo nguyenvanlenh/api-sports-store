@@ -2,7 +2,6 @@ package com.watermelon.model.entity;
 
 import java.math.BigDecimal;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.watermelon.model.AbstractAuditEntity;
 import com.watermelon.model.enumeration.EPaymentMethod;
 import com.watermelon.model.enumeration.EPaymentStatus;

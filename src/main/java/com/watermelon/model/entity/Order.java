@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.watermelon.model.AbstractAuditEntity;
 import com.watermelon.model.enumeration.EDeliveryMethod;
 import com.watermelon.model.enumeration.EDeliveryStatus;
