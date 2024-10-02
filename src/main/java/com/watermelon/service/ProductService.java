@@ -14,7 +14,6 @@ public interface ProductService {
 	ProductResponse getProductById(Long id);
 	PageResponse<List<ProductResponse>> getAllProduct(Pageable pageable);
 	PageResponse<List<ProductResponse>> getProductContainName(String keyword, Pageable pageable);
-	PageResponse<List<ProductResponse>> getProductByUrlKeyCategory(String urlKey, Pageable pageable);
 	
 	boolean deleteProduct(Long id);
 	boolean updateProduct(Long idProduct, ProductRequest request,List<MultipartFile> files);

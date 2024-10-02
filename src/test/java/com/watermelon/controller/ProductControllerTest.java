@@ -215,28 +215,6 @@ class ProductControllerTest {
 				.andReturn();
 	}
 	@Test
-	void getProducts_UrlKeyCategoryParam_Success() throws  Exception {
-		Pageable pageable = PageRequest
-				.of(0, 20, Sort.by(Sort.Direction.DESC, "price"));
-		String urlKey = "nam";
-		PageResponse<List<ProductResponse>> pageResponse = new PageResponse<>(
-				0,20,1,2L,listProductDTOs 
-				);
-		when(productService.getProductByUrlKeyCategory(urlKey,pageable)).thenReturn(pageResponse);
-		mockMvc.perform(get("/api/products")
-				.param("category", urlKey)
-				.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(jsonPath("$.status").value(200))
-				.andExpect(jsonPath("$.message").value("Data products"))
-				.andExpect(jsonPath("$.data.currentPage").value(0))      
-				.andExpect(jsonPath("$.data.size").value(20))              
-				.andExpect(jsonPath("$.data.totalPage").value(1))       
-				.andExpect(jsonPath("$.data.totalElement").value(2))   
-				.andReturn();
-	}
-	@Test
 	void deleteProductById_ValidRequest_Success() throws Exception {
 		
 		when(productService.deleteProduct(anyLong())).thenReturn(true);

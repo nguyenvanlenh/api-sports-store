@@ -21,7 +21,6 @@ import com.watermelon.dto.request.ProductSizeRequest;
 import com.watermelon.dto.response.PageResponse;
 import com.watermelon.dto.response.ProductResponse;
 import com.watermelon.exception.InvalidQuantityException;
-import com.watermelon.exception.ResourceNotFoundException;
 import com.watermelon.mapper.imp.ProductMapper;
 import com.watermelon.model.entity.Brand;
 import com.watermelon.model.entity.Category;
@@ -158,24 +157,6 @@ public class ProductServiceImp implements ProductService {
 		log.info("add product ID {} success", productSaved.getId());
 		return productSaved.getId();
 	}
-	
-
-
-	@Override
-	public PageResponse<List<ProductResponse>> getProductByUrlKeyCategory(String urlKey, Pageable pageable) {
-		Page<Product> pageProduct = productRepository.findByCategory_UrlKeyAndIsActiveTrue(urlKey, pageable);
-		if (pageProduct.isEmpty()) {
-			throw new ResourceNotFoundException("URL_KEY_CATEGORY_NOT_FOUND", urlKey);
-		}
-		List<ProductResponse> listProductDTO = productMapper.toDTO(pageProduct.getContent());
-
-		return new PageResponse<>(
-				pageProduct.getPageable().getPageNumber(),
-				pageProduct.getSize(), pageProduct.getTotalPages(),
-				pageProduct.getTotalElements(),listProductDTO);
-	}
-
-
 	
 	@Override
 	public void updateProductQuantityForSize(int quantitySubtract, Long idProduct, Integer idSize) {

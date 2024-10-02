@@ -17,8 +17,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 	@Query("SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) AND p.isActive = true")
 	Page<Product> findByNameContainingIgnoreCaseAndIsActiveTrue(@Param("keyword") String keyword, Pageable pageable);
 
-	Page<Product> findByCategory_UrlKeyAndIsActiveTrue(String urlKey, Pageable pageable);
-
 	Optional<Product> findByIdAndIsActiveTrue(Long id);
 
 	Page<Product> findByIsActiveTrue(Pageable pageable);

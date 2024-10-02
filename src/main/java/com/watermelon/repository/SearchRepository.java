@@ -89,6 +89,7 @@ public class SearchRepository {
             Join<ProductQuantity, Size> sizeJoin = quantityJoin.join("size", JoinType.INNER);
             whereClause = cb.and(whereClause, sizeJoin.get("id").in(Arrays.asList(sizes)));
         }
+        whereClause = cb.and(whereClause, cb.isTrue(product.get("isActive")));
 
         return whereClause;
     }
