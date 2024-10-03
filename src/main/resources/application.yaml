@@ -37,7 +37,6 @@ spring:
       max-file-size: 5MB
       max-request-size: 5MB
 
-
 cloudinary:
   cloud-name: drygpquvb
   api-secret: gWhaKF8-JV2Tm9weD0DH5F88kzg
@@ -45,11 +44,11 @@ cloudinary:
 
 jwt:
   refresh:
-    expiration: '365'
+    expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:365}
   access:
-    expiration: '5'
+    expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:5}
   token:
-    secretKey: xIozWdD9r3RiqzaaRxJTYMvVvoKVk4G9Iq4kZ7ZEXXpePPxgtRQKj/O43HYbWhKy
+    secretKey: ${JWT_TOKEN_SECRET_KEY}
 logging:
   level:
     ROOT: INFO
@@ -97,4 +96,5 @@ paypal:
  client-secret: EPRdArqQPNWvZpYPJ18V_D6ls0rcHo2hJsKkXU-hLSE1cFxaEUuLbEWLfVxeUR-l2LfnGVVF8aSy_bW2
  mode: sandbox
  redirect-uri: ${REDIRECT_URI_PAYPAL:http://localhost:3000/payment-processing}
+
  
