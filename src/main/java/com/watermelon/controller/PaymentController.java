@@ -58,7 +58,7 @@ public class PaymentController {
 				.build();
 	}
 
-	@GetMapping("/user/{userId}")
+	@GetMapping("/users/{userId}")
 	public ResponseData<PageResponse<List<PaymentResponse>>> getPaymentsByUserId(
 			@PageableDefault(page = 0, size = 20) 
 			@SortDefaults(@SortDefault(

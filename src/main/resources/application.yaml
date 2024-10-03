@@ -71,8 +71,7 @@ spring-doc:
 openapi:
   service:
     title: API document
-    server: http://localhost:${server.port}
-    api-docs: sports-shopping-api
+    api-docs: sporter-store-api
     version: '1.0.0 '
 jasypt:
   encryptor:

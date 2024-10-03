@@ -54,14 +54,14 @@ public class OrderController {
 				.data(orderService.getAllOrder(pageable))
 				.build();
 	}
-	@GetMapping("/{id}")
+	@GetMapping("/{orderId}")
 	public ResponseData<OrderResponse> getOrderById(
 			@Min(value = 1, message = "Order ID must be greater than or equal to 1")
-			@PathVariable(name = "id") Long id) {
+			@PathVariable Long orderId) {
 		return ResponseData.<OrderResponse>builder()
 				.status(HttpStatus.OK.value())
 				.message("Order data")
-				.data(orderService.getOrderById(id))
+				.data(orderService.getOrderById(orderId))
 				.build();
 	}
 	@PostMapping()
@@ -74,30 +74,30 @@ public class OrderController {
 				.build();
 	}
 	
-	@PatchMapping("/{id}")
+	@PatchMapping("/{orderId}")
 	public ResponseData<Void> updateOrderStatus(
-			@PathVariable(name = "id") Long id,
+			@PathVariable Long orderId,
 			@RequestBody UpdateOrderStatusRequest request) {
-		orderService.updateOrderStatus(request, id);
+		orderService.updateOrderStatus(request, orderId);
 		return ResponseData.<Void>builder()
 				.status(HttpStatus.ACCEPTED.value())
 				.message("Order updated successfully")
 				.build();
 	}
-	@PatchMapping("/{id}/delivery-status")
+	@PatchMapping("/{orderId}/delivery-status")
 	public ResponseData<Void> updateDeliveryStatus(
-			@PathVariable(name = "id") Long id,
+			@PathVariable Long orderId,
 			@RequestBody EDeliveryStatus status) {
-		orderService.updateDeliveryStatus(status, id);
+		orderService.updateDeliveryStatus(status, orderId);
 		return ResponseData.<Void>builder()
 				.status(HttpStatus.ACCEPTED.value())
-				.message(String.format("Delivery status of order id %d updated successfully",id))
+				.message(String.format("Delivery status of order id %d updated successfully",orderId))
 				.build();
 	}
 	
-	@GetMapping("/users/{idUser}")
+	@GetMapping("/users/{userId}")
 	public ResponseData<PageResponse<List<OrderResponse>>> getOrdersOfUserId(
-			@PathVariable Long idUser,
+			@PathVariable Long userId,
 			@PageableDefault(page = 0, size = 100) 
 			@SortDefaults(
 					@SortDefault(direction = Sort.Direction.DESC, sort = {"id" })
@@ -106,7 +106,7 @@ public class OrderController {
 		return ResponseData.<PageResponse<List<OrderResponse>>>builder()
 				.status(HttpStatus.OK.value())
 				.message("Orders data")
-				.data(orderService.getOrderByUserId(idUser,pageable))
+				.data(orderService.getOrderByUserId(userId,pageable))
 				.build();
 	}
 

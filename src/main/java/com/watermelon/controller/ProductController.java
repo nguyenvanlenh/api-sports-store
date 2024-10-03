@@ -46,7 +46,7 @@ public class ProductController {
 	public ResponseData<PageResponse<List<ProductResponse>>> getProducts(
 			@PageableDefault(page = 0, size = 20) 
 			@SortDefaults(
-					@SortDefault(direction = Sort.Direction.DESC, sort = {"price" })) Pageable pageable) {
+					@SortDefault(direction = Sort.Direction.DESC, sort = {"salePrice" })) Pageable pageable) {
 		PageResponse<List<ProductResponse>> listData = productService.getAllProduct(pageable);
 		return ResponseData.<PageResponse<List<ProductResponse>>>builder()
 				.status(HttpStatus.OK.value())
@@ -56,9 +56,9 @@ public class ProductController {
 
 	}
 
-	@GetMapping("/{id}")
-	public ResponseData<ProductResponse> getProductById(@PathVariable(name = "id") Long id) {
-		ProductResponse data = productService.getProductById(id);
+	@GetMapping("/{productId}")
+	public ResponseData<ProductResponse> getProductById(@PathVariable Long productId) {
+		ProductResponse data = productService.getProductById(productId);
 		return ResponseData.<ProductResponse>builder()
 				.status(HttpStatus.OK.value())
 				.message("Product data")
@@ -109,12 +109,12 @@ public class ProductController {
 				.build();
 	}
 	
-	@PatchMapping("/{productId}/size/{isSize}/quantity")
+	@PatchMapping("/{productId}/sizes/{sizeId}/quantity")
 	public ResponseData<Void> updateProductQuantity(
 			@PathVariable Long productId,
-			@PathVariable Integer idSize,
+			@PathVariable Integer sizeId,
 			@RequestParam Integer quantitySubtract){
-		productService.updateProductQuantityForSize(quantitySubtract, productId, idSize);
+		productService.updateProductQuantityForSize(quantitySubtract, productId, sizeId);
 		return ResponseData.<Void>builder()
 				.status(HttpStatus.ACCEPTED.value())
 				.message("Product quantity updated successfully")
