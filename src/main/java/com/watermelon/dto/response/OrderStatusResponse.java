@@ -1,7 +1,5 @@
 package com.watermelon.dto.response;
 
-import java.math.BigDecimal;
-
 import lombok.Builder;
 
 @Builder

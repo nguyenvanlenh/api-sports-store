@@ -9,5 +9,5 @@ public interface SizeService {
 	List<SizeResponse> getAllSizes();
 	Integer createSize(SizeRequest request);
 	void updateSize(Integer sizeId, SizeRequest request);
-	void deleteSize(Integer Size);
+	void deleteSize(Integer sizeId);
 }
