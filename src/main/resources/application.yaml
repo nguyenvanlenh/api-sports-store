@@ -97,4 +97,7 @@ paypal:
  mode: sandbox
  redirect-uri: ${REDIRECT_URI_PAYPAL:http://localhost:3000/payment-processing}
 
+recaptcha:
+  secret-key: ${RECAPTCHA_SECRET_KEY}
+
  

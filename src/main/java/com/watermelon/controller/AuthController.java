@@ -16,24 +16,29 @@ import com.watermelon.dto.request.RegisterRequest;
 import com.watermelon.dto.response.AuthenticationResponse;
 import com.watermelon.dto.response.ResponseData;
 import com.watermelon.event.RegistrationCompleteEvent;
+import com.watermelon.exception.RecaptchaTokenInvalidException;
 import com.watermelon.model.entity.User;
 import com.watermelon.service.AuthService;
+import com.watermelon.service.RecaptchaService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class AuthController {
 
 	AuthService authService;
 	ApplicationEventPublisher publisher;
-
+	RecaptchaService recaptchaService;
+	
 	@Transactional
 	@PostMapping("/register")
 	public ResponseData<Long> register(@RequestBody @Valid RegisterRequest registerRequest,
@@ -50,7 +55,12 @@ public class AuthController {
 	@PostMapping("/login")
 
 	public ResponseData<AuthenticationResponse> login(@RequestBody @Valid LoginRequest request) {
+		boolean recaptchaVerified = recaptchaService.verifyRecaptcha(request.recaptchaToken());
+        if (!recaptchaVerified) {
+        	throw new  RecaptchaTokenInvalidException("Invalid reCAPTCHA");
+        }
 		AuthenticationResponse data = authService.login(request);
+		log.info("User login success {}", data);
 		return ResponseData.<AuthenticationResponse>builder()
 				.status(HttpStatus.OK.value())
 				.message("Login successful")
