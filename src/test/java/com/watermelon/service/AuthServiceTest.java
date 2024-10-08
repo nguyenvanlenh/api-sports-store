@@ -94,7 +94,7 @@ class AuthServiceTest {
 	@BeforeEach
 	public void initData() {
 		registerRequest = new RegisterRequest("nguyenvanlenh", "12345678", "vanlenh2k@gmail.com", new ArrayList<>());
-		loginRequest = new LoginRequest("nguyenvanlenh", "12345678");
+		loginRequest = new LoginRequest("nguyenvanlenh", "12345678","reCaptchaToken");
 		tokenResponse = AuthenticationResponse.builder().accessToken(accessToken)
 				.refreshToken(refreshToken).build();
 		refreshRequest = new RefreshRequest(refreshToken);
