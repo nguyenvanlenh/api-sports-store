@@ -100,4 +100,16 @@ paypal:
 recaptcha:
   secret-key: ${RECAPTCHA_SECRET_KEY}
 
+vnp:
+  pay-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  return-url: http://localhost:8081/api/payments/vn-pay
+  tmn-code: WZIA37UC
+  secret-key: HK0UULSO8GSC7N2LRERCP188075S8OXL
+  api-url: https://sandbox.vnpayment.vn/merchant_webapi/api/transaction
+  version: 2.1.0
+  command: pay
+  order-type: other
+  curr-code: VND
+  redirect-uri: ${REDIRECT_URI_PAYPAL:http://localhost:3000/payment-processing}
+
  
