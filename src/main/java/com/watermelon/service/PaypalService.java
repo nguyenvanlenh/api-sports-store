@@ -75,13 +75,11 @@ public class PaypalService {
 
         Payment createdPayment = payment.create(apiContext);
 
-        String approvalUrl = "";
-        for (Links link : createdPayment.getLinks()) {
-            if ("approval_url".equals(link.getRel())) {
-                approvalUrl = link.getHref();
-                break;
-            }
-        }
+        String approvalUrl = createdPayment.getLinks().stream()
+        	    .filter(link -> "approval_url".equals(link.getRel()))
+        	    .map(Links::getHref)
+        	    .findFirst()
+        	    .orElse("");
 
         return new PaypalResponse(approvalUrl);
     }

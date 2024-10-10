@@ -1,5 +1,5 @@
 package com.watermelon.model.enumeration;
 
 public enum EPaymentMethod {
-	 COD, BANKING, PAYPAL
+	 COD, BANKING, PAYPAL, VNPAY
 }
