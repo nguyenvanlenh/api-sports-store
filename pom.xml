@@ -18,6 +18,8 @@
 		<java.version>17</java.version>
 		<jasypt.version>3.0.3</jasypt.version>
 		<spring-cloud.version>2022.0.3</spring-cloud.version>
+		<cloudinary.version>1.32.2</cloudinary.version>
+		<jedis.version>4.4.1</jedis.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -70,7 +72,7 @@
 		<dependency>
 			<groupId>com.cloudinary</groupId>
 			<artifactId>cloudinary-http44</artifactId>
-			<version>1.32.2</version>
+			<version>${cloudinary.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springdoc</groupId>
@@ -126,6 +128,15 @@
 			<groupId>com.paypal.sdk</groupId>
 			<artifactId>rest-api-sdk</artifactId>
 			<version>1.14.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>${jedis.version}</version>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>
