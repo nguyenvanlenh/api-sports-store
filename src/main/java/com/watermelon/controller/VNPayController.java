@@ -37,7 +37,7 @@ public class VNPayController {
 			HttpServletRequest request
 			) throws UnsupportedEncodingException{
 		String vnpIpAddr = VNPayUtils.getIpAddress(request);
-        VNPayResponse data = vnPayService.generatePaymentUrl(paymentRequest,vnpIpAddr);
+        VNPayResponse data = vnPayService.generatePaymentUrl(paymentRequest,vnpIpAddr,applicationUrl(request));
         log.info("VNPay payment get link success");
 		return ResponseData.<VNPayResponse>builder()
 				.status(HttpStatus.OK.value())
@@ -48,6 +48,7 @@ public class VNPayController {
 
 	@GetMapping
 	public RedirectView payCallback(
+			HttpServletRequest request,
 			@RequestParam(name = "vnp_ResponseCode") String code,
 			@RequestParam(name = "vnp_TransactionNo") Long transactionId,
 			@RequestParam(name = "vnp_OrderInfo") Long orderId) {
@@ -56,6 +57,9 @@ public class VNPayController {
 		return new RedirectView(urlRedirectClient);
 
 	}
-	
+	private String applicationUrl(HttpServletRequest request) {
+//		String scheme = request.getScheme(); scheme HTTP/HTTPS
+		return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+	}
 	
 }

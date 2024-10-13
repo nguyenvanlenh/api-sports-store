@@ -11,8 +11,8 @@ public class VNPayProperties {
 	@Value("${vnp.pay-url}")
 	private String vnpPayUrl;
 	
-	@Value("${vnp.return-url}")
-	private String vnpReturnUrl;
+	@Value("${vnp.return-endpoint}")
+	private String vnpReturnEndpoint;
 	
 	@Value("${vnp.tmn-code}")
 	private String vnpTmnCode;

@@ -152,7 +152,7 @@
 	</dependencyManagement>
 
 	<build>
-		<finalName>api-sporter</finalName>
+		<finalName>sporter-api</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
