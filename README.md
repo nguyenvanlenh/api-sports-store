@@ -3,6 +3,8 @@
 
 **Website:** [sporterstore.netlify.app](https://sporterstore.netlify.app)
 <br/>
+**API Documents:** [sporter.id.vn/swagger-ui](https://sporter.id.vn/swagger-ui/index.html)
+<br/>
 **Design Database** [sporter database](https://drive.google.com/file/d/11oIXctvnPg8BxmAlNT4CsUMCygEJFC0q/view?usp=sharing)
 ### Source Code
 
@@ -26,4 +28,4 @@
 
 | Bank  | Card Number         | Cardholder Name | Issue Date | OTP Password |
 |-------|---------------------|------------------|------------|--------------|
-| NCB   | 9704 1985 2619 1432 198 | NGUYEN VAN A   | 07/15      | 123456       |
+| NCB   | 9704198526191432198 | NGUYEN VAN A   | 07/15      | 123456       |
