@@ -63,7 +63,7 @@ class AuthControllerTest {
 	@BeforeEach
 	public void initData() {
 		registerRequest = new RegisterRequest("nguyenvanlenh", "12345678", "vanlenh2k@gmail.com", new ArrayList<>());
-		loginRequest = new LoginRequest("nguyenlenh", "12345678");
+		loginRequest = new LoginRequest("nguyenlenh", "12345678", "reCaptchaToken");
 		tokenResponse = AuthenticationResponse.builder()
 				.accessToken(accessToken)
 				.refreshToken(refreshToken)
@@ -118,7 +118,7 @@ class AuthControllerTest {
 
 	@Test
 	void login_InvalidRequestWithBlankPassword_Fail() throws Exception {
-		LoginRequest loginRequest = new LoginRequest("nguyenlenh", "");
+		LoginRequest loginRequest = new LoginRequest("nguyenlenh", "","reCaptchaToken");
 		mockMvc.perform(MockMvcRequestBuilders
 				.post("/api/auth/login")
 				.contentType(MediaType.APPLICATION_JSON)

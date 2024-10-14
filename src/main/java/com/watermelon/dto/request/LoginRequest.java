@@ -9,6 +9,7 @@ public record LoginRequest(
 	    String username,
 		@Size(min = 8, max = 50, message="Password must be between 8 and 50 characters")
 		@NotBlank(message = "password cannot be blank")
-		String password){
+		String password,
+		String recaptchaToken){
 
 }

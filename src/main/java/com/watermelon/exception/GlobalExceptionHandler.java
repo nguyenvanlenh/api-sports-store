@@ -112,7 +112,10 @@ public class GlobalExceptionHandler {
 		MissingServletRequestParameterException.class,
 		MethodArgumentTypeMismatchException.class,
 		MissingPathVariableException.class,
-		RefreshTokenException.class
+		RefreshTokenException.class,
+		RecaptchaTokenInvalidException.class,
+		InvalidQuantityException.class,
+		
 		})
 	ResponseEntity<ErrorResponse> handlingBadRequestException(Exception e,
 			WebRequest request) {

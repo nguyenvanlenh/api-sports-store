@@ -2,13 +2,13 @@ server:
   error:
     whitelabel:
       enabled: 'false'
-  port: ${SERVER_PORT:8081}
+  port: ${SERVER_PORT:8080}
 spring:
   application:
     name: sporter
   jpa:
-#    hibernate:
-#      ddl-auto: update
+    hibernate:
+      ddl-auto: update
     properties:
       hibernate:
         format-sql: 'true'
@@ -52,6 +52,8 @@ jwt:
 logging:
   level:
     ROOT: INFO
+    com:
+      watermelon: ERROR
     org:
       springframework:
         transaction: DEBUG
@@ -96,5 +98,26 @@ paypal:
  client-secret: EPRdArqQPNWvZpYPJ18V_D6ls0rcHo2hJsKkXU-hLSE1cFxaEUuLbEWLfVxeUR-l2LfnGVVF8aSy_bW2
  mode: sandbox
  redirect-uri: ${REDIRECT_URI_PAYPAL:http://localhost:3000/payment-processing}
+
+recaptcha:
+  secret-key: ${RECAPTCHA_SECRET_KEY}
+
+vnp:
+  pay-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  return-endpoint: ${VNP_RETURN_ENDPOINT:/api/payments/vn-pay}
+  tmn-code: ${VNP_TMN_CODE:WZIA37UC}
+  secret-key: ${VNP_SECRET_KEY:HK0UULSO8GSC7N2LRERCP188075S8OXL}
+  api-url: https://sandbox.vnpayment.vn/merchant_webapi/api/transaction
+  version: 2.1.0
+  command: pay
+  order-type: other
+  curr-code: VND
+  redirect-uri: ${REDIRECT_URI_PAYPAL:http://localhost:3000/payment-processing}
+redis:
+  server:
+    host: ${REDIS_HOST:127.0.0.1}
+    port: ${REDIS_PORT:6379}
+  cart:
+    expire-day-time: ${REDIS_CART_EXPIRE_DAY:15}
 
  

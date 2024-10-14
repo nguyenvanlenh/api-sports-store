@@ -10,6 +10,6 @@ import com.watermelon.model.entity.ProductQuantity;
 public interface ProductQuantityRepository extends JpaRepository<ProductQuantity, Long>{
 
 	List<ProductQuantity> findByProduct_Id(Long id);
-	ProductQuantity findByProduct_IdAndSize_Id(Long idProduct,Integer idSize);
+	ProductQuantity findByProductIdAndSizeId(Long productId,Integer sizeId);
 
 }

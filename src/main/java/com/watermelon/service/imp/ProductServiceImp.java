@@ -159,11 +159,11 @@ public class ProductServiceImp implements ProductService {
 	}
 	
 	@Override
-	public void updateProductQuantityForSize(int quantitySubtract, Long idProduct, Integer idSize) {
-		Product product = commonService.findProductById(idProduct);
-		Size size = commonService.findSizeProductById(idSize);
+	public void updateProductQuantityForSize(int quantitySubtract, Long productId, Integer sizeId) {
+		Product product = commonService.findProductById(productId);
+		Size size = commonService.findSizeProductById(sizeId);
 
-		ProductQuantity productQuantity = productQuantityRepository.findByProduct_IdAndSize_Id(idProduct, idSize);
+		ProductQuantity productQuantity = productQuantityRepository.findByProductIdAndSizeId(productId, sizeId);
 
 		int quantityOld = productQuantity.getQuantity();
 
@@ -179,7 +179,7 @@ public class ProductServiceImp implements ProductService {
 		productQuantity.setProduct(product);
 		productQuantity.setSize(size);
 		productQuantityRepository.save(productQuantity);
-		log.info("Updated quantity of product ID {} with size ID {} successfully", idProduct, idSize);
+		log.info("Updated quantity of product ID {} with size ID {} successfully", productId, sizeId);
 
 	}
 	
