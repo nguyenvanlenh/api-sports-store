@@ -116,7 +116,6 @@ public class VNPayService {
 		vnpParams.put("vnp_ReturnUrl", String.format("%s%s",appURL, vnPayProperties.getVnpReturnEndpoint()));
 		vnpParams.put("vnp_IpAddr", vnpIpAddr);
 		
-		System.out.println(String.format("%s%s",appURL, vnPayProperties.getVnpReturnEndpoint()));
 		if (paymentRequest.bankCode() != null && !paymentRequest.bankCode().isEmpty()) {
 			vnpParams.put("vnp_BankCode", paymentRequest.bankCode());
 		}

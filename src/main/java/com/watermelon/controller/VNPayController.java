@@ -58,8 +58,8 @@ public class VNPayController {
 
 	}
 	private String applicationUrl(HttpServletRequest request) {
-//		String scheme = request.getScheme(); scheme HTTP/HTTPS
-		return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+		String scheme = request.getScheme(); //scheme HTTP/HTTPS
+		return scheme + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
 	}
 	
 }
