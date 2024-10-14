@@ -52,6 +52,8 @@ jwt:
 logging:
   level:
     ROOT: INFO
+    com:
+      watermelon: ERROR
     org:
       springframework:
         transaction: DEBUG
