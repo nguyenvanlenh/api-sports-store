@@ -51,13 +51,13 @@ public class VNPayService {
 	String redirectUri;
 
 	@Transactional
-	public VNPayResponse generatePaymentUrl(VNPayPaymentRequest paymentRequest, String vnpIpAddr)
+	public VNPayResponse generatePaymentUrl(VNPayPaymentRequest paymentRequest, String vnpIpAddr, String appURL)
 			throws UnsupportedEncodingException {
 
 		BigDecimal realAmount = calculateAmount(paymentRequest);
 		String vnpTxnRef = VNPayUtils.getRandomNumber(8);
 		
-		Map<String, String> vnpParams = buildVNPayParams(paymentRequest, vnpIpAddr, vnpTxnRef, realAmount);
+		Map<String, String> vnpParams = buildVNPayParams(paymentRequest, vnpIpAddr, vnpTxnRef, realAmount, appURL);
 		
 		String queryUrl = buildQuery(vnpParams);
 		String secureHash = VNPayUtils.hmacSHA512(vnPayProperties.getVnpSecretKey(), queryUrl);
@@ -101,7 +101,8 @@ public class VNPayService {
 			VNPayPaymentRequest paymentRequest, 
 			String vnpIpAddr, 
 			String vnpTxnRef,
-			BigDecimal realAmount) {
+			BigDecimal realAmount,
+			String appURL) {
 		Map<String, String> vnpParams = new HashMap<>();
 		vnpParams.put("vnp_Version", vnPayProperties.getVnpVersion());
 		vnpParams.put("vnp_Command", vnPayProperties.getVnpCommand());
@@ -112,7 +113,7 @@ public class VNPayService {
 		vnpParams.put("vnp_OrderInfo", paymentRequest.orderId().toString());
 		vnpParams.put("vnp_OrderType", vnPayProperties.getVnpOrderType());
 		vnpParams.put("vnp_Locale", Optional.ofNullable(paymentRequest.language()).orElse("vn"));
-		vnpParams.put("vnp_ReturnUrl", vnPayProperties.getVnpReturnUrl());
+		vnpParams.put("vnp_ReturnUrl", String.format("%s%s",appURL, vnPayProperties.getVnpReturnEndpoint()));
 		vnpParams.put("vnp_IpAddr", vnpIpAddr);
 		
 		if (paymentRequest.bankCode() != null && !paymentRequest.bankCode().isEmpty()) {
