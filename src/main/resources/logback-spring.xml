@@ -1,4 +1,12 @@
 <configuration>
+    <!-- Appender ghi log ra Console (hiển thị log các mức DEBUG trở lên) -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Appender ghi log vào file (chỉ ghi các log có mức ERROR trở lên) -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/sporter-app.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -10,7 +18,9 @@
         </encoder>
     </appender>
 
-    <root level="error">
-        <appender-ref ref="FILE"/>
+    <!-- Root logger: Console hiển thị từ DEBUG trở lên, File chỉ ghi ERROR -->
+    <root level="DEBUG">  <!-- Dùng mức DEBUG cho console -->
+        <appender-ref ref="CONSOLE"/>  <!-- Log tất cả mức độ vào console -->
+        <appender-ref ref="FILE"/>     <!-- Log chỉ ERROR vào file -->
     </root>
 </configuration>

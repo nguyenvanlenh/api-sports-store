@@ -45,6 +45,7 @@ import com.watermelon.exception.UserNotActivatedException;
 import com.watermelon.model.entity.AuthToken;
 import com.watermelon.model.entity.Role;
 import com.watermelon.model.entity.User;
+import com.watermelon.model.enumeration.EDevice;
 import com.watermelon.repository.AuthTokenRepository;
 import com.watermelon.repository.UserRepository;
 import com.watermelon.security.CustomUserDetails;
@@ -106,7 +107,7 @@ class AuthServiceTest {
 	void login_ValidRequest_Success() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(loginRequest.username(),
 				loginRequest.password());
-
+		EDevice device = EDevice.MOBILE;
 		Authentication authentication = mock(Authentication.class);
 		when(authenticationManager.authenticate(token)).thenReturn(authentication);
 
@@ -120,7 +121,7 @@ class AuthServiceTest {
 		when(jwtTokenProvider.generateToken(Constants.REFRESH_TOKEN, userDetails))
 				.thenReturn(tokenResponse.getRefreshToken());
 
-		var response = authService.login(loginRequest);
+		var response = authService.login(loginRequest,device);
 
 		assertNotNull(response);
 		assertThat(response.getAccessToken()).isEqualTo(tokenResponse.getAccessToken());
@@ -144,13 +145,14 @@ class AuthServiceTest {
 	void login_NonActiveAccount_ThrowUserNotActivatedException() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(loginRequest.username(),
 				loginRequest.password());
+		EDevice device = EDevice.MOBILE;
 		Authentication authentication = mock(Authentication.class);
 		when(authenticationManager.authenticate(token)).thenReturn(authentication);
 		CustomUserDetails userDetails = mock(CustomUserDetails.class);
 		when(userDetailsService.loadUserByUsername("nguyenvanlenh")).thenReturn(userDetails);
 		when(userDetails.isActive()).thenReturn(false);
 
-		assertThrows(UserNotActivatedException.class, () -> authService.login(loginRequest));
+		assertThrows(UserNotActivatedException.class, () -> authService.login(loginRequest,device));
 	}
 
 	@Test

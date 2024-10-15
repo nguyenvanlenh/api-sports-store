@@ -1,9 +1,12 @@
 package com.watermelon.model.entity;
 
 import com.watermelon.model.AbstractAuditEntity;
+import com.watermelon.model.enumeration.EDevice;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -36,4 +39,7 @@ public class AuthToken extends AbstractAuditEntity{
 	@ManyToOne
 	@JoinColumn(name = "user_id")
 	private User user;
+	
+	@Enumerated(EnumType.STRING)
+	private EDevice device;
 }

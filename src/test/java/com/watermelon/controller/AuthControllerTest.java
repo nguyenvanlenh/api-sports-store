@@ -28,6 +28,7 @@ import com.watermelon.dto.request.RefreshRequest;
 import com.watermelon.dto.request.RegisterRequest;
 import com.watermelon.dto.response.AuthenticationResponse;
 import com.watermelon.model.entity.User;
+import com.watermelon.model.enumeration.EDevice;
 import com.watermelon.service.AuthService;
 
 @SpringBootTest
@@ -75,8 +76,8 @@ class AuthControllerTest {
 	@Test
 	void login_ValidRequest_Success() throws Exception {
 		AuthenticationResponse expect = tokenResponse;
-
-		Mockito.when(authService.login(ArgumentMatchers.any(LoginRequest.class)))
+		EDevice device = EDevice.MOBILE;
+		Mockito.when(authService.login(ArgumentMatchers.any(LoginRequest.class),device))
 		.thenReturn(expect);
 
 		mockMvc.perform(MockMvcRequestBuilders

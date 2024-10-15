@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.ulisesbocchio.jasyptspringboot.util.Collections;
 import com.watermelon.dto.CartItemDTO;
 import com.watermelon.dto.response.ResponseData;
 import com.watermelon.service.CartRedisService;
@@ -37,7 +35,7 @@ public class CartController {
 
     // Lấy giỏ hàng của người dùng hiện tại
     @GetMapping
-    public ResponseData<List<CartItemDTO>> getCartByUserId() throws JsonMappingException, JsonProcessingException {
+    public ResponseData<List<CartItemDTO>> getCartByUserId() throws JsonProcessingException {
         List<CartItemDTO> cartItems = cartRedisService.getCartItems();
         if(CollectionUtils.isEmpty(cartItems)) {
         	cartItems = cartService.getCartByUserId();

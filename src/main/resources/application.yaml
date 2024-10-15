@@ -51,7 +51,7 @@ jwt:
     secretKey: ${JWT_TOKEN_SECRET_KEY}
 logging:
   level:
-    ROOT: INFO
+    ROOT: ERROR
     com:
       watermelon: ERROR
     org:
