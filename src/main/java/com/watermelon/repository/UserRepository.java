@@ -10,7 +10,7 @@ import com.watermelon.model.entity.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>{
 
-	User findByUsernameAndEmailAndPhone(String username, String email, String phone);
+	Optional<User> findByUsernameAndEmail(String username, String email);
 	Optional<User> findByUsername(String username);
 	Optional<User> findByEmail(String email);
 

@@ -115,7 +115,7 @@ public class GlobalExceptionHandler {
 		RefreshTokenException.class,
 		RecaptchaTokenInvalidException.class,
 		InvalidQuantityException.class,
-		
+		PasswordIncorredException.class
 		})
 	ResponseEntity<ErrorResponse> handlingBadRequestException(Exception e,
 			WebRequest request) {
