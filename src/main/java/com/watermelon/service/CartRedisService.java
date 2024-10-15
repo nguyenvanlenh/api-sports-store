@@ -39,7 +39,7 @@ public class CartRedisService {
 
     public List<CartItemDTO> getCartItems() {
         Long userId = AuthenticationUtils.extractUserId();
-        String redisHashKey = String.format("%s_%s", CART_HASHKEY_PREFIX, userId);
+        String redisHashKey = String.format("%s_%d", CART_HASHKEY_PREFIX, userId);
         try {
             return redisRepository.findAll(redisHashKey, CartItemDTO.class);
         } catch (JsonMappingException e) {

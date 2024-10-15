@@ -1,10 +1,8 @@
 package com.watermelon.service;
 
-import java.util.List;
-
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import com.watermelon.exception.ResourceNotFoundException;
 import com.watermelon.model.entity.AuthToken;
@@ -17,6 +15,7 @@ import com.watermelon.model.entity.Rating;
 import com.watermelon.model.entity.Role;
 import com.watermelon.model.entity.Size;
 import com.watermelon.model.entity.User;
+import com.watermelon.model.enumeration.EDevice;
 import com.watermelon.model.enumeration.ERole;
 import com.watermelon.repository.AuthTokenRepository;
 import com.watermelon.repository.BrandRepository;
@@ -97,15 +96,16 @@ public class CommonService {
 				.orElseThrow(()-> new ResourceNotFoundException("PAYMENT_NOT_FOUND", paymentId));
 	}
 	
-	public void saveAuthToken(Long userId, String refreshToken) {
-		List<AuthToken> listAuthTokens = authTokenRepository.findByUserId(userId);
-		if(!CollectionUtils.isEmpty(listAuthTokens))
-			authTokenRepository.deleteAll(listAuthTokens);
+	public void saveAuthToken(Long userId, String refreshToken,EDevice device) {
+		AuthToken authTokenExists = authTokenRepository.findByUserIdAndDevice(userId,device);
+		if(!ObjectUtils.isEmpty(authTokenExists))
+			authTokenRepository.delete(authTokenExists);
 		User user = findUserById(userId);
 		AuthToken authToken = AuthToken.builder()
 				.refreshToken(refreshToken)
 				.revoked(false)
 				.user(user)
+				.device(device)
 				.build();
 		authTokenRepository.save(authToken);
 		
