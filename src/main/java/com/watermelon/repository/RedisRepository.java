@@ -12,7 +12,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.annotation.PostConstruct;
@@ -49,7 +48,7 @@ public class RedisRepository<T,K> {
         return id;
     }
 
-    public List<T> findAll(String redisHashKey, Class<T> clazz) throws JsonMappingException, JsonProcessingException {
+    public List<T> findAll(String redisHashKey, Class<T> clazz) throws JsonProcessingException {
         Map<String, String> allCartItems = hashOperations.entries(redisHashKey);
         List<T> cartItems = new ArrayList<>();
         

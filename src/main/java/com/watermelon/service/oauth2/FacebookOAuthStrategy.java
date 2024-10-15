@@ -15,6 +15,7 @@ import com.watermelon.dto.response.oauth2.ExchangeTokenFacebookResponse;
 import com.watermelon.dto.response.oauth2.FacebookUserResponse;
 import com.watermelon.model.entity.Role;
 import com.watermelon.model.entity.User;
+import com.watermelon.model.enumeration.EDevice;
 import com.watermelon.model.enumeration.ERole;
 import com.watermelon.model.enumeration.ETypeAccount;
 import com.watermelon.repository.UserRepository;
@@ -41,7 +42,7 @@ public class FacebookOAuthStrategy implements OAuthStrategy {
 	OutboundFacebookUserClient facebookUserClient;
 	
 	@Override
-	public AuthenticationResponse authenticate(String code) {
+	public AuthenticationResponse authenticate(String code,EDevice device) {
 		
 		ExchangeTokenFacebookResponse response = facebookClient.exchangeToken(
 				ExchangeTokenRequest.builder()
@@ -75,7 +76,7 @@ public class FacebookOAuthStrategy implements OAuthStrategy {
         String accessToken = jwtTokenProvider.generateToken(Constants.ACCESS_TOKEN, customUserDetails);
         String refreshToken = jwtTokenProvider.generateToken(Constants.REFRESH_TOKEN, customUserDetails);
         
-        commonService.saveAuthToken(customUserDetails.getId(),refreshToken);
+        commonService.saveAuthToken(customUserDetails.getId(),refreshToken,device);
         
         Set<String> listRoles = customUserDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toSet());
