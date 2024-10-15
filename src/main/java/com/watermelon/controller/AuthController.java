@@ -135,9 +135,9 @@ public class AuthController {
                 .build();
     }
 	
-	
 	private String applicationUrl(HttpServletRequest request) {
-		return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+		String scheme = request.getScheme(); //scheme HTTP/HTTPS
+		return scheme + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
 	}
 
 	private EDevice getDevice(HttpServletRequest servletRequest) {
