@@ -63,7 +63,6 @@ public class AuthController {
 			final HttpServletRequest servletRequest) {
 		boolean recaptchaVerified = recaptchaService.verifyRecaptcha(request.recaptchaToken());
 		EDevice device = getDevice(servletRequest);
-		System.out.println(device);
 		if(device.equals(EDevice.TEST))
 			recaptchaVerified = true;
         if (!recaptchaVerified) {
@@ -118,7 +117,16 @@ public class AuthController {
 	            .build();
 	}
 	@PostMapping("/forgot-password")
-    public ResponseData<Void> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {
+    public ResponseData<Void> forgotPassword(
+    		@RequestBody @Valid ForgotPasswordRequest request,
+    		final HttpServletRequest servletRequest) {
+		boolean recaptchaVerified = recaptchaService.verifyRecaptcha(request.recaptchaToken());
+		EDevice device = getDevice(servletRequest);
+		if(device.equals(EDevice.TEST))
+			recaptchaVerified = true;
+        if (!recaptchaVerified) {
+        	throw new RecaptchaTokenInvalidException("Invalid reCAPTCHA");
+        }
         authService.forgotPassword(request);
         return ResponseData.<Void>builder()
                 .status(HttpStatus.OK.value())
@@ -155,5 +163,4 @@ public class AuthController {
 
 	    return EDevice.OTHER;
 	}
-
 }

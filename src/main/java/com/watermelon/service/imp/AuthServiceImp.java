@@ -183,7 +183,7 @@ public class AuthServiceImp implements AuthService {
 	@Override
 	public void forgotPassword(ForgotPasswordRequest request) {
 		User user = userRepository.findByUsernameAndEmail(request.username(), request.email())
-				.orElseThrow(() -> new ResourceNotFoundException("User not foud"));
+				.orElseThrow(() -> new ResourceNotFoundException("Username or email not found"));
 		String resetPassword = UUID.randomUUID().toString().replace("-", "");
 		user.setPassword(passwordEncoder.encode(resetPassword));
 		userRepository.save(user);

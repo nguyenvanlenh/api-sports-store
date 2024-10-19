@@ -10,6 +10,6 @@ public record ForgotPasswordRequest(
 	    String username,
 	    @Email(regexp = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$", message = "invalid email format")
 		@NotBlank(message = "email cannot be blank")
-		String email) {
-
+		String email,
+		String recaptchaToken) {
 }
