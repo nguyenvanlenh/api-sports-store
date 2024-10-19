@@ -15,6 +15,7 @@ import com.watermelon.dto.response.oauth2.ExchangeTokenGithubResponse;
 import com.watermelon.dto.response.oauth2.GithubUserResponse;
 import com.watermelon.model.entity.Role;
 import com.watermelon.model.entity.User;
+import com.watermelon.model.enumeration.EDevice;
 import com.watermelon.model.enumeration.ERole;
 import com.watermelon.model.enumeration.ETypeAccount;
 import com.watermelon.repository.UserRepository;
@@ -42,7 +43,7 @@ public class GithubOAuthStrategy implements OAuthStrategy {
     UserRepository userRepository;
 
     @Override
-    public AuthenticationResponse authenticate(String code) {
+    public AuthenticationResponse authenticate(String code,EDevice device) {
     
         ExchangeTokenGithubResponse response = githubClient.exchangeToken(
         		ExchangeTokenRequest.builder()
@@ -73,7 +74,7 @@ public class GithubOAuthStrategy implements OAuthStrategy {
         String accessToken = jwtTokenProvider.generateToken(Constants.ACCESS_TOKEN, customUserDetails);
         String refreshToken = jwtTokenProvider.generateToken(Constants.REFRESH_TOKEN, customUserDetails);
         
-        commonService.saveAuthToken(customUserDetails.getId(),refreshToken);
+        commonService.saveAuthToken(customUserDetails.getId(),refreshToken,device);
         
         Set<String> listRoles = customUserDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toSet());

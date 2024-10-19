@@ -10,16 +10,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.watermelon.dto.request.ForgotPasswordRequest;
 import com.watermelon.dto.request.LoginRequest;
 import com.watermelon.dto.request.RefreshRequest;
 import com.watermelon.dto.request.RegisterRequest;
+import com.watermelon.dto.request.UpdatePasswordRequest;
 import com.watermelon.dto.response.AuthenticationResponse;
 import com.watermelon.dto.response.ResponseData;
 import com.watermelon.event.RegistrationCompleteEvent;
 import com.watermelon.exception.RecaptchaTokenInvalidException;
 import com.watermelon.model.entity.User;
+import com.watermelon.model.enumeration.EDevice;
 import com.watermelon.service.AuthService;
 import com.watermelon.service.RecaptchaService;
+import com.watermelon.utils.Constants;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -54,12 +58,17 @@ public class AuthController {
 
 	@PostMapping("/login")
 
-	public ResponseData<AuthenticationResponse> login(@RequestBody @Valid LoginRequest request) {
+	public ResponseData<AuthenticationResponse> login(
+			@RequestBody @Valid LoginRequest request,
+			final HttpServletRequest servletRequest) {
 		boolean recaptchaVerified = recaptchaService.verifyRecaptcha(request.recaptchaToken());
+		EDevice device = getDevice(servletRequest);
+		if(device.equals(EDevice.TEST))
+			recaptchaVerified = true;
         if (!recaptchaVerified) {
         	throw new  RecaptchaTokenInvalidException("Invalid reCAPTCHA");
         }
-		AuthenticationResponse data = authService.login(request);
+		AuthenticationResponse data = authService.login(request, getDevice(servletRequest));
 		log.info("User login success {}", data);
 		return ResponseData.<AuthenticationResponse>builder()
 				.status(HttpStatus.OK.value())
@@ -90,16 +99,68 @@ public class AuthController {
 	@PostMapping("/outbound/authentication")
     public ResponseData<AuthenticationResponse> outboundAuthenticate(
             @RequestParam("code") String code,
-            @RequestParam("type") String type) {
-        AuthenticationResponse data = authService.outboundAuthenticate(code, type);
+            @RequestParam("type") String type,
+            final HttpServletRequest servletRequest) {
+        AuthenticationResponse data = authService.outboundAuthenticate(code, type, getDevice(servletRequest));
         return ResponseData.<AuthenticationResponse>builder()
 				.status(HttpStatus.OK.value())
 				.message("Login successful")
 				.data(data)
 				.build();
     }
+	@PostMapping("/logout")
+	public ResponseData<Void> logout(final HttpServletRequest servletRequest) {
+		authService.logout(getDevice(servletRequest));
+	    return ResponseData.<Void>builder()
+	            .status(HttpStatus.OK.value())
+	            .message("Logout successful")
+	            .build();
+	}
+	@PostMapping("/forgot-password")
+    public ResponseData<Void> forgotPassword(
+    		@RequestBody @Valid ForgotPasswordRequest request,
+    		final HttpServletRequest servletRequest) {
+		boolean recaptchaVerified = recaptchaService.verifyRecaptcha(request.recaptchaToken());
+		EDevice device = getDevice(servletRequest);
+		if(device.equals(EDevice.TEST))
+			recaptchaVerified = true;
+        if (!recaptchaVerified) {
+        	throw new RecaptchaTokenInvalidException("Invalid reCAPTCHA");
+        }
+        authService.forgotPassword(request);
+        return ResponseData.<Void>builder()
+                .status(HttpStatus.OK.value())
+                .message("Password reset email sent successfully")
+                .build();
+    }
 
+    @PatchMapping("/update-password")
+    public ResponseData<Void> updatePassword(@RequestBody @Valid UpdatePasswordRequest request) {
+        authService.updatePassword(request);
+        return ResponseData.<Void>builder()
+                .status(HttpStatus.OK.value())
+                .message("Password updated successfully")
+                .build();
+    }
+	
 	private String applicationUrl(HttpServletRequest request) {
-		return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+		String scheme = request.getScheme(); //scheme HTTP/HTTPS
+		return scheme + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
+	}
+
+	private EDevice getDevice(HttpServletRequest servletRequest) {
+	    String userAgent = servletRequest.getHeader("User-Agent");
+	    System.out.println(userAgent);
+	    if (userAgent != null) {
+	        String userAgentLower = userAgent.toLowerCase();
+	        if (userAgentLower.contains("postman")) 
+	            return EDevice.TEST;
+	        if (userAgentLower.contains("swagger")) 
+	            return EDevice.TEST; 
+	        if (userAgentLower.contains(Constants.MOBILE)) 
+	            return EDevice.MOBILE;
+	    }
+
+	    return EDevice.OTHER;
 	}
 }

@@ -9,6 +9,8 @@ public class Constants {
 	
 	public static final String ACCESS_TOKEN = "accessToken";
 	public static final String REFRESH_TOKEN = "refreshToken";
+	public static final String MOBILE = "mobile";
+	public static final String TEST = "test";
 	
 	
 	public static class Paypal {
@@ -39,6 +41,7 @@ public class Constants {
 				"/api/auth/verify-email",
 				"/api/auth/refresh-token",
 				"/api/auth/outbound/authentication",
+				"/api/auth/forgot-password",
 				"/api/sizes",
 				"/api/brands",
 				"/api/categories",
