@@ -163,5 +163,4 @@ public class AuthController {
 
 	    return EDevice.OTHER;
 	}
-
 }

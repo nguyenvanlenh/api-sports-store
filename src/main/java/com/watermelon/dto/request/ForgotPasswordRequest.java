@@ -12,5 +12,4 @@ public record ForgotPasswordRequest(
 		@NotBlank(message = "email cannot be blank")
 		String email,
 		String recaptchaToken) {
-
 }
