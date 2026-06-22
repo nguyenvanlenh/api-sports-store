@@ -6,6 +6,9 @@ server:
 spring:
   application:
     name: sporter
+  config:
+    activate:
+      on-profile: dev
   jpa:
     hibernate:
       ddl-auto: update
@@ -16,8 +19,8 @@ spring:
     show-sql: 'true'
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    password: '${MYSQL_PASSWORD:ENC(tXMrQPnpw+VI2iwJYFjgXQhjITihGC1U)}'
-    username: ${MYSQL_USERNAME:ENC(QuiELERPbZ6vQ37PY3xXOYMDZhJuAuTA)}
+    password: '${MYSQL_PASSWORD:123456}'
+    username: ${MYSQL_USERNAME:root}
     url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${DATABASE_NAME:freetime}?createDatabaseIfNotExist=true
   
   mail:
